@@ -5,6 +5,7 @@ dist/
 .voice-tools/
 доступ.txt
 доступ ssh.txt
+srv-it-ai-gpu.txt
 .deployment/
 .tools/
 *.tsbuildinfo
