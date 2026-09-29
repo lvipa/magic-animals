@@ -61,6 +61,7 @@ npm run preview
 - `scripts/build-cat-master.py` — воспроизводимая сборка CAT в Blender.
 - [CAT_PRODUCTION.md](CAT_PRODUCTION.md) — редактирование, экспорт сохранённого Blender-источника и проверка ракурсов.
 - [CAT_REVIEW.md](CAT_REVIEW.md) — технический результат, 32 снимка WebGL и непройденные художественные критерии.
+- [CAT_ART_HANDOFF.md](CAT_ART_HANDOFF.md) — требования к новому художественному CAT, поставке исходника и визуальной приёмке.
 - `public/markers/*.svg` — редактируемые оригиналы карточек.
 
 ## Текущий статус
