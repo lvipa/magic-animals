@@ -4,6 +4,7 @@ dist/
 .test-artifacts/
 .voice-tools/
 доступ.txt
+доступ ssh.txt
 .deployment/
 .tools/
 *.tsbuildinfo

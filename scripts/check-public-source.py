@@ -3,7 +3,7 @@ from pathlib import Path
 import subprocess, re
 root=Path(__file__).resolve().parent.parent
 files=subprocess.check_output(['git','ls-files','-z'],cwd=root).decode().split('\0')
-private_names={'доступ.txt','.env','.env.local'}
+private_names={'доступ.txt','доступ ssh.txt','.env','.env.local'}
 private_prefixes=('.deployment/','.tools/','.voice-tools/','.test-artifacts/','node_modules/','artifacts/')
 needles=[]
 access=root/'доступ.txt'
@@ -11,6 +11,11 @@ if access.exists():
     lines=access.read_text(encoding='utf-8-sig').splitlines()
     for label in ['Логин:','Пароль:']:
         if label in lines: needles.append(lines[lines.index(label)+1].strip().encode())
+ssh_access=root/'доступ ssh.txt'
+if ssh_access.exists():
+    ssh_lines=[line.strip() for line in ssh_access.read_text(encoding='utf-8-sig').splitlines() if line.strip()]
+    if len(ssh_lines)>=2 and len(ssh_lines[1])>=8:
+        needles.append(ssh_lines[1].encode())
 errors=[]
 for name in filter(None,files):
     path=root/name

@@ -62,6 +62,9 @@ npm run preview
 - [CAT_PRODUCTION.md](CAT_PRODUCTION.md) — редактирование, экспорт сохранённого Blender-источника и проверка ракурсов.
 - [CAT_REVIEW.md](CAT_REVIEW.md) — технический результат, 32 снимка WebGL и непройденные художественные критерии.
 - [CAT_ART_HANDOFF.md](CAT_ART_HANDOFF.md) — требования к новому художественному CAT, поставке исходника и визуальной приёмке.
+- [BLENDER_WORKFLOW.md](BLENDER_WORKFLOW.md) — локальный официальный Blender MCP, запуск и новая сцена Milo без Meshy.
+- [FUTURE_WORK_HANDOFF.md](FUTURE_WORK_HANDOFF.md) — договорённости по остальным персонажам, будущим играм и передаче работы в другой Codex.
+- `assets/characters/cat/milo-authoring.blend` — отдельный незавершённый этюд нового Milo; пока не используется в игре.
 - `public/markers/*.svg` — редактируемые оригиналы карточек.
 
 ## Текущий статус
