@@ -1,0 +1,127 @@
+{
+  "format": "glTF 2.0",
+  "source": "src/characters/models.ts",
+  "note": "Original transform-animated models. The game uses the same local geometry factory; GLBs are editable exports, not downloaded dependencies.",
+  "models": [
+    {
+      "id": "foxy",
+      "bytes": 1451940,
+      "meshes": 50,
+      "triangles": 29228,
+      "animations": [
+        "idle",
+        "happy",
+        "wave",
+        "jump",
+        "run",
+        "sleep",
+        "roar"
+      ]
+    },
+    {
+      "id": "cat",
+      "bytes": 1516084,
+      "meshes": 72,
+      "triangles": 37468,
+      "animations": [
+        "idle",
+        "happy",
+        "wave",
+        "jump",
+        "run",
+        "sleep",
+        "roar"
+      ]
+    },
+    {
+      "id": "dog",
+      "bytes": 1368720,
+      "meshes": 48,
+      "triangles": 27228,
+      "animations": [
+        "idle",
+        "happy",
+        "wave",
+        "jump",
+        "run",
+        "sleep",
+        "roar"
+      ]
+    },
+    {
+      "id": "lion",
+      "bytes": 1700948,
+      "meshes": 50,
+      "triangles": 31400,
+      "animations": [
+        "idle",
+        "happy",
+        "wave",
+        "jump",
+        "run",
+        "sleep",
+        "roar"
+      ]
+    },
+    {
+      "id": "bunny",
+      "bytes": 1348852,
+      "meshes": 50,
+      "triangles": 28380,
+      "animations": [
+        "idle",
+        "happy",
+        "wave",
+        "jump",
+        "run",
+        "sleep",
+        "roar"
+      ]
+    },
+    {
+      "id": "bear",
+      "bytes": 1348284,
+      "meshes": 50,
+      "triangles": 28380,
+      "animations": [
+        "idle",
+        "happy",
+        "wave",
+        "jump",
+        "run",
+        "sleep",
+        "roar"
+      ]
+    },
+    {
+      "id": "panda",
+      "bytes": 1348004,
+      "meshes": 50,
+      "triangles": 28380,
+      "animations": [
+        "idle",
+        "happy",
+        "wave",
+        "jump",
+        "run",
+        "sleep",
+        "roar"
+      ]
+    },
+    {
+      "id": "elephant",
+      "bytes": 1375552,
+      "meshes": 51,
+      "triangles": 27756,
+      "animations": [
+        "idle",
+        "happy",
+        "wave",
+        "jump",
+        "run",
+        "sleep",
+        "roar"
+      ]
+    }
+  ]
+}

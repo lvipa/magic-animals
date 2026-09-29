@@ -1,0 +1,32 @@
+{
+  "compiler": "MindAR 1.2.5",
+  "target": "targets.mind",
+  "bytes": 2264114,
+  "sha256": "d04782ff06eb92a484b259a83c8ba621258468c92b072049542c4c369e03c6a0",
+  "images": [
+    {
+      "id": "cat",
+      "targetIndex": 0,
+      "image": "cat.png",
+      "width": 1100,
+      "height": 800,
+      "sha256": "1982b244f70b41319e5e77e2e5d6b80473a47f882e7cca6abb0f1cad058714ee"
+    },
+    {
+      "id": "dog",
+      "targetIndex": 1,
+      "image": "dog.png",
+      "width": 1100,
+      "height": 800,
+      "sha256": "69dccc57bf3052e91950502633238a58c56407d888c3edf4d738c74cd0b711f0"
+    },
+    {
+      "id": "lion",
+      "targetIndex": 2,
+      "image": "lion.png",
+      "width": 1100,
+      "height": 800,
+      "sha256": "f1f4309c686fc5524a9dbfefd6fcdcc095bd999008c5f5571091cf6000ed915a"
+    }
+  ]
+}

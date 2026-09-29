@@ -1,0 +1,16 @@
+# Known limitations
+
+1. **Физический iPad не был доступен.** Safari camera, реальная бумага, audio unlock на iOS, Home Screen, storage eviction и memory behaviour остаются в IOS_TESTING.md. Не объявлять этот checklist выполненным по desktop-тесту.
+2. MindAR — реальное image tracking, не room SLAM. Одна активная цель, нет стабильного пола/стен или сохранённой позиции в комнате. 1.2 секунды после потери — последнее camera-relative pose, затем скрытие.
+3. Confidence не предоставляется используемым API. Нет фальшивого процента точности.
+4. CAT использует GLB с PBR, groom, 22-joint skinned rig и семью clips; его визуальное качество ещё не утверждено пользователем и требует художественной доработки. Остальные семь моделей сохраняют прототипный pipeline до утверждения CAT. Portal процедурный; полноценная лицевая мимика/lip sync пока не реализована.
+5. Восемь разных нейронных голосов Kokoro en-US с оригинальной мультяшной обработкой, MP3/WAV. Фонемы CAT/DOG/LION проверены при генерации; окончательная оценка интонации/понятности требует прослушивания. Animal calls — оригинальные мультяшные эффекты. Громкость и audio unlock на физическом iPad/TV ещё не проверены.
+6. Нет гарантии offline при первом незавершённом открытии, очищенном Safari storage или eviction. Нужны полный production load, Worker activation и проверка relaunch без сети.
+7. Manifest landscape — предпочтение. Safari/iPadOS может вести себя иначе; layout адаптирован к portrait, но не принуждает поворот native API.
+8. AUTO снижает render DPR/particles; не меняет динамически разрешение tracking GPU. На старом iPad при необходимости использовать LOW или отдельный fallback. Реальные GPU memory/FPS требуют устройства.
+9. HTTPS hosting в корне сайта. Deploy в подпапке потребует настройки base/asset URLs/scope.
+10. Parent hold gate защищает от случайных нажатий, а не является аутентификацией.
+11. При background таймеры отменяются, при foreground текущая сцена запускается повторно. Это может повторить реплику, но не перескакивает за кадром к финалу.
+12. TV реализован через браузер, локальный Node relay или публичный PHP relay. Есть QR и ручной код на `/connect-tv`. Физические iPad/Xiaomi TV ещё не проверены; совместимость WebGL, пульта, QR камеры и звука зависит от устройства. TV требует сети и relay, native Cast/AirPlay нет. Birthday Adventure не реализован.
+
+Production build может предупреждать о размере Three/TensorFlow chunks и externalized `util` в upstream MindAR. Тест production tracking должен оставаться обязательным gate при смене bundler/library. Весь browser runtime self-hosted; camera frames не покидают устройство.

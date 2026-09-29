@@ -1,0 +1,648 @@
+{
+  "hello": {
+    "text": "Hello!",
+    "group": "foxy",
+    "speed": 1.02
+  },
+  "intro": {
+    "text": "Let's find our friends!",
+    "group": "foxy",
+    "speed": 1.02
+  },
+  "great": {
+    "text": "Great! You found our friends!",
+    "group": "foxy",
+    "speed": 1.04
+  },
+  "friends": {
+    "text": "Our friends are here!",
+    "group": "foxy",
+    "speed": 1.02
+  },
+  "find-cat": {
+    "text": "Can you find the cat?",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "find-dog": {
+    "text": "Can you find the dog?",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "find-lion": {
+    "text": "Can you find the lion?",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "cat": {
+    "text": "Cat!",
+    "group": "words",
+    "speed": 0.95,
+    "expectedIPA": "kæt",
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "dog": {
+    "text": "Dog!",
+    "group": "words",
+    "speed": 0.95,
+    "expectedIPA": "dɑːɡ",
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "lion": {
+    "text": "Lion!",
+    "group": "words",
+    "speed": 0.95,
+    "expectedIPA": "ˈlaɪən",
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "a-cat": {
+    "text": "A cat!",
+    "group": "words",
+    "speed": 1.02,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "a-dog": {
+    "text": "A dog!",
+    "group": "words",
+    "speed": 1.02,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "a-lion": {
+    "text": "A lion!",
+    "group": "words",
+    "speed": 1.02,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "rabbit": {
+    "text": "Rabbit!",
+    "group": "words",
+    "speed": 0.95,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "bear": {
+    "text": "Bear!",
+    "group": "words",
+    "speed": 0.95,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "panda": {
+    "text": "Panda!",
+    "group": "words",
+    "speed": 0.95,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "elephant": {
+    "text": "Elephant!",
+    "group": "words",
+    "speed": 0.95,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "fox": {
+    "text": "Fox!",
+    "group": "words",
+    "speed": 0.95,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-idle": {
+    "text": "Hello! I am a fox!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-happy": {
+    "text": "Happy! I'm happy!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-wave": {
+    "text": "Wave! Hello, friend!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-jump": {
+    "text": "Jump! Jump with me!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-run": {
+    "text": "Run! I can run!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-sleep": {
+    "text": "Sleep. Good night, little friend.",
+    "group": "characters",
+    "speed": 0.93,
+    "voice": "af_bella",
+    "pitch": 2.4
+  },
+  "character-foxy-roar": {
+    "text": "Yip, yip!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "find-fox": {
+    "text": "Can you find the fox?",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "well-done-fox": {
+    "text": "Yes! A fox!",
+    "group": "foxy",
+    "speed": 1.0,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-cat-idle": {
+    "text": "Hello! I am a cat!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-happy": {
+    "text": "Happy! I'm happy!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-wave": {
+    "text": "Wave! Hello, friend!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-jump": {
+    "text": "Jump! Jump with me!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-run": {
+    "text": "Run! I can run!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-sleep": {
+    "text": "Sleep. Good night, little friend.",
+    "group": "characters",
+    "speed": 0.93,
+    "voice": "af_heart",
+    "pitch": 2.6
+  },
+  "character-cat-roar": {
+    "text": "Meow, meow!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "well-done-cat": {
+    "text": "Yes! A cat!",
+    "group": "foxy",
+    "speed": 1.0,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-dog-idle": {
+    "text": "Hello! I am a dog!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-happy": {
+    "text": "Happy! I'm happy!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-wave": {
+    "text": "Wave! Hello, friend!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-jump": {
+    "text": "Jump! Jump with me!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-run": {
+    "text": "Run! I can run!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-sleep": {
+    "text": "Sleep. Good night, little friend.",
+    "group": "characters",
+    "speed": 0.93,
+    "voice": "am_fenrir",
+    "pitch": 3.6
+  },
+  "character-dog-roar": {
+    "text": "Woof, woof!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "well-done-dog": {
+    "text": "Yes! A dog!",
+    "group": "foxy",
+    "speed": 1.0,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-lion-idle": {
+    "text": "Hello! I am a lion!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-happy": {
+    "text": "Happy! I'm happy!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-wave": {
+    "text": "Wave! Hello, friend!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-jump": {
+    "text": "Jump! Jump with me!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-run": {
+    "text": "Run! I can run!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-sleep": {
+    "text": "Sleep. Good night, little friend.",
+    "group": "characters",
+    "speed": 0.93,
+    "voice": "am_michael",
+    "pitch": 1.6999999999999997
+  },
+  "character-lion-roar": {
+    "text": "Roar! A tiny roar!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "well-done-lion": {
+    "text": "Yes! A lion!",
+    "group": "foxy",
+    "speed": 1.0,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-bunny-idle": {
+    "text": "Hello! I am a rabbit!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-happy": {
+    "text": "Happy! I'm happy!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-wave": {
+    "text": "Wave! Hello, friend!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-jump": {
+    "text": "Jump! Jump with me!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-run": {
+    "text": "Run! I can run!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-sleep": {
+    "text": "Sleep. Good night, little friend.",
+    "group": "characters",
+    "speed": 0.93,
+    "voice": "af_sky",
+    "pitch": 3.1999999999999997
+  },
+  "character-bunny-roar": {
+    "text": "Hop, hop!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "find-rabbit": {
+    "text": "Can you find the rabbit?",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "well-done-rabbit": {
+    "text": "Yes! A rabbit!",
+    "group": "foxy",
+    "speed": 1.0,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-bear-idle": {
+    "text": "Hello! I am a bear!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-happy": {
+    "text": "Happy! I'm happy!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-wave": {
+    "text": "Wave! Hello, friend!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-jump": {
+    "text": "Jump! Jump with me!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-run": {
+    "text": "Run! I can run!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-sleep": {
+    "text": "Sleep. Good night, little friend.",
+    "group": "characters",
+    "speed": 0.93,
+    "voice": "am_adam",
+    "pitch": 1.2000000000000002
+  },
+  "character-bear-roar": {
+    "text": "A little growl!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "find-bear": {
+    "text": "Can you find the bear?",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "well-done-bear": {
+    "text": "Yes! A bear!",
+    "group": "foxy",
+    "speed": 1.0,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-panda-idle": {
+    "text": "Hello! I am a panda!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-happy": {
+    "text": "Happy! I'm happy!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-wave": {
+    "text": "Wave! Hello, friend!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-jump": {
+    "text": "Jump! Jump with me!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-run": {
+    "text": "Run! I can run!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-sleep": {
+    "text": "Sleep. Good night, little friend.",
+    "group": "characters",
+    "speed": 0.93,
+    "voice": "af_nicole",
+    "pitch": 1.9
+  },
+  "character-panda-roar": {
+    "text": "A little panda sound!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "find-panda": {
+    "text": "Can you find the panda?",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "well-done-panda": {
+    "text": "Yes! A panda!",
+    "group": "foxy",
+    "speed": 1.0,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-elephant-idle": {
+    "text": "Hello! I am an elephant!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-happy": {
+    "text": "Happy! I'm happy!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-wave": {
+    "text": "Wave! Hello, friend!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-jump": {
+    "text": "Jump! Jump with me!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-run": {
+    "text": "Run! I can run!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-sleep": {
+    "text": "Sleep. Good night, little friend.",
+    "group": "characters",
+    "speed": 0.93,
+    "voice": "af_sarah",
+    "pitch": 1.4
+  },
+  "character-elephant-roar": {
+    "text": "Toot, toot!",
+    "group": "characters",
+    "speed": 1.01,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "find-elephant": {
+    "text": "Can you find the elephant?",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "well-done-elephant": {
+    "text": "Yes! An elephant!",
+    "group": "foxy",
+    "speed": 1.0,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "ask-wave": {
+    "text": "Can you wave? Wave!",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "ask-jump": {
+    "text": "Can you jump? Jump!",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "ask-run": {
+    "text": "Can you run? Run!",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "ask-sleep": {
+    "text": "Time to sleep. Sleep!",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "ask-happy": {
+    "text": "Show me happy! Happy!",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "try-again": {
+    "text": "Let's listen again! You can do it!",
+    "group": "foxy",
+    "speed": 0.98,
+    "voice": "af_bella",
+    "pitch": 3.0
+  }
+}
