@@ -36,8 +36,10 @@ export default defineConfig({
         // the current worker still serves its matching precached model offline.
         ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/],
         globPatterns: ['**/*.{js,wasm,css,html,png,svg,mind,mp3,aac,ogg,wav,glb,txt,json,pdf}'],
+        // Production review renders are optional online documentation.
+        globIgnores: ['**/review/**'],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/audio\//, /^\/markers\//, /^\/models\//],
+        navigateFallbackDenylist: [/^\/audio\//, /^\/markers\//, /^\/models\//, /^\/review\//],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
       },
     }),

@@ -5,21 +5,20 @@ Source: user-provided ChatGPT template.
 ## Approval gate
 
 Stage 1 is the authored CAT model (`public/models/cat-studio.glb`, editable source
-`assets/characters/cat/milo.blend`). Present CAT in the game and obtain the
+`assets/characters/cat/milo-master.blend`). Present CAT in the game and obtain the
 user's approval of this visual benchmark. Only then adapt FOX, DOG, LION,
 RABBIT, BEAR, PANDA and ELEPHANT with the same rig, materials, eyes, groom,
 clothing and lighting system. Existing procedural assets remain an interim
 fallback; they are not accepted as the final cast.
 
-## CAT motion correction — 2026-09-29
+## CAT pipeline replacement — 2026-09-29
 
-CAT revision 6 has a 22-joint rig with shoulder/elbow and hip/knee/ankle chains.
-Sleeves and trouser legs blend across the joints, with space between limbs
-and torso. Wave rotates across the shoulder instead of twisting along the bone.
-Jump includes anticipation, airtime and landing; Run alternates leg strides
-and knee bends; Sleep curls onto the side with closed eyes; Roar opens the mouth.
-The exported GLB motion is checked by `scripts/check-cat-studio.py`.
-User approval of CAT appearance and motion is still pending.
+Revision 7 replaces the primitive surface assembly with connected subdivision
+control cages, sewn sleeves and a genuinely open fabric hood. A 33-joint rig
+includes a spine, neck, paws and five tail segments. Idle has a closed smile;
+Sleep is a folded seated doze. See `CAT_PIPELINE_REVIEW.md` and
+`CAT_PRODUCTION.md`. The editable source is `milo-master.blend`; export the
+saved source through `export-cat-master.py`. User art approval remains pending.
 
 Полностью переработай визуальный стиль всех 3D-персонажей в проекте.
 

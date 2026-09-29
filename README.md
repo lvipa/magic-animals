@@ -57,8 +57,10 @@ npm run preview
 - [PRINT_GUIDE.md](PRINT_GUIDE.md) — печать и распознавание камерой.
 - [AUDIO_PRODUCTION.md](AUDIO_PRODUCTION.md) — восемь голосов, звук и генерация.
 - [CHARACTER_ART_DIRECTION.md](CHARACTER_ART_DIRECTION.md) — требования и этап утверждения CAT.
-- `assets/characters/cat/milo.blend` — редактируемая модель CAT.
-- `scripts/build-cat-studio.py` — воспроизводимая сборка CAT в Blender.
+- `assets/characters/cat/milo-master.blend` — редактируемая модель CAT.
+- `scripts/build-cat-master.py` — воспроизводимая сборка CAT в Blender.
+- [CAT_PRODUCTION.md](CAT_PRODUCTION.md) — редактирование, экспорт сохранённого Blender-источника и проверка ракурсов.
+- [CAT_REVIEW.md](CAT_REVIEW.md) — технический результат, 32 снимка WebGL и непройденные художественные критерии.
 - `public/markers/*.svg` — редактируемые оригиналы карточек.
 
 ## Текущий статус

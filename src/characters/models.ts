@@ -3,7 +3,15 @@ import type { Character } from './catalog';
 export type { Character } from './catalog';
 import { makeCharacter as makeToyCharacter } from './toyFactory';
 import { makeAuthoredCat, animateAuthoredCat, revealAuthoredCat, disposeAuthoredCat } from './authoredCat';
-export function makeCharacter(kind: Character) { return kind === 'cat' ? makeAuthoredCat() ?? makeToyCharacter(kind) : makeToyCharacter(kind); }
+export function makeCharacter(kind: Character) {
+  if (kind !== 'cat') return makeToyCharacter(kind);
+  const cat = makeAuthoredCat();
+  if (cat) return cat;
+  // A missing production asset must not silently substitute a primitive CAT.
+  const empty = new THREE.Group();
+  empty.userData = { kind: 'cat', unavailable: true };
+  return empty;
+}
 
 interface MovingNodes {
   rig: THREE.Group;
@@ -21,6 +29,7 @@ interface MovingNodes {
   smile: THREE.Group;
 }
 export function revealCharacter(root: THREE.Group, progress: number) {
+  if (root.userData.unavailable) return;
   if (root.userData.authored) { revealAuthoredCat(root, progress); return; }
   const n = root.userData.nodes as MovingNodes;
   n.rig.visible = progress >= 0.2;
@@ -30,6 +39,7 @@ export function revealCharacter(root: THREE.Group, progress: number) {
 }
 
 export function animateCharacter(root: THREE.Group, time: number, action = 'idle') {
+  if (root.userData.unavailable) return;
   if (root.userData.authored) { animateAuthoredCat(root, time, action); return; }
   const n = root.userData.nodes as MovingNodes;
   const phase =

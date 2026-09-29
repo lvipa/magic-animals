@@ -1,0 +1,32 @@
+{
+  "version": 7,
+  "approval": "pending",
+  "source": "assets/characters/cat/milo-master.blend",
+  "bones": 33,
+  "clips": [
+    "idle",
+    "happy",
+    "wave",
+    "jump",
+    "run",
+    "sleep",
+    "roar"
+  ],
+  "triangles": 76884,
+  "topology": {
+    "CAT_BodyConnected": {
+      "components": 1,
+      "quad_fraction": 0.9823812066203951
+    },
+    "CAT_HoodieSewn": {
+      "components": 1,
+      "quad_fraction": 1.0
+    },
+    "CAT_HoodOpenShell": {
+      "components": 1,
+      "quad_fraction": 0.9965397923875432
+    }
+  },
+  "textureLimit": 1024,
+  "pipeline": "Connected control cages / UV / PBR / skin weights / GLB"
+}

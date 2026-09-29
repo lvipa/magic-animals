@@ -8,6 +8,7 @@ import { audio } from '../audio/AudioManager';
 import { getTVBridge } from '../tv/WebSocketTVBridge';
 import { characterActionCue, learningActions } from '../audio/characterVoices';
 import { cueTexts } from '../audio/generated';
+import { catAssetStatus } from '../characters/authoredCat';
 import {
   animateCharacter,
   disposeCharacter,
@@ -159,6 +160,7 @@ export default function CharacterGallery({ playground = false }: { playground?: 
         ))}
       </div>
       <div className="gallery-stage">
+        {selected === 'cat' && catAssetStatus.error && <p role="alert">{catAssetStatus.error}</p>}
         <Canvas
           camera={{ position: [0, 1.1, selected === 'all' ? 6.8 : 4.6], fov: 33 }}
           dpr={[1, 1.5]}

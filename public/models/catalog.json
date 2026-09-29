@@ -1,7 +1,7 @@
 {
   "format": "glTF 2.0",
   "source": "src/characters/models.ts",
-  "note": "Original transform-animated models. The game uses the same local geometry factory; GLBs are editable exports, not downloaded dependencies.",
+  "note": "CAT is the connected Blender production candidate. The other seven are unchanged legacy prototypes pending CAT approval.",
   "models": [
     {
       "id": "foxy",
@@ -20,9 +20,9 @@
     },
     {
       "id": "cat",
-      "bytes": 1516084,
-      "meshes": 72,
-      "triangles": 37468,
+      "bytes": 2577472,
+      "meshes": 18,
+      "triangles": 76884,
       "animations": [
         "idle",
         "happy",
@@ -31,7 +31,10 @@
         "run",
         "sleep",
         "roar"
-      ]
+      ],
+      "source": "assets/characters/cat/milo-master.blend",
+      "approval": "pending",
+      "pipeline": "Connected control cages / UV / PBR / skin weights / GLB"
     },
     {
       "id": "dog",

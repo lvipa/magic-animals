@@ -55,11 +55,15 @@ npm run cards
 npm run targets
 npm run test:tracking
 
-# CAT: Blender 4.5 с glTF exporter и NumPy:
-blender --background --factory-startup --python scripts/build-cat-studio.py
+# CAT: экспорт текущего сохранённого Blender-источника:
+blender --background assets/characters/cat/milo-master.blend --python scripts/export-cat-master.py
 npm run build
 python scripts/check-cat-studio.py
 ```
+
+`build-cat-master.py` используется только для создания начального источника и
+перезаписывает `.blend`. После ручных правок используйте экспорт сохранённого
+файла выше. Подробнее: [CAT_PRODUCTION.md](CAT_PRODUCTION.md).
 
 Для озвучки: создайте Python окружение `.voice-tools`, установите зависимости из
 `scripts/voice-requirements.txt`, скачайте веса командой

@@ -44,6 +44,16 @@ const { makeCharacter, animateCharacter, disposeCharacter } = await import(
 );
 const report = [];
 for (const id of ['foxy', 'cat', 'dog', 'lion', 'bunny', 'bear', 'panda', 'elephant']) {
+  if (id === 'cat') {
+    const data = await readFile('public/models/cat-studio.glb');
+    const gltf = JSON.parse(data.subarray(20, 20 + data.readUInt32LE(12)).toString());
+    const info = JSON.parse(await readFile('public/models/cat-master-info.json', 'utf8'));
+    await writeFile('public/models/cat.glb', data);
+    report.push({ id, bytes: data.length, meshes: gltf.meshes.length, triangles: info.triangles,
+      source: info.source, pipeline: info.pipeline, approval: info.approval, animations: info.clips });
+    console.log('Preserved CAT production GLB; no primitive export');
+    continue;
+  }
   const model = makeCharacter(id),
     nodes = model.userData.nodes;
   const moving = [
@@ -131,7 +141,7 @@ await writeFile(
     {
       format: 'glTF 2.0',
       source: 'src/characters/models.ts',
-      note: 'Original transform-animated models. The game uses the same local geometry factory; GLBs are editable exports, not downloaded dependencies.',
+      note: 'CAT uses its Blender production candidate. The other seven remain legacy transform-animated prototypes pending CAT approval.',
       models: report,
     },
     null,

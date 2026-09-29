@@ -10,7 +10,7 @@ flowchart TD
   Engine --> Audio[Howler: локальные MP3 / WAV]
   Engine --> AR[MindAR: камера и image tracking]
   AR --> Render[Three.js / React Three Fiber]
-  Asset[Blender CAT: mesh, PBR, groom, 22-joint rig, 7 clips] --> GLB[GLB + Draco]
+  Asset[Blender CAT: mesh, PBR, groom, 33-joint rig, 7 clips] --> GLB[GLB + Draco]
   GLB --> Render
   UI --> TV[TVBridge]
   TV --> WS[Локально: Node / WebSocket]
@@ -59,7 +59,7 @@ Controller регулярно сравнивает все три цели, сб�
 
 ## Lifecycle и память
 
-- CAT загружается через GLTFLoader/DRACOLoader (`authoredCat.ts`), клонируется с собственным скелетом через SkeletonUtils и анимируется AnimationMixer. Геометрия и текстуры разделяются между экземплярами, rig/mixer принадлежат экземпляру. GLB содержит шесть текстур, PBR cloth/fur/eyes, 22 сустава, семь skeletal clips и два groom LOD. Источник — `assets/characters/cat/milo.blend`. Остальные семь животных пока создаются прежним `toyFactory.ts`; их качество не считается утверждённым. `models.ts` выбирает authored CAT либо fallback и общий контракт animate/reveal/dispose.
+- CAT загружается через GLTFLoader/DRACOLoader (`authoredCat.ts`), клонируется с собственным скелетом через SkeletonUtils и анимируется AnimationMixer. Геометрия и текстуры разделяются между экземплярами, rig/mixer принадлежат экземпляру. GLB содержит шесть текстур, PBR cloth/fur/eyes, 33 сустава, семь skeletal clips и один компактный слой силуэтной шерсти. Источник — `assets/characters/cat/milo-master.blend`. Остальные семь животных пока создаются прежним `toyFactory.ts`; их качество не считается утверждённым. `models.ts` выбирает CAT GLB без подмены процедурным CAT и общий контракт animate/reveal/dispose.
 - AR стартует только после PLAY или явного открытия взрослой диагностики.
 - При закрытии provider: tracks.stop, stopProcessVideo, Worker.terminate, stop render loop, geometry/material.dispose, renderer.dispose, remove resize listener/video/canvas.
 - При уходе React scene её геометрия освобождается. Внутри модели общая геометрия и материалы освобождаются один раз. Frame loop использует заранее найденные moving nodes, без повторного поиска или новых Vector3. Одновременно в финале нужны четыре персонажа.

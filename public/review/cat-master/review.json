@@ -1,0 +1,227 @@
+{
+  "renderer": "Three.js / React Three Fiber, browser WebGL",
+  "glbSha256": "b49ac566bbdc7b19a485af33520260cd675ad000a0430b3acf815caff457f0ed",
+  "approval": "pending",
+  "artAcceptance": "not passed",
+  "camera": "Existing gallery FOV 33 / distance 4.6; no per-action reframing",
+  "frames": [
+    {
+      "file": "reveal-0.2.png",
+      "kind": "reveal",
+      "value": 0.2
+    },
+    {
+      "file": "reveal-0.55.png",
+      "kind": "reveal",
+      "value": 0.55
+    },
+    {
+      "file": "reveal-1.png",
+      "kind": "reveal",
+      "value": 1
+    },
+    {
+      "file": "idle-0.png",
+      "kind": "angle",
+      "action": "idle",
+      "angle": 0,
+      "phase": 0.25
+    },
+    {
+      "file": "idle-45.png",
+      "kind": "angle",
+      "action": "idle",
+      "angle": 45,
+      "phase": 0.25
+    },
+    {
+      "file": "idle-90.png",
+      "kind": "angle",
+      "action": "idle",
+      "angle": 90,
+      "phase": 0.25
+    },
+    {
+      "file": "idle-135.png",
+      "kind": "angle",
+      "action": "idle",
+      "angle": 135,
+      "phase": 0.25
+    },
+    {
+      "file": "idle-180.png",
+      "kind": "angle",
+      "action": "idle",
+      "angle": 180,
+      "phase": 0.25
+    },
+    {
+      "file": "idle-225.png",
+      "kind": "angle",
+      "action": "idle",
+      "angle": 225,
+      "phase": 0.25
+    },
+    {
+      "file": "idle-270.png",
+      "kind": "angle",
+      "action": "idle",
+      "angle": 270,
+      "phase": 0.25
+    },
+    {
+      "file": "idle-315.png",
+      "kind": "angle",
+      "action": "idle",
+      "angle": 315,
+      "phase": 0.25
+    },
+    {
+      "file": "happy-0.png",
+      "kind": "animation",
+      "action": "happy",
+      "angle": 0,
+      "phase": 0.25
+    },
+    {
+      "file": "happy-90.png",
+      "kind": "animation",
+      "action": "happy",
+      "angle": 90,
+      "phase": 0.25
+    },
+    {
+      "file": "wave-0.png",
+      "kind": "animation",
+      "action": "wave",
+      "angle": 0,
+      "phase": 0.25
+    },
+    {
+      "file": "wave-90.png",
+      "kind": "animation",
+      "action": "wave",
+      "angle": 90,
+      "phase": 0.25
+    },
+    {
+      "file": "jump-0.png",
+      "kind": "animation",
+      "action": "jump",
+      "angle": 0,
+      "phase": 0.25
+    },
+    {
+      "file": "jump-90.png",
+      "kind": "animation",
+      "action": "jump",
+      "angle": 90,
+      "phase": 0.25
+    },
+    {
+      "file": "run-0.png",
+      "kind": "animation",
+      "action": "run",
+      "angle": 0,
+      "phase": 0.25
+    },
+    {
+      "file": "run-90.png",
+      "kind": "animation",
+      "action": "run",
+      "angle": 90,
+      "phase": 0.25
+    },
+    {
+      "file": "sleep-0.png",
+      "kind": "animation",
+      "action": "sleep",
+      "angle": 0,
+      "phase": 0.25
+    },
+    {
+      "file": "sleep-90.png",
+      "kind": "animation",
+      "action": "sleep",
+      "angle": 90,
+      "phase": 0.25
+    },
+    {
+      "file": "roar-0.png",
+      "kind": "animation",
+      "action": "roar",
+      "angle": 0,
+      "phase": 0.25
+    },
+    {
+      "file": "roar-90.png",
+      "kind": "animation",
+      "action": "roar",
+      "angle": 90,
+      "phase": 0.25
+    },
+    {
+      "file": "jump-45-phase-0.02.png",
+      "kind": "phase",
+      "action": "jump",
+      "angle": 45,
+      "phase": 0.02
+    },
+    {
+      "file": "jump-45-phase-0.5.png",
+      "kind": "phase",
+      "action": "jump",
+      "angle": 45,
+      "phase": 0.5
+    },
+    {
+      "file": "jump-45-phase-0.75.png",
+      "kind": "phase",
+      "action": "jump",
+      "angle": 45,
+      "phase": 0.75
+    },
+    {
+      "file": "run-45-phase-0.02.png",
+      "kind": "phase",
+      "action": "run",
+      "angle": 45,
+      "phase": 0.02
+    },
+    {
+      "file": "run-45-phase-0.5.png",
+      "kind": "phase",
+      "action": "run",
+      "angle": 45,
+      "phase": 0.5
+    },
+    {
+      "file": "run-45-phase-0.75.png",
+      "kind": "phase",
+      "action": "run",
+      "angle": 45,
+      "phase": 0.75
+    },
+    {
+      "file": "sleep-45-phase-0.02.png",
+      "kind": "phase",
+      "action": "sleep",
+      "angle": 45,
+      "phase": 0.02
+    },
+    {
+      "file": "sleep-45-phase-0.5.png",
+      "kind": "phase",
+      "action": "sleep",
+      "angle": 45,
+      "phase": 0.5
+    },
+    {
+      "file": "sleep-45-phase-0.75.png",
+      "kind": "phase",
+      "action": "sleep",
+      "angle": 45,
+      "phase": 0.75
+    }
+  ]
+}
