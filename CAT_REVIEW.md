@@ -33,7 +33,7 @@ Phase 0: [CAT_PIPELINE_REVIEW.md](CAT_PIPELINE_REVIEW.md).
 
 ## Визуальная проверка
 
-[32 настоящих снимка WebGL](https://animals.flowlabli.online/review/cat-master/):
+[32 настоящих снимка WebGL](https://animals.flowlabli.online/review/cat-master/index.html):
 0/45/90/135/180/225/270/315°, фронтальные и боковые Happy/Wave/Jump/Run/Sleep/Roar,
 дополнительные фазы Jump/Run/Sleep и три стадии появления. Это снимки
 браузерного renderer, без генерации или ретуши. Manifest содержит hash GLB.

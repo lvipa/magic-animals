@@ -78,7 +78,7 @@ blender --background --factory-startup --python scripts/review-cat-master.py
 Фактический WebGL просматривается отдельно в `/friends`.
 
 [CAT_REVIEW.md](CAT_REVIEW.md) содержит разбор оставшихся недостатков.
-[Обзор WebGL](https://animals.flowlabli.online/review/cat-master/) показывает
+[Обзор WebGL](https://animals.flowlabli.online/review/cat-master/index.html) показывает
 восемь направлений, все clips и дополнительные фазы. `/__cat-review` — только
 development route для воспроизводимой проверки; он исключён из production.
 Статические review-снимки не входят в PWA precache.
