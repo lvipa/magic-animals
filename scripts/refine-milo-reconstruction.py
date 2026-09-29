@@ -5,20 +5,33 @@ Run with Blender --background assets/characters/cat/milo-reconstruction-256.blen
 """
 from pathlib import Path
 from math import cos,pi,sin
+import sys
 
 import bpy
+import bmesh
 from mathutils import Vector
 
 ROOT=Path(__file__).resolve().parent.parent
 source=ROOT/'assets/characters/cat/milo-reconstruction-256.blend'
-output=ROOT/'assets/characters/cat/milo-eye-study.blend'
-render=ROOT/'.test-artifacts/milo-eye-study-front.png'
+variant=int(sys.argv[sys.argv.index('--')+1]) if '--' in sys.argv else 2
+if variant not in (1,2):raise RuntimeError('Supported study variants: 1 or 2.')
+suffix='' if variant==1 else '-v2'
+output=ROOT/('assets/characters/cat/milo-eye-study'+suffix+'.blend')
+render=ROOT/('.test-artifacts/milo-eye-study'+suffix+'-front.png')
 if output.exists():raise RuntimeError('Eye study already exists; preserving it.')
 if Path(bpy.data.filepath).resolve()!=source.resolve():raise RuntimeError('Open the raw 256 scene first.')
 body=next(o for o in bpy.context.scene.objects if o.name=='Milo / raw local reconstruction 256')
 if body.get('art_status')!='raw neural mesh; no separated eyes/cloth, UV textures, groom or rig':
     raise RuntimeError('Unexpected mesh state.')
 attr=body.data.color_attributes[0]
+if variant==2:
+    # Light, shape-preserving relaxation of scanner noise. Original stays in
+    # milo-reconstruction-256.blend; this study is saved as another file.
+    bm=bmesh.new();bm.from_mesh(body.data)
+    for _ in range(3):
+        bmesh.ops.smooth_vert(bm,verts=bm.verts,factor=.18,use_axis_x=True,
+                              use_axis_y=True,use_axis_z=True)
+    bm.to_mesh(body.data);bm.free();body.data.update()
 
 def material(name,color,roughness,metallic=0):
     m=bpy.data.materials.new(name);m.diffuse_color=(*color,1);m.use_nodes=True
@@ -67,23 +80,25 @@ for side in (-1,1):
 for index,c in enumerate(centers):
     # The underlying reconstructed eye remains as a socket/color guide.
     # Keep lenses tucked into that patch so they do not become protruding beads.
-    c.x=.345
-    rings=[
-        (.024,.087,.083,5),
-        (.034,.078,.075,0),
-        (.038,.062,.065,0),
-        (.041,.055,.058,1),
-        (.046,.046,.050,2),
-        (.051,.027,.031,3),
-        (.053,.021,.024,4),
-        (.054,.002,.002,4),
-    ]
+    if variant==1:
+        c.x=.345
+        rings=[(.024,.087,.083,5),(.034,.078,.075,0),
+               (.038,.062,.065,0),(.041,.055,.058,1),
+               (.046,.046,.050,2),(.051,.027,.031,3),
+               (.053,.021,.024,4),(.054,.002,.002,4)]
+    else:
+        c.x=.317
+        c.y+=.025 if c.y<0 else -.025
+        rings=[(.018,.102,.100,5),(.029,.091,.090,0),
+               (.035,.079,.080,0),(.040,.070,.072,1),
+               (.045,.057,.060,2),(.050,.040,.043,3),
+               (.053,.035,.038,4),(.055,.002,.002,4)]
     eye_mesh('Milo optical eye '+str(index+1),c,rings)
 
 # Keep the imported reconstruction untouched. Its vertex colors remain visible
 # on the fur/hoodie. The added optics are independent editable meshes.
 scene=bpy.context.scene
-scene['art_status']='Milo eye study; reconstructed body unretopologized; no groom, rig or art approval.'
+scene['art_status']='Milo eye study '+str(variant)+'; unretopologized; no groom, rig or art approval.'
 camera=bpy.data.objects['Milo camera / front'];camera.location=(5,0,1.08)
 camera.rotation_euler=(Vector((0,0,1.08))-camera.location).to_track_quat('-Z','Y').to_euler()
 scene.camera=camera;scene.render.filepath=str(render)
