@@ -10,10 +10,12 @@ import TVPairing from '../tv/TVPairing';
 import AudioStudio from '../parent/AudioStudio';
 import { lazy, Suspense } from 'react';
 const CatReview = import.meta.env.DEV ? lazy(() => import('../parent/CatReview')) : null;
+const CatImportReview = import.meta.env.DEV ? lazy(() => import('../parent/CatImportReview')) : null;
 export default function App() {
   return (
     <Routes>
       {CatReview && <Route path="/__cat-review" element={<Suspense fallback={<p>Loading review…</p>}><CatReview /></Suspense>} />}
+      {CatImportReview && <Route path="/__cat-import-review" element={<Suspense fallback={<p>Loading review…</p>}><CatImportReview /></Suspense>} />}
       <Route path="/tv" element={<TVPage />} />
       <Route path="/connect-tv" element={<TVPairing />} />
       <Route path="/friends" element={<CharacterGallery playground />} />
