@@ -39,6 +39,15 @@ pockets, zipper and hood were attached to torso/neck bones, and leg weight
 leakage into the hoodie was removed. Subdivision was limited for export to
 stay below the project's mobile polygon and file-size guide.
 
+A separate Chrome WebGL check loaded the same GLB with Three.js GLTFLoader and
+AnimationMixer. Both clips played and all 19 mesh parts remained skinned, but
+the browser screenshots reveal a visible shoulder/torso seam in `Wave_WIP` and
+an abrupt join between the projected head and the simpler body. The WebGL
+frames are on the review page beside the Blender reimport renders. This is a
+remaining visual failure, so successful Blender reimport alone is insufficient
+for CAT approval. The Vite development server stalled during this check; the
+WebGL test used a minimal isolated Three.js viewer, not the app route.
+
 **This is an animation pipeline proof, not a style benchmark.** The body,
 paws, hoodie folds and tail are still too plain; shoulders still need proper
 sculpted transitions. The eyes and mouth on the projected head are texture
