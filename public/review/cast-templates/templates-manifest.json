@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "created": "2026-10-01",
+  "status": "2D modeling references; CAT 3D master remains WIP",
+  "generator": "built-in imagegen",
+  "styleReference": "assets/characters/cat/concepts/milo-turnaround-v1.png",
+  "poseReference": "assets/characters/cat/concepts/milo-rig-pose-v1.png",
+  "shared": {
+    "medium": "cinematic stylized 3D concept render",
+    "costume": "full-sleeve cozy zip hoodie, hood down, fabric weave, seams, ribbed cuffs, pockets",
+    "eyes": "large expressive eyes, sculpted eyelids, iris detail and reflections",
+    "proportions": "large head, compact body, short separate limbs, rounded paws",
+    "lighting": "warm neutral studio",
+    "views": [
+      "front",
+      "left side",
+      "back"
+    ],
+    "production": "one Blender mesh/UV/PBR/rig pipeline, reviewed CAT first",
+    "bodyRig": "19-bone biped draft, proportions adjusted per species; extra ear/trunk/mane controls planned",
+    "requiredClips": [
+      "idle",
+      "happy",
+      "wave",
+      "jump",
+      "run",
+      "sleep",
+      "roar"
+    ],
+    "mobileTargets": {
+      "triangles": 80000,
+      "maxBytes": 8000000,
+      "materialPrimitives": 24
+    },
+    "approval": "Concept drafts created at user request; no final 3D cast approval implied"
+  },
+  "characters": [
+    {
+      "id": "fox",
+      "name": "Foxy",
+      "description": "Species FOX: warm orange-russet fur, creamy muzzle/chest and paw tips, delicate pointed fox ears with soft edges, slightly longer tapered but rounded muzzle, fluffy cheeks, a large bushy curved tail with cream tip visible clearly in side/back view. Cozy muted sage-green zip hoodie. Expressive amber-gold irises. Gentle curious smile; no fangs.",
+      "appId": "foxy",
+      "label": "Лиса",
+      "word": "FOX",
+      "image": "foxy-turnaround-v2.png",
+      "assetStatus": "concept only; mesh and rig adaptation pending"
+    },
+    {
+      "id": "dog",
+      "name": "Bubbles",
+      "description": "Species DOG: golden cream puppy fur, floppy soft medium length dog ears, broad rounded puppy muzzle with dark cocoa rounded nose, short softly curled dog tail, large blue-teal irises. Cozy muted sky-blue zip hoodie. Cheerful puppy-like face; recognizably a dog and not a cat with altered ears.",
+      "appId": "dog",
+      "label": "Щенок",
+      "word": "DOG",
+      "image": "bubbles-turnaround-v1.png",
+      "assetStatus": "concept only; mesh and rig adaptation pending"
+    },
+    {
+      "id": "lion",
+      "name": "Sunny",
+      "description": "Species LION: warm golden cub fur, rounded ears, soft sculpted fluffy honey-brown mane as a rounded scalloped continuous frame around the face extending gently down the back of the head, broad creamy lion muzzle, round dark nose, slim soft lion tail with fluffy darker tuft. Mane should look cuddly, not pointed or fierce. Cozy muted warm sand-yellow zip hoodie. Expressive amber irises. Friendly little cub smile.",
+      "appId": "lion",
+      "label": "Львёнок",
+      "word": "LION",
+      "image": "sunny-turnaround-v1.png",
+      "assetStatus": "concept only; mesh and rig adaptation pending"
+    },
+    {
+      "id": "rabbit",
+      "name": "Poppy",
+      "description": "Species RABBIT: warm ivory and pale peach short fluffy fur, long soft upright rabbit ears with pink inner fur and fuzzy edges, soft cheeks, small rounded pink nose, rounded rabbit muzzle and a tiny gentle smile, short cottony round tail visible in back/side views. Compact springy rabbit body and rounded slightly elongated rabbit feet, shared sibling proportions. Cozy muted dusty pastel pink zip hoodie. Large blue-teal irises. Keep ears the same length and pose in all views.",
+      "appId": "bunny",
+      "label": "Кролик",
+      "word": "RABBIT",
+      "image": "poppy-turnaround-v1.png",
+      "assetStatus": "concept only; mesh and rig adaptation pending"
+    },
+    {
+      "id": "bear",
+      "name": "Maple",
+      "description": "Species BEAR: cocoa and warm honey-brown plush short fur, round large head, small round bear ears, broad beige rounded muzzle, dark rounded bear nose, heavier softly rounded compact body, stout limbs and large rounded paws, tiny round bear tail visible under hoodie. Cozy muted forest-green zip hoodie. Large warm hazel irises. Gentle sturdy teddy-bear cub feeling.",
+      "appId": "bear",
+      "label": "Медвежонок",
+      "word": "BEAR",
+      "image": "maple-turnaround-v1.png",
+      "assetStatus": "concept only; mesh and rig adaptation pending"
+    },
+    {
+      "id": "panda",
+      "name": "Pebble",
+      "description": "Species PANDA: soft creamy white and charcoal black short plush fur, rounded panda head and small black round ears, clear soft black eye patches surrounding large warm brown irises, white rounded muzzle with small dark nose, black arms and legs, creamy white torso, tiny panda tail. Heavier soft rounded compact cub proportions like the bear sibling. Cozy muted pale sage-gray zip hoodie. Calm gentle smile, eye patches must retain the same shapes across views.",
+      "appId": "panda",
+      "label": "Панда",
+      "word": "PANDA",
+      "image": "pebble-turnaround-v2.png",
+      "assetStatus": "concept only; mesh and rig adaptation pending"
+    },
+    {
+      "id": "elephant",
+      "name": "Ellie",
+      "description": "Species ELEPHANT: warm pale gray skin with very fine soft peach-fuzz rather than furry cat coat, rounded oversized head, large softly rounded elephant ears with pale peach inner surfaces, short rounded gently curved trunk not hiding the mouth or eyes, soft small visible smile below/beside trunk, no tusks, compact softly heavy toddler body, short stout limbs and rounded elephant feet with three subtle toenails, thin short tail with soft tuft. Cozy muted dusty sky-blue zip hoodie with ears fully free above the lowered hood. Large warm brown eyes with the same expressive detailed iris setup as Milo. Clearly a gentle elephant child, not a realistic elephant anatomy.",
+      "appId": "elephant",
+      "label": "Слонёнок",
+      "word": "ELEPHANT",
+      "image": "ellie-turnaround-v1.png",
+      "assetStatus": "concept only; mesh and rig adaptation pending"
+    }
+  ]
+}
