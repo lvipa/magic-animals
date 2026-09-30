@@ -15,7 +15,7 @@ const versions = {
 const modelBytes = new Map();
 async function getModelBytes(file) {
   if (!modelBytes.has(file)) {
-    const pending = fetch(`./${file}`).then(response => {
+    const pending = fetch(`./${file}?review=4`, { cache: 'no-store' }).then(response => {
       if (!response.ok) throw new Error(`GLB HTTP ${response.status}`);
       return response.arrayBuffer();
     }).catch(error => { modelBytes.delete(file); throw error; });
@@ -130,7 +130,9 @@ async function load(version = 'garment') {
     playing: modelRoot ? playing : true };
   status.textContent = 'Загружаю выбранную пробу…';
   try {
-    const gltf = await new GLTFLoader().parseAsync(await getModelBytes(versions[version].file), '');
+    const bytes = await getModelBytes(versions[version].file);
+    status.textContent = 'Модель скачана. Открываю…';
+    const gltf = await new GLTFLoader().parseAsync(bytes, '');
     gltf.scene.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(gltf.scene, true);
     const size = box.getSize(new THREE.Vector3());
@@ -184,6 +186,7 @@ modelButtons.forEach(button => button.addEventListener('click', () => load(butto
 function animate() {
   requestAnimationFrame(animate);
   const delta = Math.min(clock.getDelta(), .1);
+  if (loading) return;
   if (mixer && playing) mixer.update(delta);
   if (activeAction && !dragging && playing) {
     scrub.value = String(Math.round(1000 * activeAction.time / activeClip.duration));

@@ -23,7 +23,7 @@ Subdivision also introduces more than four bone influences on some evaluated
 vertices; the GLB exporter truncates/normalizes these. A final authored asset
 must control those weights before export and verify the resulting motion.
 
-Use the [interactive comparison](https://animals.flowlabli.online/review/milo-rig/viewer.html?v=3)
+Use the [interactive comparison](https://animals.flowlabli.online/review/milo-rig/viewer.html?v=4)
 to switch between the original and this study with the same camera, clip and
 paused timeline position. This revision is a deformation test, not a style
 benchmark. Do not propagate it to other animals or replace the game CAT.
