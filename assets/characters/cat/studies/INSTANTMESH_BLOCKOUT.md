@@ -48,3 +48,36 @@ QuadriFlow attempt failed on this reconstruction even after voxel cleanup;
 manual sculpt/retopology remains necessary. This file has no skin, facial
 shapes, or animation clips, and must not replace the live CAT or establish the
 visual benchmark for the remaining animals.
+
+## Grid128 quad sculpt base (30 September 2026)
+
+The official InstantMesh checkpoint was also run at its configured 128 grid
+resolution. `milo-instantmesh-grid128.glb` is that raw, still unapproved mesh
+(28,228 vertices / 56,400 triangles). Source and checkpoint hashes are in
+`milo-grid128-quad.provenance.json`.
+
+`scripts/build-milo-quad-study.py` turns this reconstruction into a cleaner
+editable base: voxel size 0.03, QuadriFlow around 8,000 quad faces, then
+shrinkwrap to the original surface. `milo-grid128-quad-study.blend` retains the
+reference and quad mesh; its GLB is a geometry check. The chosen voxel size
+was the smallest successful local trial; 0.025 and smaller caused QuadriFlow
+to fail even on a closed manifold mesh.
+
+`scripts/create-milo-quad-texture-study.py` projects the original concept art,
+fills unpainted ear/sleeve/paw/tail regions with deliberately simple review
+colors, bakes a UV atlas, and exports a portable
+`milo-quad-threeview-projection-study.glb`. Its `.blend` keeps the editable
+projection setup. Eight `milo-quad-threeview-study-*.png` files are actual
+Blender renders **after importing that GLB**. The quad mesh smooths the
+silhouette, with a single atlas/material for mobile review.
+
+The eight frames and GLB are also available on the isolated
+[Milo quad review page](https://animals.flowlabli.online/review/milo-quad/).
+Its frame-based rotation is a review aid, not a demonstration of live rigging.
+The game still loads the previously deployed CAT.
+
+These are authoring studies, not the final CAT. The solid-color tail and back
+ear patches show missing art detail; the hoodie remains part of the unified
+surface, the eyes/mouth are texture-only, and the mesh has no rig or clips.
+Manual face, clothing, fur and tail sculpting, dedicated materials, skinning,
+facial shapes and motion review still gate production use.

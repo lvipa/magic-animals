@@ -23,6 +23,22 @@ Service Worker проверены. Подробности и порядок бе
 [DEPLOYMENT.md](DEPLOYMENT.md). Это изменение **не является** одобрением CAT;
 экспериментальные Blender-сцены остались вне production.
 
+Новая 3D-проба 30.09.2026: официальный InstantMesh запущен на изолированном
+GPU-хосте с сеткой 128³. В `assets/characters/cat/studies/` лежат исходный
+`milo-instantmesh-grid128.glb`, редактируемая четырёхугольная сцена
+`milo-grid128-quad-study.blend`, UV-текстурированный
+`milo-quad-threeview-projection-study.glb` и восемь реальных ракурсов после
+повторного импорта GLB. Скрипты воспроизведения:
+`scripts/build-milo-quad-study.py` и
+`scripts/create-milo-quad-texture-study.py`. Подробности и исходные SHA-256 —
+в `assets/characters/cat/studies/INSTANTMESH_BLOCKOUT.md` и
+`milo-grid128-quad.provenance.json`. Геометрия стала мягче, но уши, рукава,
+хвост, лицо и одежда требуют ручной художественной проработки. Это не
+утверждённый CAT; риг и семь клипов отсутствуют. ISP и игровые модели не менялись.
+Отдельный обзор восьми ракурсов доступен на
+`https://animals.flowlabli.online/review/milo-quad/`: загружены только PNG,
+пробный GLB и статическая страница, соседние настройки ISP сверены до/после.
+
 Пользователю понравился оригинальный [turnaround Milo](assets/characters/cat/concepts/milo-turnaround-v1.png):
 кремово-персиковый пушистый котёнок, выразительные бирюзовые глаза и сиреневое
 худи на молнии. Это художественный референс, а не готовая 3D-модель. Нужна

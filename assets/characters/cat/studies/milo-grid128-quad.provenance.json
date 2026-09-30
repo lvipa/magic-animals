@@ -1,0 +1,14 @@
+{
+  "status": "editable art study only; unapproved for game; no rig or animations",
+  "source_model": "TencentARC/InstantMesh instant_mesh_base.ckpt (Apache-2.0)",
+  "source_art": "original project Milo A-pose with white-background multiviews",
+  "source_commit": "08822c52fdc399b93ea00e4fa9e596344ed52ccc",
+  "checkpoint_sha256": "22701cd25201d624ebb1568b93cf91b43a2c32006835c08fe73e1f3c9f6c44b5",
+  "source_image_sha256": "6f678437d21aee3ec666950214f1425a2184a9a7966c38dc93aca561e4b50ef9",
+  "grid128_glb_sha256": "6f9f3b179850efaeb3eee248aa9e40740fd421a4218e941505cc4ead3e134297",
+  "grid_resolution": 128,
+  "grid128_vertices": 28228,
+  "grid128_triangles": 56400,
+  "retopology": "Blender voxel size 0.03, QuadriFlow target 8000 faces, shrinkwrap to source",
+  "atlas": "2048 pixel UV color projection from original Milo references"
+}

@@ -1,4 +1,4 @@
-"""Bake Milo concept projections onto the unapproved blockout for art review.
+"""Bake Milo concept projections onto the unapproved quad sculpt base.
 
 Run with Blender 5.1.2 from the repository root. This makes an editable study
 and a portable textured GLB. It does not create a production rig or animation.
@@ -11,7 +11,7 @@ from mathutils import Vector
 
 root = Path(__file__).resolve().parent.parent
 folder = root / 'assets/characters/cat/studies'
-glb = root / 'assets/characters/cat/studies/milo-instantmesh-blockout.glb'
+glb = folder / 'milo-grid128-quad-study.glb'
 image_path = root / 'assets/characters/cat/concepts/milo-rig-pose-v1.png'
 turnaround_path = root / 'assets/characters/cat/concepts/milo-turnaround-v1.png'
 bpy.ops.object.select_all(action='SELECT')
@@ -20,6 +20,35 @@ bpy.context.preferences.filepaths.save_version = 0
 bpy.ops.import_scene.gltf(filepath=str(glb))
 obj = next(o for o in bpy.context.scene.objects if o.type == 'MESH')
 mesh = obj.data
+def ramp(value, low, high):
+    t = max(0.0, min(1.0, (value - low) / (high - low)))
+    return t * t * (3 - 2 * t)
+
+tail_mask = mesh.attributes.new(name='TailColourMask', type='FLOAT', domain='POINT')
+arm_mask = mesh.attributes.new(name='SleeveColourMask', type='FLOAT', domain='POINT')
+paw_mask = mesh.attributes.new(name='PawColourMask', type='FLOAT', domain='POINT')
+ear_mask = mesh.attributes.new(name='EarColourMask', type='FLOAT', domain='POINT')
+for vertex in mesh.vertices:
+    co = vertex.co
+    tail_mask.data[vertex.index].value = (
+        ramp(-co.x, 0.25, 0.39)
+        * ramp(-co.z, 0.27, 0.43)
+        * ramp(-co.y, -0.05, 0.12)
+    )
+    arm_mask.data[vertex.index].value = (
+        ramp(abs(co.x), 0.32, 0.48)
+        * ramp(co.z, -0.4, -0.25)
+        * (1 - ramp(co.z, 0.08, 0.2))
+    )
+    paw_mask.data[vertex.index].value = (
+        ramp(abs(co.x), 0.47, 0.58)
+        * ramp(-co.z, 0.08, 0.18)
+        * (1 - ramp(-co.z, 0.34, 0.43))
+    )
+    ear_mask.data[vertex.index].value = (
+        ramp(abs(co.x), 0.23, 0.38)
+        * ramp(co.z, 0.47, 0.7)
+    )
 front_uv = mesh.uv_layers.new(name='FrontConceptProjection')
 side_uv = mesh.uv_layers.new(name='SideConceptProjection')
 back_uv = mesh.uv_layers.new(name='BackConceptProjection')
@@ -89,7 +118,27 @@ def mix_color(base, image_color, mask):
 color = source_color.outputs['Color']
 color = mix_color(color, side_tex.outputs['Color'], make_mask(side_abs.outputs[0]))
 color = mix_color(color, back_tex.outputs['Color'], make_mask(back_neg.outputs[0]))
+ear_attribute = nodes.new('ShaderNodeAttribute')
+ear_attribute.attribute_name = 'EarColourMask'
+ear_colour = nodes.new('ShaderNodeRGB')
+ear_colour.outputs['Color'].default_value = (0.78, 0.48, 0.31, 1)
+color = mix_color(color, ear_colour.outputs['Color'], ear_attribute.outputs['Fac'])
+sleeve_attribute = nodes.new('ShaderNodeAttribute')
+sleeve_attribute.attribute_name = 'SleeveColourMask'
+sleeve_colour = nodes.new('ShaderNodeRGB')
+sleeve_colour.outputs['Color'].default_value = (0.45, 0.34, 0.45, 1)
+color = mix_color(color, sleeve_colour.outputs['Color'], sleeve_attribute.outputs['Fac'])
+paw_attribute = nodes.new('ShaderNodeAttribute')
+paw_attribute.attribute_name = 'PawColourMask'
+paw_colour = nodes.new('ShaderNodeRGB')
+paw_colour.outputs['Color'].default_value = (0.82, 0.6, 0.42, 1)
+color = mix_color(color, paw_colour.outputs['Color'], paw_attribute.outputs['Fac'])
 color = mix_color(color, front_tex.outputs['Color'], make_mask(sep.outputs['Y']))
+tail_attribute = nodes.new('ShaderNodeAttribute')
+tail_attribute.attribute_name = 'TailColourMask'
+tail_colour = nodes.new('ShaderNodeRGB')
+tail_colour.outputs['Color'].default_value = (0.72, 0.38, 0.2, 1)
+color = mix_color(color, tail_colour.outputs['Color'], tail_attribute.outputs['Fac'])
 links.new(color, bsdf.inputs['Base Color'])
 bsdf.inputs['Roughness'].default_value = 0.88
 for face in mesh.polygons:
@@ -152,7 +201,7 @@ print('UV_LAYERS_AFTER_SMART_PROJECT', [layer.name for layer in mesh.uv_layers],
       'active', mesh.uv_layers.active.name, flush=True)
 bake_image = bpy.data.images.new('Milo_ThreeView_Color_Study', width=2048,
                                  height=2048, alpha=False, float_buffer=False)
-bake_image.filepath_raw = str(folder / 'milo-threeview-color-study.png')
+bake_image.filepath_raw = str(folder / 'milo-quad-threeview-color-study.png')
 bake_image.file_format = 'PNG'
 bake_node = nodes.new('ShaderNodeTexImage')
 bake_node.image = bake_image
@@ -186,26 +235,39 @@ mesh.materials.clear()
 mesh.materials.append(baked_material)
 obj['status'] = 'unapproved texture projection study, no rig, no animation'
 scene['status'] = 'DO NOT DEPLOY AS CAT'
+notes = bpy.data.texts.new('READ_ME_FIRST')
+notes.write('MILO AUTOQUAD TEXTURE STUDY — NOT AN APPROVED CHARACTER\n')
+notes.write('The displayed mesh uses the baked color atlas. The source projection '
+            'shader is preserved as a fake-user material named '
+            'Milo_ThreeView_Projection_Source_UNAPPROVED.\n')
+notes.write('Front/side/back UV sets and both original concept images are packed. '
+            'To revise the paint, assign the source material, edit its masks or '
+            'UV projection, then bake again.\n')
+notes.write('The eyes and mouth are painted only. The hoodie shares one mesh '
+            'with the body; no rig, blendshapes or clips exist.\n')
 bake_image.pack()
-bpy.ops.wm.save_as_mainfile(filepath=str(folder / 'milo-threeview-projection-study.blend'), check_existing=False)
+bpy.ops.wm.save_as_mainfile(filepath=str(folder / 'milo-quad-threeview-projection-study.blend'), check_existing=False)
 for layer in list(mesh.uv_layers):
     if layer.name != atlas_uv:
         mesh.uv_layers.remove(layer)
 mesh.uv_layers.active = mesh.uv_layers[atlas_uv]
-bpy.ops.export_scene.gltf(filepath=str(folder / 'milo-threeview-projection-study.glb'),
+bpy.ops.export_scene.gltf(filepath=str(folder / 'milo-quad-threeview-projection-study.glb'),
                           export_format='GLB', use_selection=True)
-print('STUDY_GLB', folder / 'milo-threeview-projection-study.glb', flush=True)
+print('STUDY_GLB', folder / 'milo-quad-threeview-projection-study.glb', flush=True)
 
 # Review the exported GLB rather than trusting Blender's source material.
 bpy.ops.object.select_all(action='DESELECT')
 obj.select_set(True)
 bpy.ops.object.delete(use_global=False)
-bpy.ops.import_scene.gltf(filepath=str(folder / 'milo-threeview-projection-study.glb'))
+bpy.ops.import_scene.gltf(filepath=str(folder / 'milo-quad-threeview-projection-study.glb'))
 scene.render.engine = 'BLENDER_EEVEE'
-for angle, label in ((180, 'front'), (90, 'side'), (0, 'back')):
+for angle, label in ((180, 'front'), (135, 'front-quarter'),
+                     (90, 'side'), (45, 'back-quarter'),
+                     (0, 'back'), (315, 'back-quarter-left'),
+                     (270, 'side-left'), (225, 'front-quarter-left')):
     radians = math.radians(angle)
     direction = Vector((math.sin(radians), -math.cos(radians), 0))
     camera.location = center + direction * max(size) * 3.5
     camera.rotation_euler = (center - camera.location).to_track_quat('-Z', 'Y').to_euler()
-    scene.render.filepath = str(folder / f'milo-threeview-study-{label}.png')
+    scene.render.filepath = str(folder / f'milo-quad-threeview-study-{label}.png')
     bpy.ops.render.render(write_still=True)

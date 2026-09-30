@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Milo — проба 3D формы · Magic Animals</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #142e40; color: #fff5df; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  main { width: min(1120px, 100%); margin: auto; padding: clamp(16px, 4vw, 42px); }
+  a { color: #ffd484; }
+  h1 { font-size: clamp(30px, 5vw, 50px); line-height: 1.1; margin: 12px 0; }
+  p { line-height: 1.55; }
+  .status { background: #25475a; border-left: 4px solid #ffd484; border-radius: 12px; padding: 14px 18px; }
+  .turntable { margin: 22px auto; max-width: 620px; text-align: center; }
+  .turntable img { display: block; width: 100%; height: auto; border-radius: 18px; background: #a1aab1; touch-action: pan-y; user-select: none; }
+  .controls { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 12px; }
+  button { border: 0; background: #ffd484; color: #182f40; border-radius: 12px; padding: 10px 16px; font: inherit; font-weight: 700; cursor: pointer; }
+  button:focus-visible, a:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+  figure { margin: 0; background: #25475a; border-radius: 12px; overflow: hidden; }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: 8px 12px; }
+  .muted { color: #c7d8df; }
+</style>
+<main>
+  <a href="/friends">← К игре</a>
+  <h1>Milo: проба 3D формы</h1>
+  <div class="status">
+    <strong>Художественная работа продолжается.</strong>
+    <p>Это восемь реальных рендеров экспортированного GLB. Сетка стала мягче, но глаза и рот пока нарисованы на текстуре; худи, уши и хвост требуют доработки. Рига и анимаций в этом файле ещё нет. Персонаж в игре не заменён.</p>
+  </div>
+  <div class="turntable">
+    <img id="turntable" src="front.png" alt="Milo спереди" draggable="false" width="620" height="760">
+    <div class="controls">
+      <button id="previous" type="button" aria-label="Повернуть влево">←</button>
+      <span id="angle" aria-live="polite">Спереди</span>
+      <button id="next" type="button" aria-label="Повернуть вправо">→</button>
+    </div>
+    <p class="muted">Проведите по изображению или нажмите стрелки. Это поворот по сохранённым кадрам.</p>
+  </div>
+  <p><a href="milo-quad-study.glb" download>Скачать пробный GLB</a> · <a href="#all-views">Все ракурсы</a></p>
+  <h2 id="all-views">Восемь ракурсов</h2>
+  <div class="grid" id="views"></div>
+  <p class="muted">Этот просмотр отделён от игрового CAT и не содержит данных доступа к ISP.</p>
+</main>
+<script>
+  const views = [
+    ['front.png', 'Спереди'],
+    ['front-quarter.png', 'Три четверти справа'],
+    ['side.png', 'Справа'],
+    ['back-quarter.png', 'Сзади справа'],
+    ['back.png', 'Сзади'],
+    ['back-quarter-left.png', 'Сзади слева'],
+    ['side-left.png', 'Слева'],
+    ['front-quarter-left.png', 'Три четверти слева'],
+  ];
+  const image = document.getElementById('turntable');
+  const label = document.getElementById('angle');
+  const grid = document.getElementById('views');
+  let current = 0;
+  let pointerX = null;
+  function show(index) {
+    current = (index + views.length) % views.length;
+    image.src = views[current][0];
+    image.alt = 'Milo: ' + views[current][1].toLowerCase();
+    label.textContent = views[current][1];
+  }
+  document.getElementById('previous').addEventListener('click', () => show(current - 1));
+  document.getElementById('next').addEventListener('click', () => show(current + 1));
+  image.addEventListener('pointerdown', event => {
+    pointerX = event.clientX;
+    image.setPointerCapture(event.pointerId);
+  });
+  image.addEventListener('pointermove', event => {
+    if (pointerX === null) return;
+    const delta = event.clientX - pointerX;
+    if (Math.abs(delta) >= 32) {
+      show(current + (delta < 0 ? 1 : -1));
+      pointerX = event.clientX;
+    }
+  });
+  image.addEventListener('pointerup', () => { pointerX = null; });
+  image.addEventListener('pointercancel', () => { pointerX = null; });
+  for (const [file, name] of views) {
+    const figure = document.createElement('figure');
+    const anchor = document.createElement('a');
+    anchor.href = file;
+    const thumbnail = document.createElement('img');
+    thumbnail.src = file;
+    thumbnail.alt = 'Milo: ' + name.toLowerCase();
+    thumbnail.loading = 'lazy';
+    anchor.append(thumbnail);
+    const caption = document.createElement('figcaption');
+    caption.textContent = name;
+    figure.append(anchor, caption);
+    grid.append(figure);
+    const preload = new Image();
+    preload.src = file;
+  }
+</script>
+</html>

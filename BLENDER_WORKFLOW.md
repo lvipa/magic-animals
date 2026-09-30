@@ -20,6 +20,25 @@ MCP позволяет выполнять операции над сценой; 
 - Сцена не заменяет `milo-master.blend` или `public/models/cat-studio.glb`.
   Приложение пока использует прежний CAT. Другие животные ждут приёмки CAT.
 
+### Последняя проба: редактируемая quad-сетка
+
+Из исходного Milo Grid128 подготовлен
+[`milo-grid128-quad-study.blend`](assets/characters/cat/studies/milo-grid128-quad-study.blend):
+около 8 тыс. четырёхугольников, восстановление поверхности по плотному
+оригиналу. Текстурированный
+[`milo-quad-threeview-projection-study.glb`](assets/characters/cat/studies/milo-quad-threeview-projection-study.glb)
+и восемь реальных рендеров для сравнения лежат рядом. Файлы и команды описаны
+в [`INSTANTMESH_BLOCKOUT.md`](assets/characters/cat/studies/INSTANTMESH_BLOCKOUT.md).
+Это основа для ручного скульпта и будущего скининга, не финальный персонаж.
+
+После установки Blender 5.1.2 из корня репозитория можно воспроизвести только
+Blender-этапы без GPU-сервиса:
+
+```powershell
+& './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/build-milo-quad-study.py
+& './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/create-milo-quad-texture-study.py
+```
+
 ## Подготовка на другом Windows-компьютере
 
 Нужны Git, Python 3.10+ и PowerShell. Из корня репозитория:
