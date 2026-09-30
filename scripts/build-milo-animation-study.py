@@ -2,7 +2,8 @@
 
 Run with Blender --background --python scripts/build-milo-animation-study.py.
 Requires build-milo-face-study.py outputs. All binary outputs remain private.
-The friendly Roar is a body blocking pass; the mouth cavity is still pending.
+The friendly Roar includes the connected mouthOpen morph; animation polish
+and matching voice audio are still pending.
 """
 from pathlib import Path
 import bpy, math, json, struct
@@ -25,7 +26,7 @@ def rotate(name, axis, degrees):
     bone.rotation_quaternion @= Quaternion(local_axis, math.radians(degrees))
 
 
-def pose(frame, rotations=(), height=0, sideways=0, blink=0, smile=0):
+def pose(frame, rotations=(), height=0, sideways=0, blink=0, smile=0, mouth=0):
     bpy.context.scene.frame_set(frame)
     for bone in rig.pose.bones:
         bone.rotation_quaternion = Quaternion()
@@ -42,7 +43,7 @@ def pose(frame, rotations=(), height=0, sideways=0, blink=0, smile=0):
         for key in keys.key_blocks:
             if key.name == 'Basis':
                 continue
-            key.value = blink if key.name.startswith('blink_') else smile if key.name == 'smile' else 0
+            key.value = blink if key.name.startswith('blink_') else smile if key.name == 'smile' else mouth if key.name == 'mouthOpen' else 0
             key.keyframe_insert('value', frame=frame)
 
 
@@ -80,7 +81,7 @@ for f, lift, height in [(1, 0, 0), (10, 30, .03), (18, 48, .08), (26, 32, .01), 
     rotations = [('head', Y, math.sin(f / 7) * 5), ('tail_base', Z, math.sin(f / 5) * 12)]
     for side, sign in [('L', -1), ('R', 1)]:
         rotations.extend([(f'upper_arm_{side}', Y, sign * lift), (f'forearm_{side}', Y, sign * lift * .6)])
-    pose(f, rotations, height=height, smile=1 if lift else 0)
+    pose(f, rotations, height=height, smile=1 if lift else 0, mouth=.3 if lift else 0)
 end(name, 55); clips.append(name)
 
 name = 'Wave_WIP'; begin(name)
@@ -115,8 +116,8 @@ for f, lean, blink in [(1, 0, 0), (20, 22, .3), (40, 76, 1), (65, 77, 1), (90, 7
 end(name, 170); clips.append(name)
 
 name = 'Roar_WIP'; begin(name)
-for f, lift, head in [(1, 0, 0), (12, 12, -5), (22, 32, -12), (36, 25, -8), (49, 0, 0)]:
-    pose(f, [('upper_arm_R', Y, lift), ('upper_arm_L', Y, -lift), ('chest', X, head * .3), ('head', X, head)], smile=.6 if lift else 0)
+for f, lift, head, mouth in [(1, 0, 0, 0), (12, 12, -5, .3), (22, 32, -12, 1), (29, 30, -10, .7), (36, 25, -8, .3), (49, 0, 0, 0)]:
+    pose(f, [('upper_arm_R', Y, lift), ('upper_arm_L', Y, -lift), ('chest', X, head * .3), ('head', X, head)], smile=.6 if lift else 0, mouth=mouth)
 end(name, 49); clips.append(name)
 
 scene = bpy.context.scene
@@ -127,7 +128,7 @@ for bone in rig.pose.bones:
 for keys in faces:
     for key in keys.key_blocks:
         key.value = 0
-rig['study_status'] = 'Seven body blocking clips with shared facial tracks; mouth opening and polish pending'
+rig['study_status'] = 'Seven motion studies with shared blink, smile and mouthOpen; polish and audio pending'
 bpy.ops.wm.save_as_mainfile(filepath=str(root / 'milo-animation-study-WIP.blend'))
 bpy.ops.export_scene.gltf(filepath=str(root / 'milo-animation-study-WIP.glb'), export_format='GLB', export_animations=True, export_animation_mode='NLA_TRACKS', export_skins=True, export_yup=True, export_morph=True, export_morph_animation=True)
 data = (root / 'milo-animation-study-WIP.glb').read_bytes()

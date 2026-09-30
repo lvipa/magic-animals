@@ -1,10 +1,12 @@
 """Preserve supplied Milo identity while adding separate eyes and eyelids."""
-import bpy,bmesh,math,json,numpy as np
+import bpy,bmesh,math,json,numpy as np,sys
 from pathlib import Path
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 from mathutils.geometry import barycentric_transform
 root=Path(__file__).resolve().parent.parent/'.deployment/incoming-milo'
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from milo_mouth import build_mouth
 bpy.ops.wm.open_mainfile(filepath=str(root/'milo-cleaned-rig-WIP.blend'))
 body=next(o for o in bpy.context.scene.objects if o.type=='MESH')
 rig=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
@@ -133,18 +135,19 @@ for eye,(side,cx,cz) in zip(eyes,eye_specs):
   weight=max(0,min(1,(.97-radius)/.40));weight=weight*weight*(3-2*weight)
   group.add([v.index],weight,'REPLACE');head.add([v.index],1-weight,'REPLACE')
  rig.pose.bones['eye_'+side].rotation_mode='XYZ'
-# A gentle smile controls the existing sculpted muzzle rather than adding a
-# disconnected mouth decoration. Opening a mouth cavity needs another mesh edit.
-body.shape_key_add(name='Basis');smile=body.shape_key_add(name='smile')
+# Cut the mouth before adding the expression keys; UVs and existing body
+# weights are retained. The cavity is connected to the actual lip boundary.
+mouth_report=build_mouth(body,front)
+smile=body.shape_key_add(name='smile')
 for vertex in smile.data:
  x,y,z=vertex.co
  if y<-.30 and .26<z<.395 and abs(x)<.18:
   d=((x/.16)**2+((z-.325)/.07)**2);weight=max(0,1-d)**2
   vertex.co.z+=.013*weight*min(1,abs(x)/.06);vertex.co.x+=.006*weight*(1 if x>0 else -1)
-body['facial_status']='separate eyes, gaze bones, upper eyelid morphs, soft smile; mouth cavity still pending'
+body['facial_status']='separate eyes, gaze bones, upper eyelid morphs, mouth cavity, tongue, mouthOpen and smile'
 rig['study_status']='Unapproved facial control study; same supplied identity, body clips still WIP'
 for im in bpy.data.images:
  if im.has_data and not im.packed_file:im.pack()
 bpy.ops.wm.save_as_mainfile(filepath=str(root/'milo-face-controls-WIP.blend'))
 bpy.ops.export_scene.gltf(filepath=str(root/'milo-face-controls-WIP.glb'),export_format='GLB',export_animations=True,export_animation_mode='ACTIONS',export_skins=True,export_yup=True,export_morph=True)
-print(json.dumps({'eye_patches':[len(e.data.polygons) for e in eyes],'bones':len(rig.data.bones),'morphs':['blink_L','blink_R','smile']}))
+print(json.dumps({'eye_patches':[len(e.data.polygons) for e in eyes],'bones':len(rig.data.bones),'morphs':['blink_L','blink_R','mouthOpen','smile'],'mouth':mouth_report}))
