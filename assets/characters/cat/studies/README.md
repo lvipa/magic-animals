@@ -34,3 +34,13 @@
 See `INSTANTMESH_BLOCKOUT.md` for provenance, the new textured GLB, the
 editable `.blend`, three exported-GLB review renders, and the remaining art
 and rigging failures. None of these studies replaces the live CAT.
+
+## Проверка рига quad-версии
+
+`milo-auto-rig-rejected.blend` и четыре `milo-auto-rig-rejected-*.png`
+сохраняют **отклонённую** деформационную пробу. Скелет и веса есть, но при
+Wave рвутся плечо и ворот. Пробу можно повторить скриптом
+`scripts/test-milo-quad-rig.py` из корня проекта. Сохранённые кадры также
+показаны на [отдельной странице просмотра](https://animals.flowlabli.online/review/milo-quad/).
+Для настоящей анимации нужна новая топология и отдельная одежда; этот `.blend`
+не экспортировать в приложение. Детали — в `INSTANTMESH_BLOCKOUT.md`.
