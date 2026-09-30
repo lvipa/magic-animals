@@ -24,10 +24,11 @@
 <main>
   <a href="./">← К кадрам и пояснению</a>
   <h1>Milo · проверка GLB в браузере</h1>
-  <p class="warning"><strong>Технический черновик, CAT ещё не утверждён.</strong> Новая проба уменьшает пересечения тела с рукавом. Тонкие дефекты стыка остаются; капюшон, лапки, ткань и мимика требуют художественной работы.</p>
+  <p class="warning"><strong>CAT ещё не утверждён.</strong> В новой пробе убраны длинная шея и дублированный ворот, укорочены руки, округлены лапки и капюшон. Лицо пока использует проекцию изображения; полноценная геометрия глаз, рта и мимика ещё нужны.</p>
   <div class="controls" aria-label="Версия модели">
-    <button data-model="original" aria-pressed="false">До: исходная проба</button>
-    <button data-model="garment" aria-pressed="false">После: новый рукав</button>
+    <button data-model="original" aria-pressed="false">Исходная проба</button>
+    <button data-model="garment" aria-pressed="false">Предыдущий рукав</button>
+    <button data-model="compact" aria-pressed="false">Новые пропорции</button>
   </div>
   <div id="stage" aria-label="Поворотная 3D-модель Milo"></div>
   <p id="status" role="status">Загружаю модель…</p>
@@ -46,5 +47,5 @@
   <p>Потяните модель мышью или пальцем, чтобы осмотреть её со всех сторон. Здесь только два пробных движения из семи запланированных.</p>
   <p>При переключении версии сохраняются ракурс, движение и положение на шкале. Для точного сравнения нажмите «Пауза».</p>
 </main>
-<script type="module" src="./viewer.js?v=4"></script>
+<script type="module" src="./viewer.js?v=5"></script>
 </html>

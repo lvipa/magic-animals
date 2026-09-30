@@ -11,11 +11,12 @@ const modelButtons = [...document.querySelectorAll('[data-model]')];
 const versions = {
   original: { file: 'milo-hybrid-motion-WIP.glb', label: 'Исходная проба' },
   garment: { file: 'milo-garment-deformation-WIP.glb', label: 'Проба нового рукава' },
+  compact: { file: 'milo-friendly-proportions-WIP.glb', label: 'Короткая шея и округлые лапки' },
 };
 const modelBytes = new Map();
 async function getModelBytes(file) {
   if (!modelBytes.has(file)) {
-    const pending = fetch(`./${file}?review=4`, { cache: 'no-store' }).then(response => {
+    const pending = fetch(`./${file}?review=5`, { cache: 'no-store' }).then(response => {
       if (!response.ok) throw new Error(`GLB HTTP ${response.status}`);
       return response.arrayBuffer();
     }).catch(error => { modelBytes.delete(file); throw error; });
@@ -121,7 +122,7 @@ function disposeModel(root) {
   materials.forEach(material => material.dispose());
 }
 
-async function load(version = 'garment') {
+async function load(version = 'compact') {
   if (loading) return;
   loading = true;
   modelButtons.forEach(button => { button.disabled = true; });
