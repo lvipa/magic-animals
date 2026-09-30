@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Milo · интерактивный черновик</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; color: #fff5df; background: #142e40; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  main { width: min(1080px, 100%); margin: auto; padding: 16px; }
+  a { color: #ffd484; }
+  h1 { margin: 12px 0; font-size: clamp(26px, 4vw, 42px); }
+  p { line-height: 1.5; }
+  .warning { padding: 12px 16px; border-radius: 12px; background: #29475a; border-left: 4px solid #ffd484; }
+  #stage { width: 100%; height: min(68vh, 660px); min-height: 340px; border-radius: 16px; overflow: hidden; background: #718189; }
+  #stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  button { border: 1px solid #79a4b7; border-radius: 99px; background: #294e62; color: white; padding: 10px 14px; font: inherit; cursor: pointer; }
+  button[aria-pressed="true"] { background: #ffd484; color: #142e40; border-color: #ffd484; }
+  button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid #ffd484; outline-offset: 3px; }
+  #scrub { width: 100%; accent-color: #ffd484; }
+</style>
+<main>
+  <a href="./">← К кадрам и пояснению</a>
+  <h1>Milo · проверка GLB в браузере</h1>
+  <p class="warning"><strong>Технический черновик, CAT ещё не утверждён.</strong> Плечо, корпус и одежда требуют новой формы. В игре используется прежняя модель.</p>
+  <div id="stage" aria-label="Поворотная 3D-модель Milo"></div>
+  <p id="status" role="status">Загружаю модель…</p>
+  <div class="controls" aria-label="Пробные движения">
+    <button data-clip="Wave_WIP" aria-pressed="false">Взмах лапой</button>
+    <button data-clip="Run_WIP" aria-pressed="false">Бег</button>
+    <button id="toggle">Пауза</button>
+  </div>
+  <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Положение в движении">
+  <div class="controls" aria-label="Ракурс">
+    <button data-angle="0">Спереди</button>
+    <button data-angle="45">Под углом</button>
+    <button data-angle="90">Сбоку</button>
+    <button data-angle="180">Сзади</button>
+  </div>
+  <p>Потяните модель мышью или пальцем, чтобы осмотреть её со всех сторон. Здесь только два пробных движения из семи запланированных.</p>
+</main>
+<script type="module" src="./viewer.js?v=1"></script>
+</html>

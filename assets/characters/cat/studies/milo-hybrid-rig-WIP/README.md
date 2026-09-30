@@ -29,6 +29,11 @@ manual edits. The final inspection is **expected to fail**: it correctly
 reports that the seven production clips are missing. The four renders and GLB
 are also available on the isolated
 [rig review page](https://animals.flowlabli.online/review/milo-rig/).
+That page links to an [interactive WebGL review](https://animals.flowlabli.online/review/milo-rig/viewer.html):
+rotate Milo, switch the two WIP clips, pause and scrub their timeline, and
+inspect front/side/back. It loads the same GLB as the stills and does not enter
+the game. Rebuild its bundled viewer after changing
+`scripts/milo-review-viewer.js` with `./run.ps1 build:review`.
 
 ## What works and what remains
 
@@ -43,7 +48,8 @@ A separate Chrome WebGL check loaded the same GLB with Three.js GLTFLoader and
 AnimationMixer. Both clips played and all 19 mesh parts remained skinned, but
 the browser screenshots reveal a visible shoulder/torso seam in `Wave_WIP` and
 an abrupt join between the projected head and the simpler body. The WebGL
-frames are on the review page beside the Blender reimport renders. This is a
+frames and the interactive side/back review make the thin hood, simple paws
+and tail attachment visible too. This is a
 remaining visual failure, so successful Blender reimport alone is insufficient
 for CAT approval. The Vite development server stalled during this check; the
 WebGL test used a minimal isolated Three.js viewer, not the app route.
