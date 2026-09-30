@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Milo — проба рига · Magic Animals</title>
+<style>
+  :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #142e40; color: #fff5df; }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  main { width: min(1150px, 100%); margin: auto; padding: clamp(16px, 4vw, 42px); }
+  a { color: #ffd484; }
+  h1 { font-size: clamp(30px, 5vw, 50px); line-height: 1.1; margin: 12px 0; }
+  p { line-height: 1.55; }
+  .status { background: #25475a; border-left: 4px solid #ffd484; border-radius: 12px; padding: 14px 18px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 22px 0; }
+  figure { margin: 0; background: #25475a; border-radius: 12px; overflow: hidden; }
+  figure img { display: block; width: 100%; height: auto; background: #a1aab1; }
+  figcaption { padding: 9px 12px; }
+  .muted { color: #c7d8df; }
+</style>
+<main>
+  <a href="/friends">← К игре</a>
+  <h1>Milo: проба рига</h1>
+  <div class="status">
+    <strong>Технический черновик, CAT ещё не утверждён.</strong>
+    <p>Собраны отдельная одежда и скелет. Эти кадры получены после повторного импорта экспортированного GLB: лапа и ноги теперь действительно двигаются. Корпус, лапы, одежда, хвост и мимика требуют дальнейшей художественной работы. В игре используется прежний CAT.</p>
+  </div>
+  <h2>Взмах лапой</h2>
+  <div class="grid">
+    <figure><img src="rest.png" alt="Milo в исходной позе" width="720" height="840"><figcaption>Исходная поза</figcaption></figure>
+    <figure><img src="wave.png" alt="Milo поднимает лапу" width="720" height="840"><figcaption>Wave — поднятая лапа</figcaption></figure>
+  </div>
+  <h2>Чередование ног</h2>
+  <div class="grid">
+    <figure><img src="run-left.png" alt="Milo: первая пробная фаза бега" loading="lazy" width="720" height="840"><figcaption>Run — фаза 1</figcaption></figure>
+    <figure><img src="run-right.png" alt="Milo: вторая пробная фаза бега" loading="lazy" width="720" height="840"><figcaption>Run — фаза 2</figcaption></figure>
+  </div>
+  <p><a href="milo-hybrid-motion-WIP.glb" download>Скачать пробный GLB с двумя клипами</a> · <a href="/review/milo-quad/">Предыдущая проба сетки</a></p>
+  <p class="muted">Это контрольные кадры, а не интерактивный проигрыватель анимаций. Исходник Blender находится в ветке <a href="https://github.com/lvipa/magic-animals/tree/codex/milo-blender-handoff/assets/characters/cat/studies/milo-hybrid-rig-WIP">GitHub</a>. Публикация отделена от игрового CAT и не содержит данных доступа к ISP.</p>
+</main>
+</html>

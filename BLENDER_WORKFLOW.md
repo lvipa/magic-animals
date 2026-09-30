@@ -36,6 +36,17 @@ MCP позволяет выполнять операции над сценой; 
 Следующая сетка должна быть спроектирована для деформации, с отдельной
 толстовкой и чистыми кольцами у плеч, локтей и шеи.
 
+### Гибридная проверка настоящего рига
+
+Сохранён отдельный [технический WIP](assets/characters/cat/studies/milo-hybrid-rig-WIP/README.md):
+более близкая к концепту голова перенесена на отдельные сетки тела/худи из
+`milo-authoring.blend`. Скелет из 16 костей, две **пробные** анимации Wave/Run,
+5,59 MB GLB и 55 345 треугольников. Повторный импорт подтвердил движение
+руки и ног; четыре рендера показаны на отдельной странице ISP. Плечо больше
+не рвётся как у слитой quad-сетки, однако формы корпуса, лап и одежды ещё
+упрощены, мимика не риггована и пять движений отсутствуют. Не заменять этим
+файлом игрового CAT и не распространять стиль на остальных животных.
+
 После установки Blender 5.1.2 из корня репозитория можно воспроизвести только
 Blender-этапы без GPU-сервиса:
 
@@ -43,6 +54,8 @@ Blender-этапы без GPU-сервиса:
 & './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/build-milo-quad-study.py
 & './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/create-milo-quad-texture-study.py
 & './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/test-milo-quad-rig.py
+& './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/build-milo-hybrid-rig-study.py
+& './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/verify-milo-hybrid-rig-study.py
 ```
 
 ## Подготовка на другом Windows-компьютере

@@ -1,0 +1,52 @@
+# Milo hybrid rig study — not an approved CAT
+
+This isolated study combines the closer-to-reference projected Milo head with
+the separate body and hoodie meshes from `milo-authoring.blend`. It answers a
+technical question: can real arm, leg and tail bones deform the character and
+survive GLB export without the tears seen in `milo-auto-rig-rejected.blend`?
+
+## Files
+
+- `milo-hybrid-rig-trial.blend`: editable Blender 5.1.2 source with 16 bones,
+  skin weights and the two test actions. Source concept art remains in the
+  project; the rejected old facial meshes were removed from this copy.
+- `milo-hybrid-motion-WIP.glb`: exported 5.59 MB GLB with 55,345 triangles,
+  one skin, 16 joints, 7 materials, 4 embedded images, and **only**
+  `Wave_WIP` and `Run_WIP` animation clips.
+- `glb-reimport-*.png`: four real Blender renders **after reimporting the
+  exported GLB**, showing rest, raised arm and opposite run phases.
+
+Rebuild from the project's authored assets, then verify the exported file:
+
+```powershell
+& './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/build-milo-hybrid-rig-study.py
+& './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/verify-milo-hybrid-rig-study.py
+& 'C:/Python311/python.exe' scripts/inspect-incoming-cat.py assets/characters/cat/studies/milo-hybrid-rig-WIP/milo-hybrid-motion-WIP.glb
+```
+
+The builder refuses to overwrite an existing `.blend`, to preserve later
+manual edits. The final inspection is **expected to fail**: it correctly
+reports that the seven production clips are missing. The four renders and GLB
+are also available on the isolated
+[rig review page](https://animals.flowlabli.online/review/milo-rig/).
+
+## What works and what remains
+
+The raised arm no longer opens the severe shoulder/neck tears of the fused
+quad reconstruction. The exported GLB retains its rig and two distinct
+actions; reimport confirmed that the arm and legs actually rotate. Static
+pockets, zipper and hood were attached to torso/neck bones, and leg weight
+leakage into the hoodie was removed. Subdivision was limited for export to
+stay below the project's mobile polygon and file-size guide.
+
+**This is an animation pipeline proof, not a style benchmark.** The body,
+paws, hoodie folds and tail are still too plain; shoulders still need proper
+sculpted transitions. The eyes and mouth on the projected head are texture
+detail, not facial geometry or blendshapes. The head is a cut-open study mesh
+hidden by the collar, and the groom curves in the `.blend` do not export to
+GLB. `Run_WIP` is an alternating test pose rather than a finished running
+cycle; `Wave_WIP` lacks nuanced paw and facial acting. The other five clips,
+voice synchronization and mobile-device QA are still outstanding.
+
+Do not replace `public/models/cat-studio.glb` with this asset, deploy it to
+the game, approve CAT, or propagate it to the remaining seven animals.
