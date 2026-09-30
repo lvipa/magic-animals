@@ -12,6 +12,8 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "build:review": "node scripts/build-milo-review-viewer.mjs",
+    "build:review:incoming": "node scripts/build-milo-incoming-review.mjs",
+    "test:review:incoming": "node scripts/check-milo-incoming-review.mjs",
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "lint": "eslint src --max-warnings 0",

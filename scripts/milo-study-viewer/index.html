@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Milo · CAT · проба движений</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#263441;color:#fff;font:16px system-ui}
+header{padding:14px 18px}h1{font-size:21px;margin:0 0 8px}button{padding:9px 13px;margin:3px;background:#4f687a;color:white;border:1px solid #7790a0;border-radius:10px;cursor:pointer}button:disabled{opacity:.45}button:focus-visible{outline:3px solid #ffd99d}p{margin:8px 0;line-height:1.45}#stage{width:100%;height:70vh;min-height:380px}canvas{display:block;touch-action:none}.controls{display:flex;flex-wrap:wrap}small{color:#d6dfe3}
+</style>
+<header>
+<h1>Milo · CAT</h1>
+<p>Выберите движение или выражение лица. Персонажа можно повернуть пальцем.</p>
+<div class="controls" aria-label="Движения">
+<button data-clip="Idle_WIP">Idle · отдыхает</button><button data-clip="Happy_WIP">Happy · радуется</button><button data-clip="Wave_WIP">Wave · машет</button><button data-clip="Jump_WIP">Jump · прыгает</button><button data-clip="Run_WIP">Run · бежит</button><button data-clip="Sleep_WIP">Sleep · засыпает</button><button data-clip="Roar_WIP">Roar · пробная поза</button><button id="rest">Исходная стойка</button>
+</div>
+<div class="controls" aria-label="Мимика">
+<button data-face="neutral">Обычный взгляд</button><button data-face="closed">Закрыть глаза</button><button data-face="smile">Улыбка</button><button data-face="left">Взгляд влево</button><button data-face="right">Взгляд вправо</button>
+</div>
+<div class="controls" aria-label="Просмотр">
+<button data-angle="0">Спереди</button><button data-angle="90">Сбоку</button><button data-angle="180">Сзади</button><button data-mode="texture">С текстурами</button><button data-mode="clay">Без текстур</button><button data-mode="wire">Сетка</button>
+</div>
+<p id="status" role="status">Загружаю…</p>
+<small>Рабочая 3D-проба. Края век, рот и деформация одежды ещё требуют доработки.</small>
+</header>
+<main id="stage" aria-label="Трёхмерная модель Milo"></main>
+<script type="module" src="__BUNDLE__"></script>
+</html>
