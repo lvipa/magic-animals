@@ -24,7 +24,11 @@
 <main>
   <a href="./">← К кадрам и пояснению</a>
   <h1>Milo · проверка GLB в браузере</h1>
-  <p class="warning"><strong>Технический черновик, CAT ещё не утверждён.</strong> Плечо, корпус и одежда требуют новой формы. В игре используется прежняя модель.</p>
+  <p class="warning"><strong>Технический черновик, CAT ещё не утверждён.</strong> Новая проба уменьшает пересечения тела с рукавом. Тонкие дефекты стыка остаются; капюшон, лапки, ткань и мимика требуют художественной работы.</p>
+  <div class="controls" aria-label="Версия модели">
+    <button data-model="original" aria-pressed="false">До: исходная проба</button>
+    <button data-model="garment" aria-pressed="false">После: новый рукав</button>
+  </div>
   <div id="stage" aria-label="Поворотная 3D-модель Milo"></div>
   <p id="status" role="status">Загружаю модель…</p>
   <div class="controls" aria-label="Пробные движения">
@@ -40,6 +44,7 @@
     <button data-angle="180">Сзади</button>
   </div>
   <p>Потяните модель мышью или пальцем, чтобы осмотреть её со всех сторон. Здесь только два пробных движения из семи запланированных.</p>
+  <p>При переключении версии сохраняются ракурс, движение и положение на шкале. Для точного сравнения нажмите «Пауза».</p>
 </main>
-<script type="module" src="./viewer.js?v=1"></script>
+<script type="module" src="./viewer.js?v=3"></script>
 </html>

@@ -7,6 +7,22 @@ const stage = document.querySelector('#stage');
 const status = document.querySelector('#status');
 const clipButtons = [...document.querySelectorAll('[data-clip]')];
 const angleButtons = [...document.querySelectorAll('[data-angle]')];
+const modelButtons = [...document.querySelectorAll('[data-model]')];
+const versions = {
+  original: { file: 'milo-hybrid-motion-WIP.glb', label: 'Исходная проба' },
+  garment: { file: 'milo-garment-deformation-WIP.glb', label: 'Проба нового рукава' },
+};
+const modelBytes = new Map();
+async function getModelBytes(file) {
+  if (!modelBytes.has(file)) {
+    const pending = fetch(`./${file}`).then(response => {
+      if (!response.ok) throw new Error(`GLB HTTP ${response.status}`);
+      return response.arrayBuffer();
+    }).catch(error => { modelBytes.delete(file); throw error; });
+    modelBytes.set(file, pending);
+  }
+  return modelBytes.get(file);
+}
 const toggle = document.querySelector('#toggle');
 const scrub = document.querySelector('#scrub');
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
@@ -53,6 +69,9 @@ let activeClip;
 let activeAction;
 let playing = false;
 let dragging = false;
+let modelRoot;
+let modelScene;
+let loading = false;
 const clock = new THREE.Clock();
 
 function chooseClip(name) {
@@ -88,11 +107,30 @@ angleButtons.forEach(button => button.addEventListener('click', () => {
   orbit.update();
 }));
 
-async function load() {
+function disposeModel(root) {
+  const textures = new Set();
+  const materials = new Set();
+  root.traverse(object => {
+    object.geometry?.dispose();
+    for (const material of [object.material].flat().filter(Boolean)) {
+      materials.add(material);
+      for (const value of Object.values(material)) if (value?.isTexture) textures.add(value);
+    }
+  });
+  textures.forEach(texture => texture.dispose());
+  materials.forEach(material => material.dispose());
+}
+
+async function load(version = 'garment') {
+  if (loading) return;
+  loading = true;
+  modelButtons.forEach(button => { button.disabled = true; });
+  const previous = { name: activeClip?.name || 'Wave_WIP',
+    fraction: activeAction && activeClip ? activeAction.time / activeClip.duration : 0,
+    playing: modelRoot ? playing : true };
+  status.textContent = 'Загружаю выбранную пробу…';
   try {
-    const response = await fetch('./milo-hybrid-motion-WIP.glb');
-    if (!response.ok) throw new Error(`GLB HTTP ${response.status}`);
-    const gltf = await new GLTFLoader().parseAsync(await response.arrayBuffer(), '');
+    const gltf = await new GLTFLoader().parseAsync(await getModelBytes(versions[version].file), '');
     gltf.scene.updateMatrixWorld(true);
     const box = new THREE.Box3().setFromObject(gltf.scene, true);
     const size = box.getSize(new THREE.Vector3());
@@ -104,21 +142,44 @@ async function load() {
     root.scale.setScalar(scale);
     root.position.copy(box.getCenter(new THREE.Vector3()).multiplyScalar(-scale));
     root.add(gltf.scene);
+    if (!gltf.animations.some(clip => clip.name === previous.name)) {
+      disposeModel(root);
+      throw new Error('GLB is missing the selected animation');
+    }
+    if (modelRoot) {
+      mixer.stopAllAction();
+      mixer.uncacheRoot(modelScene);
+      scene.remove(modelRoot);
+      disposeModel(modelRoot);
+    }
     scene.add(root);
+    modelRoot = root;
+    modelScene = gltf.scene;
     mixer = new THREE.AnimationMixer(gltf.scene);
     clips = gltf.animations;
     if (!clips.length) throw new Error('GLB has no animation clips');
-    chooseClip('Wave_WIP');
-    status.textContent = 'Черновик загружен. Поверните модель мышью или пальцем.';
+    chooseClip(previous.name);
+    mixer.setTime(previous.fraction * activeClip.duration);
+    scrub.value = String(Math.round(previous.fraction * 1000));
+    playing = previous.playing;
+    toggle.textContent = playing ? 'Пауза' : 'Продолжить';
+    modelButtons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.model === version)));
+    status.textContent = `${versions[version].label}. Оба варианта ещё требуют художественной работы.`;
+    delete window.__miloReviewError;
     window.__miloReview = {
+      version,
       clips: clips.map(clip => clip.name),
       skinned: gltf.scene.getObjectsByProperty('type', 'SkinnedMesh').length,
     };
   } catch (error) {
     status.textContent = `Не удалось открыть черновик: ${error.message}`;
     window.__miloReviewError = String(error);
+  } finally {
+    loading = false;
+    modelButtons.forEach(button => { button.disabled = false; });
   }
 }
+modelButtons.forEach(button => button.addEventListener('click', () => load(button.dataset.model)));
 
 function animate() {
   requestAnimationFrame(animate);
