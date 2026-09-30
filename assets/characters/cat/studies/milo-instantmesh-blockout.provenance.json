@@ -1,0 +1,14 @@
+{
+  "status": "public source study only; unapproved for game; no UV, rig or animations",
+  "source_model": "TencentARC/InstantMesh instant_mesh_base.ckpt (Apache-2.0)",
+  "source_art": "original project Milo A-pose; generated views privately preprocessed on white",
+  "output_glb_sha256": "231d557e4220d263e977139a1c0589c026bc22e6019d9134a7bb8bfcda005611",
+  "source_image_sha256": "6f678437d21aee3ec666950214f1425a2184a9a7966c38dc93aca561e4b50ef9",
+  "checkpoint_sha256": "22701cd25201d624ebb1568b93cf91b43a2c32006835c08fe73e1f3c9f6c44b5",
+  "source_commit": "08822c52fdc399b93ea00e4fa9e596344ed52ccc",
+  "grid_resolution": 96,
+  "vertices": 15780,
+  "triangles": 31536,
+  "seconds": 22.0,
+  "max_vram_gb": 5.3
+}
