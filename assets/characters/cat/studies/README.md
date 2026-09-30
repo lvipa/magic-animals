@@ -28,3 +28,9 @@
 `../milo-reconstruction-256.blend` — исходная сырая форма; `../milo-socket-study.blend`
 и `../milo-eye-study*.blend` сохраняют отклонённые опыты с глазами.
 Алгоритмы построения и границы результата — в `BLENDER_WORKFLOW.md`.
+
+## InstantMesh study with a baked color atlas
+
+See `INSTANTMESH_BLOCKOUT.md` for provenance, the new textured GLB, the
+editable `.blend`, three exported-GLB review renders, and the remaining art
+and rigging failures. None of these studies replaces the live CAT.

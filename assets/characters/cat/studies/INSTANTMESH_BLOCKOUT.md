@@ -29,3 +29,22 @@ be used as the benchmark for the other animals.
 The next art pass must sculpt the face and body, make separate believable eyes
 and real clothing, retopologize and UV unwrap, build the skeleton and seven
 clips, then review the exported GLB from eight angles in the existing renderer.
+
+## Three-view color study (30 September 2026)
+
+`scripts/create-milo-threeview-study.py` projects the project's original Milo
+front and turnaround art onto **this same unapproved mesh**, then bakes the
+result into one 2048 px color atlas. The committed
+`milo-threeview-projection-study.blend` retains the editable source projection
+nodes and packed images. `milo-threeview-projection-study.glb` is a portable
+textured GLB solely for inspection. `milo-threeview-study-{front,side,back}.png`
+are actual Blender renders **after reimporting that exported GLB**.
+
+This fixes the washed-out face and hoodie color on the front review. The
+geometry has not improved: the tail and outer arms still lack convincing fur
+and anatomy, and the back of the ears/head remains rough. The eyes and mouth
+are painted detail, not separate animated geometry. An automated Blender
+QuadriFlow attempt failed on this reconstruction even after voxel cleanup;
+manual sculpt/retopology remains necessary. This file has no skin, facial
+shapes, or animation clips, and must not replace the live CAT or establish the
+visual benchmark for the remaining animals.
