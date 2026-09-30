@@ -230,6 +230,10 @@ for frame, phase in ((1, 1), (7, -1), (13, 1), (19, -1), (25, 1)):
     root_bone.location.z = 0.035 if phase > 0 else 0.0
     root_bone.keyframe_insert(data_path='location', frame=frame, group='root')
 arm.animation_data.action.name = 'Run_WIP'
+# Blender purges unreferenced actions when saving a .blend. Both authored
+# clips must remain editable after a fresh reopen, not merely in the GLB.
+for action_name in ('Wave_WIP', 'Run_WIP'):
+    bpy.data.actions[action_name].use_fake_user = True
 scene.frame_start = 1
 scene.frame_end = 33
 scene.frame_set(1)

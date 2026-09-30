@@ -6,6 +6,12 @@ from mathutils import Vector
 root = Path(__file__).resolve().parent.parent
 out = root / 'assets/characters/cat/studies/milo-hybrid-rig-WIP'
 source = out / 'milo-hybrid-motion-WIP.glb'
+bpy.ops.wm.open_mainfile(filepath=str(out / 'milo-hybrid-rig-trial.blend'))
+source_actions = {action.name for action in bpy.data.actions}
+assert {'Wave_WIP', 'Run_WIP'} <= source_actions, (
+    'Editable Blender source must retain both clips after reopen', source_actions)
+print('SOURCE_ACTIONS_REOPENED', sorted(source_actions), flush=True)
+bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
 bpy.ops.import_scene.gltf(filepath=str(source))

@@ -8,7 +8,7 @@ survive GLB export without the tears seen in `milo-auto-rig-rejected.blend`?
 ## Files
 
 - `milo-hybrid-rig-trial.blend`: editable Blender 5.1.2 source with 16 bones,
-  skin weights and the two test actions. Source concept art remains in the
+  skin weights and both test actions retained after reopening the file. Source concept art remains in the
   project; the rejected old facial meshes were removed from this copy.
 - `milo-hybrid-motion-WIP.glb`: exported 5.59 MB GLB with 55,345 triangles,
   one skin, 16 joints, 7 materials, 4 embedded images, and **only**
@@ -47,6 +47,15 @@ frames are on the review page beside the Blender reimport renders. This is a
 remaining visual failure, so successful Blender reimport alone is insufficient
 for CAT approval. The Vite development server stalled during this check; the
 WebGL test used a minimal isolated Three.js viewer, not the app route.
+An isolated weight-paint trial changed 66 shoulder vertices but left the
+visible join in the browser. It was rejected and is not the source or live
+model. The next garment revision needs a redesigned shoulder/armhole shape and
+supporting deformation topology, not another weight-only adjustment.
+
+The first saved `.blend` accidentally lost `Wave_WIP` as an orphan action even
+though the GLB contained it. The source was repaired with a backup, and the
+builder now marks both actions to survive a Blender save. The verifier checks
+the reopened `.blend` before checking the exported GLB.
 
 **This is an animation pipeline proof, not a style benchmark.** The body,
 paws, hoodie folds and tail are still too plain; shoulders still need proper
