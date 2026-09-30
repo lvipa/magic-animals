@@ -81,3 +81,31 @@ ear patches show missing art detail; the hoodie remains part of the unified
 surface, the eyes/mouth are texture-only, and the mesh has no rig or clips.
 Manual face, clothing, fur and tail sculpting, dedicated materials, skinning,
 facial shapes and motion review still gate production use.
+
+## Automatic rigging stress test: rejected
+
+`scripts/test-milo-quad-rig.py` imports the textured quad GLB, creates a
+16-bone test armature, assigns automatic skin weights, smooths and normalizes
+those weights, and renders a rest pose plus a modest Wave pose (65° upper-arm
+lift) from three angles. Reproduce with Blender 5.1.2:
+
+```powershell
+& './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/test-milo-quad-rig.py
+```
+
+All 10,725 mesh vertices received weights, but
+`milo-auto-rig-rejected-wave-front.png` and the side/quarter frames show torn
+shoulder and neckline geometry. The rest image hides these flaws. The saved
+`milo-auto-rig-rejected.blend` retains the rig, weights, texture and pose as
+reproducible failure evidence. It is **not** a usable animated character and
+must not be exported into the app. The four images are shown on the isolated
+[review page](https://animals.flowlabli.online/review/milo-quad/) so the
+failure is visible alongside the attractive static front view.
+
+The fused body-and-hoodie surface is the blocking issue. The next authoring
+pass must create clean shoulder and neck deformation loops, separated but
+coordinated clothing and body shells, and controllable elbow/paw geometry.
+Retopology only for a static render is insufficient; inspect a raised arm and
+bent elbow before detailing the face or painting final textures. Keep the
+approved front/side/back references in the Blender scene, and validate the
+actual exported GLB from all angles before any CAT replacement.

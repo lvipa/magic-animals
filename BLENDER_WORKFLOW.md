@@ -29,7 +29,12 @@ MCP позволяет выполнять операции над сценой; 
 [`milo-quad-threeview-projection-study.glb`](assets/characters/cat/studies/milo-quad-threeview-projection-study.glb)
 и восемь реальных рендеров для сравнения лежат рядом. Файлы и команды описаны
 в [`INSTANTMESH_BLOCKOUT.md`](assets/characters/cat/studies/INSTANTMESH_BLOCKOUT.md).
-Это основа для ручного скульпта и будущего скининга, не финальный персонаж.
+Это основа для ручного скульпта, не финальный персонаж. Проверка настоящего
+скининга выявила структурную проблему: при взмахе рвутся плечо и ворот.
+Команда и сохранённая отклонённая сцена описаны в
+[`INSTANTMESH_BLOCKOUT.md`](assets/characters/cat/studies/INSTANTMESH_BLOCKOUT.md).
+Следующая сетка должна быть спроектирована для деформации, с отдельной
+толстовкой и чистыми кольцами у плеч, локтей и шеи.
 
 После установки Blender 5.1.2 из корня репозитория можно воспроизвести только
 Blender-этапы без GPU-сервиса:
@@ -37,6 +42,7 @@ Blender-этапы без GPU-сервиса:
 ```powershell
 & './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/build-milo-quad-study.py
 & './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/create-milo-quad-texture-study.py
+& './.tools/blender-5.1.2-windows-x64/blender.exe' -b -t 8 --python scripts/test-milo-quad-rig.py
 ```
 
 ## Подготовка на другом Windows-компьютере
