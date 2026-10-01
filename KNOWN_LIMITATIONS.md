@@ -1,5 +1,9 @@
 # Known limitations
 
+Новая игровая поставка: [CHILD_PLAY_RELEASE.md](CHILD_PLAY_RELEASE.md). Миры — декорации,
+нет физической симуляции ракеты/батута. Новые эмоции/жесты добавляются поверх общего rig;
+FOX/DOG v10 имеют исправления хвостов и челюсти. Текущий каталог содержит 202 записи.
+
 1. **Физический iPad не был доступен.** Safari camera, реальная бумага, audio unlock на iOS, Home Screen, storage eviction и memory behaviour остаются в IOS_TESTING.md. Не объявлять этот checklist выполненным по desktop-тесту.
 2. MindAR — реальное image tracking, не room SLAM. Одна активная цель, нет стабильного пола/стен или сохранённой позиции в комнате. 1.2 секунды после потери — последнее camera-relative pose, затем скрытие.
 3. Confidence не предоставляется используемым API. Нет фальшивого процента точности.

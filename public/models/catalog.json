@@ -1,13 +1,13 @@
 {
   "format": "glTF 2.0",
   "source": "Blender Milo-family production pipeline",
-  "note": "Milo v9: original body meshes/maps and seven clips, clean short fur, 23 joints (25 for elephant), soft ear/trunk controls, compact morph normal noise. Original CAT v8 remains archived. Sunny uses the supplied Cozy Cub lion; Maple derives from the panda with a fur-only atlas repaint.",
+  "note": "Milo family: original body meshes/maps and seven clips, clean short fur, 23 joints (25 for elephant), soft ear/trunk controls, compact morph normals. Fox and dog v10 have repaired tail binding and smoothed jaw displacement. Original assets remain archived. Sunny uses the supplied Cozy Cub lion; Maple derives from the panda with a fur-only atlas repaint.",
   "models": [
     {
       "id": "foxy",
-      "asset": "foxy-milo-polished-1a261c53a789.glb",
-      "sha256": "1a261c53a7892c727191bcbb8d481d0a99f72e8973f29e48161e0566f5901ee5",
-      "bytes": 7114700,
+      "asset": "foxy-milo-polished-0ae45d1adf57.glb",
+      "sha256": "0ae45d1adf575d93ba75dd63ed8760b0d867cd3f31aa89d44b2dd1a029c5e8fb",
+      "bytes": 7118972,
       "height": 1.15,
       "bones": 23,
       "source_file": "Meshy_AI_Hoodie_Fox_0930215011_texture.glb",
@@ -34,17 +34,22 @@
         "Automatic cloth weights require further pose polish",
         "Physical mobile GPU and camera testing pending"
       ],
-      "version": 9,
+      "version": 10,
       "secondary_controls": {
         "ear_L": 1300,
         "ear_R": 1720
       },
       "optimization": {
         "normal_epsilon": 0.000001,
-        "removed_noise_vectors": 1060,
-        "saved_bytes": 14720
+        "removed_noise_vectors": 1063,
+        "saved_bytes": 14756
       },
-      "previous_asset": "foxy-milo-family-e853dbc5b018.glb"
+      "previous_asset": "foxy-milo-polished-1a261c53a789.glb",
+      "deformation_repair": {
+        "tail_vertices": 5284,
+        "jaw_smoothed_vertices": 147,
+        "jaw_scale": 0.7
+      }
     },
     {
       "id": "cat",
@@ -91,9 +96,9 @@
     },
     {
       "id": "dog",
-      "asset": "dog-milo-polished-feeb29280d41.glb",
-      "sha256": "feeb29280d4104af8a3b7bd1d7a0c4974f9538b97a2bf5576a7cb37e083f59ff",
-      "bytes": 5088988,
+      "asset": "dog-milo-polished-f29b546329c1.glb",
+      "sha256": "f29b546329c11eeb90c8ac1c2a7b5c531e26c569afc98233add9635b3701d106",
+      "bytes": 5090600,
       "height": 1.15,
       "bones": 23,
       "source_file": "Meshy_AI_Hoodie_Pup_0930214951_texture.glb",
@@ -120,7 +125,7 @@
         "Automatic cloth weights require further pose polish",
         "Physical mobile GPU and camera testing pending"
       ],
-      "version": 9,
+      "version": 10,
       "secondary_controls": {
         "ear_L": 1456,
         "ear_R": 1458
@@ -130,7 +135,12 @@
         "removed_noise_vectors": 81960,
         "saved_bytes": 1147312
       },
-      "previous_asset": "dog-milo-family-e14d17c69d0d.glb"
+      "previous_asset": "dog-milo-polished-feeb29280d41.glb",
+      "deformation_repair": {
+        "tail_vertices": 3006,
+        "jaw_smoothed_vertices": 508,
+        "jaw_scale": 0.7
+      }
     },
     {
       "id": "lion",

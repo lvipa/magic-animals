@@ -12,7 +12,13 @@ import { ARStage } from '../components/ARStage';
 import { GameScene } from '../scenes/GameScene';
 import { DebugOverlay } from '../components/DebugOverlay';
 import { getTVBridge } from '../tv/WebSocketTVBridge';
-export default function Game() {
+import { KidNav } from '../play/KidNav';
+import { HuntPanel } from '../play/HuntPanel';
+import { WorldBackdrop } from '../play/WorldBackdrop';
+import { useAdventure } from '../play/adventure';
+import { learningActions } from '../play/lessons';
+export default function Game({ hunt = false }: { hunt?: boolean }) {
+  const world = useAdventure((s) => s.world);
   const state = useGame((s) => s.state),
     mode = useGame((s) => s.mode),
     send = useGame((s) => s.send),
@@ -23,6 +29,12 @@ export default function Game() {
   const [scene, setScene] = useState(initialScene),
     [cameraChoice, setCameraChoice] = useState(false);
   const navigate = useNavigate();
+  useEffect(() => {
+    if (hunt) {
+      audio.unlockAudio();
+      send({ type: 'FREE_PLAY' });
+    }
+  }, [hunt, send]);
   const engine = useMemo(
     () =>
       new GameEngine({
@@ -96,6 +108,19 @@ export default function Game() {
     setCameraChoice(false);
     send({ type: 'FREE_PLAY' });
   };
+  const foundCard = (id: import('../config/animals').AnimalId) => {
+    if (hunt) {
+      const adventure = useAdventure.getState();
+      if (!adventure.found.includes(id)) adventure.collect(id);
+    }
+    engine.targetFound(id);
+  };
+  const interact = (id: import('../config/animals').AnimalId) => {
+    if (hunt && scene.animal === id) {
+      audio.unlockAudio();
+      engine.demonstrate(learningActions[Math.floor(Math.random() * learningActions.length)]);
+    } else engine.interact(id);
+  };
   const playAgain = () => {
     engine.attachAR(null);
     send({ type: 'RESET' });
@@ -107,12 +132,13 @@ export default function Game() {
       send({ type: 'CAMERA_READY' });
   }, [active, mode, state, send]);
   return (
-    <main className={`game mode-${mode}`}>
+    <main className={`game mode-${mode} ${hunt ? 'hunt-game' : ''}`}>
+      {mode === '3D_MODE' && <WorldBackdrop world={world} />}
       <div className="sky-glow" />
       {active && mode === 'AR_MODE' && (
         <ARStage
-          onFound={(id) => engine.targetFound(id)}
-          onTap={(id) => engine.interact(id)}
+          onFound={foundCard}
+          onTap={interact}
           onFailure={cameraError}
           onReady={(provider) => {
             engine.attachAR(provider);
@@ -121,12 +147,7 @@ export default function Game() {
         />
       )}
       {active && mode === 'CAMERA_MODE' && <CameraFeed onError={feedError} />}
-      <GameScene
-        scene={scene}
-        welcome={welcome || cameraChoice}
-        mode={mode}
-        onTap={(id) => engine.interact(id)}
-      />
+      <GameScene scene={scene} welcome={welcome || cameraChoice} mode={mode} onTap={interact} />
       <div className="game-ui">
         <div className="brand">
           MAGIC <strong>ANIMALS</strong>
@@ -141,7 +162,17 @@ export default function Game() {
                 <br />
                 <em>Real magic.</em>
               </h1>
-              <p>Help Foxy find three little friends.</p>
+              <p>Найди всю команду и учись вместе с друзьями!</p>
+              <button
+                className="welcome-free kid-hunt-start"
+                onClick={() => {
+                  audio.unlockAudio();
+                  navigate('/hunt');
+                  audio.say('hunt-start');
+                }}
+              >
+                🔎 НАЙТИ 8 ДРУЗЕЙ
+              </button>
               <button className="welcome-free" onClick={() => navigate('/connect-tv')}>
                 Connect TV · QR / code
               </button>
@@ -227,7 +258,7 @@ export default function Game() {
                   <button
                     key={a.id}
                     aria-label={`Play with ${a.word}`}
-                    onClick={() => engine.targetFound(a.id)}
+                    onClick={() => foundCard(a.id)}
                   >
                     <img src={a.thumbnail} alt="" />
                     {a.word}
@@ -252,7 +283,7 @@ export default function Game() {
                 </button>
               </div>
             )}
-            {state === 'FREE_PLAY' && (
+            {state === 'FREE_PLAY' && !hunt && (
               <div className="free-note">
                 {mode === 'AR_MODE' ? 'Scan any of the 8 cards' : 'Tap any friend'} ✨
               </div>
@@ -264,6 +295,49 @@ export default function Game() {
           </>
         )}
       </div>
+      {hunt && (
+        <>
+          <div className="hunt-mode-controls gallery-controls">
+            <button
+              aria-pressed={mode === 'AR_MODE'}
+              onClick={() => {
+                setCameraChoice(false);
+                setMode('AR_MODE');
+              }}
+            >
+              📷 Карточки
+            </button>
+            <button
+              aria-pressed={mode === '3D_MODE'}
+              onClick={() => {
+                setCameraChoice(false);
+                setMode('3D_MODE');
+              }}
+            >
+              🐾 Без камеры
+            </button>
+            <a
+              href="/printables/cards.html"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Распечатать карточки"
+            >
+              🖨
+            </a>
+          </div>
+          <HuntPanel
+            active={scene.animal}
+            demonstrate={(action) => engine.demonstrate(action)}
+            resetScene={() => {
+              engine.enter('FREE_PLAY');
+              const tracking = useRuntime.getState();
+              if (mode === 'AR_MODE' && tracking.visible && tracking.target)
+                foundCard(tracking.target);
+            }}
+          />
+        </>
+      )}
+      <KidNav />
       <ParentGate />
       {parent && (
         <button className="parent-link" onClick={() => navigate('/parent')}>

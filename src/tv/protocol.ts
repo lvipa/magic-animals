@@ -54,4 +54,9 @@ export const tvActions = [
   'roar',
   'woof',
   'meow',
+  'sing',
+  'tired',
+  'hungry',
+  'thirsty',
+  'sad',
 ];

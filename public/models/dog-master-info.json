@@ -1,8 +1,8 @@
 {
   "id": "dog",
-  "asset": "dog-milo-polished-feeb29280d41.glb",
-  "sha256": "feeb29280d4104af8a3b7bd1d7a0c4974f9538b97a2bf5576a7cb37e083f59ff",
-  "bytes": 5088988,
+  "asset": "dog-milo-polished-f29b546329c1.glb",
+  "sha256": "f29b546329c11eeb90c8ac1c2a7b5c531e26c569afc98233add9635b3701d106",
+  "bytes": 5090600,
   "height": 1.15,
   "bones": 23,
   "source_file": "Meshy_AI_Hoodie_Pup_0930214951_texture.glb",
@@ -29,7 +29,7 @@
     "Automatic cloth weights require further pose polish",
     "Physical mobile GPU and camera testing pending"
   ],
-  "version": 9,
+  "version": 10,
   "secondary_controls": {
     "ear_L": 1456,
     "ear_R": 1458
@@ -39,5 +39,10 @@
     "removed_noise_vectors": 81960,
     "saved_bytes": 1147312
   },
-  "previous_asset": "dog-milo-family-e14d17c69d0d.glb"
+  "previous_asset": "dog-milo-polished-feeb29280d41.glb",
+  "deformation_repair": {
+    "tail_vertices": 3006,
+    "jaw_smoothed_vertices": 508,
+    "jaw_scale": 0.7
+  }
 }

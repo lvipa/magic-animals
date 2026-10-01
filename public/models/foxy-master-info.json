@@ -1,8 +1,8 @@
 {
   "id": "foxy",
-  "asset": "foxy-milo-polished-1a261c53a789.glb",
-  "sha256": "1a261c53a7892c727191bcbb8d481d0a99f72e8973f29e48161e0566f5901ee5",
-  "bytes": 7114700,
+  "asset": "foxy-milo-polished-0ae45d1adf57.glb",
+  "sha256": "0ae45d1adf575d93ba75dd63ed8760b0d867cd3f31aa89d44b2dd1a029c5e8fb",
+  "bytes": 7118972,
   "height": 1.15,
   "bones": 23,
   "source_file": "Meshy_AI_Hoodie_Fox_0930215011_texture.glb",
@@ -29,15 +29,20 @@
     "Automatic cloth weights require further pose polish",
     "Physical mobile GPU and camera testing pending"
   ],
-  "version": 9,
+  "version": 10,
   "secondary_controls": {
     "ear_L": 1300,
     "ear_R": 1720
   },
   "optimization": {
     "normal_epsilon": 1e-06,
-    "removed_noise_vectors": 1060,
-    "saved_bytes": 14720
+    "removed_noise_vectors": 1063,
+    "saved_bytes": 14756
   },
-  "previous_asset": "foxy-milo-family-e853dbc5b018.glb"
+  "previous_asset": "foxy-milo-polished-1a261c53a789.glb",
+  "deformation_repair": {
+    "tail_vertices": 5284,
+    "jaw_smoothed_vertices": 147,
+    "jaw_scale": 0.7
+  }
 }

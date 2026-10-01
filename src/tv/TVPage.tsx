@@ -21,7 +21,9 @@ import { StudioEnvironment } from '../scenes/StudioLighting';
 import { characterDetails, type Character } from '../characters/catalog';
 import PairingQR from './PairingQR';
 import { useCastLayout } from '../scenes/CastLayout';
-type FriendScene = { id: Character | null; action: string };
+import { WorldBackdrop } from '../play/WorldBackdrop';
+import { isWorld, type World } from '../play/adventure';
+type FriendScene = { id: Character | null; action: string; world?: World; caption?: string };
 
 const initial: TVSnapshot = {
   state: 'WELCOME',
@@ -203,6 +205,15 @@ function TVScene({
   const fallback = <FallbackStage snapshot={snapshot} friend={friend} onReady={onReady} />;
   return (
     <div className="tv-stage">
+      <WorldBackdrop
+        world={
+          isWorld(friend?.world)
+            ? friend.world
+            : isWorld(snapshot.scene.world)
+              ? snapshot.scene.world
+              : 'meadow'
+        }
+      />
       <TVRenderBoundary fallback={fallback}>
         <Canvas
           camera={{ position: [0, 1.0, 5.6], fov: 38 }}
@@ -411,7 +422,7 @@ export default function TVPage() {
           </div>
           <div className="tv-caption" aria-live="polite">
             {friend?.id
-              ? `${characterDetails[friend.id].word}!`
+              ? friend.caption || `${characterDetails[friend.id].word}!`
               : snapshot.paused
                 ? 'Foxy is taking a little break.'
                 : snapshot.scene.caption || 'Ready for a little magic.'}

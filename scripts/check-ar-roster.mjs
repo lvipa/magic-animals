@@ -4,6 +4,7 @@ import { browserExecutable, isolateTestContext } from './browser-runtime.mjs';
 const base = process.env.BASE_URL || 'http://127.0.0.1:4173';
 const catalog = JSON.parse(await readFile('public/markers/catalog.json', 'utf8'));
 const output = '.test-artifacts/ar-roster';
+const hunt = process.argv.includes('--hunt');
 await mkdir(output, { recursive: true });
 const browser = await chromium.launch({
   headless: true,
@@ -50,13 +51,15 @@ const errors = [],
 const page = await context.newPage();
 page.on('pageerror', (e) => errors.push(e.message));
 try {
-  await page.goto(base);
-  const scan = page.getByRole('button', { name: 'SCAN ANY CARD · 8 friends' });
-  await scan.waitFor({ timeout: 60000 });
-  const box = await scan.boundingBox();
-  if (!box || box.y + box.height > 844) throw Error('Scan button outside phone viewport');
-  await scan.click();
-  await page.locator('.free-note').waitFor();
+  await page.goto(base + (hunt ? '/hunt' : ''));
+  if (!hunt) {
+    const scan = page.getByRole('button', { name: 'SCAN ANY CARD · 8 friends' });
+    await scan.waitFor({ timeout: 60000 });
+    const box = await scan.boundingBox();
+    if (!box || box.y + box.height > 844) throw Error('Scan button outside phone viewport');
+    await scan.click();
+    await page.locator('.free-note').waitFor();
+  } else await page.locator('.hunt-panel').waitFor();
   for (const id of ['elephant', 'panda', 'cat', 'bunny', 'foxy', 'dog', 'bear', 'lion']) {
     await page.evaluate(() => window.__showARCard(null));
     await page.waitForTimeout(1700);
@@ -73,7 +76,7 @@ try {
     results.push({ id, word });
     console.log('PASS unordered AR', word);
   }
-  if (!(await page.locator('.stars').innerText()).includes('8 / 8'))
+  if (!(await page.locator(hunt ? '.hunt-panel header' : '.stars').innerText()).includes('8 / 8'))
     throw Error('Eight discovered friends not counted');
   if (errors.length) throw Error(errors.join('\n'));
   await writeFile(

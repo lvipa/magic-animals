@@ -1,6 +1,7 @@
 import { useState, useSyncExternalStore } from 'react';
 import { Link } from 'react-router-dom';
 import { getTVBridge } from './WebSocketTVBridge';
+import { KidNav } from '../play/KidNav';
 export default function TVPairing() {
   const bridge = getTVBridge(),
     status = useSyncExternalStore(bridge.subscribe, bridge.getStatus);
@@ -96,6 +97,7 @@ export default function TVPairing() {
         </a>
       </div>
       <p>When connected, choose Back to game. No account or password is needed.</p>
+      <KidNav />
     </main>
   );
 }

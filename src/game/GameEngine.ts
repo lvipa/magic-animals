@@ -4,6 +4,8 @@ import type { ARProvider } from '../ar/ARProvider';
 import { NoopTVBridge, type TVBridge } from '../tv/TVBridge';
 import type { TransferPlan } from '../tv/protocol';
 import { characterActionCue } from '../audio/characterVoices';
+import { moves, type LearningAction } from '../play/lessons';
+import { useAdventure, type World } from '../play/adventure';
 export interface SceneState {
   caption: string;
   animal: AnimalId | null;
@@ -12,6 +14,7 @@ export interface SceneState {
   foxy: FoxyMood;
   effects: boolean;
   finale: boolean;
+  world?: World;
 }
 export const initialScene: SceneState = {
   caption: '',
@@ -89,7 +92,7 @@ export class GameEngine {
     this.timers.add(timer);
   }
   private update(patch: Partial<SceneState>) {
-    this.scene = { ...this.scene, ...patch };
+    this.scene = { ...this.scene, ...patch, world: useAdventure.getState().world };
     this.deps.show(this.scene);
     this.tv.sendEvent('SCENE_SYNC', {
       state: this.deps.getState(),
@@ -274,6 +277,12 @@ export class GameEngine {
     this.update({ action, foxy: 'laugh' });
     this.say(characterActionCue(id, action));
     this.after(2300, () => this.update({ action: 'idle', foxy: 'happy' }));
+  }
+  demonstrate(action: LearningAction) {
+    if (!this.scene.animal || this.scene.reveal < 1) return;
+    this.cancel();
+    this.update({ action, caption: moves[action].phrase, effects: false, foxy: 'happy' });
+    this.say(characterActionCue(this.scene.animal, action));
   }
   dispose() {
     this.pause();

@@ -31,5 +31,32 @@ for action,text in {'wave':'Can you wave? Wave!','jump':'Can you jump? Jump!',
                     'happy':'Show me happy! Happy!'}.items():
     lines['ask-'+action]={'text':text,'group':'foxy','speed':.98,'voice':'af_bella','pitch':3.0}
 lines['try-again']={'text':"Let's listen again! You can do it!",'group':'foxy','speed':.98,'voice':'af_bella','pitch':3.0}
+learning={
+ 'happy':'I am happy!', 'wave':'I am waving!', 'jump':'I am jumping!',
+ 'run':'I am running!', 'sleep':'I am sleeping.', 'sing':'I am singing! La, la, la!',
+ 'tired':'I am tired.', 'hungry':'I am hungry.', 'thirsty':'I am thirsty.', 'sad':'I am sad.',
+}
+facts={
+ 'cat':'I have whiskers and soft paws. Whiskers! Paws!',
+ 'foxy':'I have a fluffy tail and pointed ears. Tail! Ears!',
+ 'dog':'I have floppy ears and little paws. Ears! Paws!',
+ 'lion':'I have a soft mane and big paws. Mane! Paws!',
+ 'bunny':'I have long ears. I can hop! Long ears! Hop!',
+ 'bear':'I have round ears and soft paws. Round ears! Paws!',
+ 'panda':'I am black and white. I have soft paws. Black! White!',
+ 'elephant':'I have big ears and a trunk. Big ears! Trunk!',
+}
+for id,(_,voice,pitch) in cast.items():
+    for action,text in learning.items():
+        lines[f'character-{id}-learn-{action}']={'text':text,'group':'characters','speed':.92,
+            'voice':voice,'pitch':pitch-.6 if action in ['sleep','tired','sad'] else pitch}
+    lines[f'character-{id}-discover']={'text':facts[id],'group':'characters','speed':.94,'voice':voice,'pitch':pitch}
+for action,text in {'sing':'Can you find singing? Sing!', 'tired':'Who is tired? Tired!',
+    'hungry':'Who is hungry? Hungry!', 'thirsty':'Who is thirsty? Thirsty!', 'sad':'Who is sad? Sad!'}.items():
+    lines['ask-'+action]={'text':text,'group':'foxy','speed':.94,'voice':'af_bella','pitch':3.0}
+for cue,text in {'hunt-start':"Let's find all eight friends! Show me a card!",
+    'world-space':'Space! A rocket! Blast off!', 'world-meadow':'A meadow! Flowers and sunshine!',
+    'world-forest':'A forest! So many trees!', 'world-trampoline':'Trampolines! Bounce, bounce!'}.items():
+    lines[cue]={'text':text,'group':'foxy','speed':.94,'voice':'af_bella','pitch':3.0}
 path.write_text(json.dumps(lines,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
 print(f'Voice plan: {len(lines)} spoken clips across {len(cast)} distinct voices')

@@ -8,17 +8,40 @@ import CharacterGallery from '../parent/CharacterGallery';
 import TVPage from '../tv/TVPage';
 import TVPairing from '../tv/TVPairing';
 import AudioStudio from '../parent/AudioStudio';
+import Worlds from '../play/Worlds';
 import { lazy, Suspense } from 'react';
 const CatReview = import.meta.env.DEV ? lazy(() => import('../parent/CatReview')) : null;
-const CatImportReview = import.meta.env.DEV ? lazy(() => import('../parent/CatImportReview')) : null;
+const CatImportReview = import.meta.env.DEV
+  ? lazy(() => import('../parent/CatImportReview'))
+  : null;
 export default function App() {
   return (
     <Routes>
-      {CatReview && <Route path="/__cat-review" element={<Suspense fallback={<p>Loading review…</p>}><CatReview /></Suspense>} />}
-      {CatImportReview && <Route path="/__cat-import-review" element={<Suspense fallback={<p>Loading review…</p>}><CatImportReview /></Suspense>} />}
+      {CatReview && (
+        <Route
+          path="/__cat-review"
+          element={
+            <Suspense fallback={<p>Loading review…</p>}>
+              <CatReview />
+            </Suspense>
+          }
+        />
+      )}
+      {CatImportReview && (
+        <Route
+          path="/__cat-import-review"
+          element={
+            <Suspense fallback={<p>Loading review…</p>}>
+              <CatImportReview />
+            </Suspense>
+          }
+        />
+      )}
       <Route path="/tv" element={<TVPage />} />
       <Route path="/connect-tv" element={<TVPairing />} />
       <Route path="/friends" element={<CharacterGallery playground />} />
+      <Route path="/hunt" element={<Game key="hunt" hunt />} />
+      <Route path="/worlds" element={<Worlds />} />
       <Route
         path="/parent/audio"
         element={
@@ -35,7 +58,7 @@ export default function App() {
           </ParentAccess>
         }
       />
-      <Route path="/" element={<Game />} />
+      <Route path="/" element={<Game key="home" />} />
       <Route
         path="/parent"
         element={

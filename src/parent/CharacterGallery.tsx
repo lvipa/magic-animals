@@ -18,9 +18,22 @@ import { ModelLoadStatus } from '../characters/ModelLoadStatus';
 import { useQuality } from '../hooks/useQuality';
 import { FrameMeter } from '../scenes/FrameMeter';
 import { animateCharacter, type Character } from '../characters/models';
+import { KidNav } from '../play/KidNav';
+import { WorldPicker } from '../play/Worlds';
+import { WorldBackdrop } from '../play/WorldBackdrop';
+import { useAdventure } from '../play/adventure';
+import { discoveries, isLearningAction, moves } from '../play/lessons';
 
 const characters = [...characterIds];
-function GalleryActors({ selected, action }: { selected: Character | 'all'; action: string }) {
+function GalleryActors({
+  selected,
+  action,
+  onTap,
+}: {
+  selected: Character | 'all';
+  action: string;
+  onTap: (id: Character) => void;
+}) {
   const width = useThree((state) => state.viewport.width);
   const fit = selected === 'all' ? Math.min(1, width / 6.5) : 1;
   return (
@@ -36,6 +49,7 @@ function GalleryActors({ selected, action }: { selected: Character | 'all'; acti
             scale={selected === 'all' ? 0.94 * fit : 1.55}
             action={action}
             lowDetail={selected === 'all'}
+            onTap={() => onTap(id)}
           />
         ))}
     </>
@@ -48,6 +62,7 @@ function Model({
   action,
   scale,
   lowDetail,
+  onTap,
 }: {
   kind: Character;
   x: number;
@@ -55,12 +70,17 @@ function Model({
   action: string;
   scale: number;
   lowDetail: boolean;
+  onTap: () => void;
 }) {
   const model = useCharacterModel(kind, !lowDetail);
   const quality = useQuality();
   useEffect(() => {
     if (model.userData.authored) {
-      const reduced = lowDetail || quality.effective === 'LOW' || /iPad|iPhone|Android/i.test(navigator.userAgent) || (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+      const reduced =
+        lowDetail ||
+        quality.effective === 'LOW' ||
+        /iPad|iPhone|Android/i.test(navigator.userAgent) ||
+        (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
       model.userData.lowDetail = reduced;
       // Keep only one groom layer visible when eight characters share the stage.
       model.traverse((node) => {
@@ -72,7 +92,13 @@ function Model({
   useFrame(({ clock }) => animateCharacter(model, clock.elapsedTime, action));
   return (
     <group position={[x, y, 0]} scale={scale}>
-      <primitive object={model} />
+      <primitive
+        object={model}
+        onClick={(event: { stopPropagation: () => void }) => {
+          event.stopPropagation();
+          onTap();
+        }}
+      />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.002, 0.02]} scale={[0.4, 0.27, 1]}>
         <circleGeometry args={[1, 40]} />
         <meshBasicMaterial color="#102737" transparent opacity={0.24} depthWrite={false} />
@@ -84,6 +110,9 @@ export default function CharacterGallery({ playground = false }: { playground?: 
   const quality = useQuality();
   const [selected, setSelected] = useState<Character | 'all'>(playground ? 'bunny' : 'all');
   const [action, setAction] = useState('idle');
+  const world = useAdventure((s) => s.world);
+  const [stars, setStars] = useState(0);
+  const [discovery, setDiscovery] = useState(false);
   useSyncExternalStore(subscribeCharacterAssets, () =>
     characters.map(characterAssetRevision).join(','),
   );
@@ -126,6 +155,8 @@ export default function CharacterGallery({ playground = false }: { playground?: 
           : 'great',
       );
       setLesson(null);
+      setStars((value) => value + 1);
+      setDiscovery(false);
       if (kind === 'animal') setAction('happy');
     } else {
       setFeedback('Try again. Listen to Foxy!');
@@ -136,8 +167,20 @@ export default function CharacterGallery({ playground = false }: { playground?: 
   };
   useEffect(() => {
     if (playground)
-      bridge.sendEvent('FRIEND_SCENE', { id: selected === 'all' ? null : selected, action });
-  }, [bridge, playground, selected, action, connection.state]);
+      bridge.sendEvent('FRIEND_SCENE', {
+        id: selected === 'all' ? null : selected,
+        action,
+        world,
+        caption:
+          discovery && selected !== 'all'
+            ? cueTexts[`character-${selected}-discover`]
+            : isLearningAction(action)
+              ? moves[action].phrase
+              : selected === 'all'
+                ? 'Our friends!'
+                : `${characterDetails[selected].word}!`,
+      });
+  }, [bridge, playground, selected, action, world, discovery, connection.state]);
   useEffect(
     () => () => {
       if (playground) bridge.sendEvent('FRIEND_SCENE', { id: null, action: 'idle' });
@@ -166,6 +209,7 @@ export default function CharacterGallery({ playground = false }: { playground?: 
             aria-pressed={selected === id}
             onClick={() => {
               setSelected(id);
+              setDiscovery(false);
               if (id !== 'all' && answerLesson('animal', id)) return;
               if (playground && id !== 'all') {
                 speak(characterActionCue(id, 'idle'));
@@ -180,7 +224,9 @@ export default function CharacterGallery({ playground = false }: { playground?: 
           </button>
         ))}
       </div>
+      {playground && <WorldPicker />}
       <div className="gallery-stage">
+        {playground && <WorldBackdrop world={world} />}
         <ModelLoadStatus ids={selected === 'all' ? characters : [selected]} />
         <Canvas
           camera={{ position: [0, 1.1, selected === 'all' ? 6.8 : 4.6], fov: 33 }}
@@ -193,7 +239,19 @@ export default function CharacterGallery({ playground = false }: { playground?: 
           <directionalLight position={[-3, 4, 5]} intensity={1.65} color="#ffedda" />
           <directionalLight position={[3, 1, 3]} intensity={0.45} color="#cdd8f5" />
           <directionalLight position={[2, 3, -3]} intensity={1.25} color="#e6cbf1" />
-          <GalleryActors selected={selected} action={action} />
+          <GalleryActors
+            selected={selected}
+            action={action}
+            onTap={(id) => {
+              setSelected(id);
+              if (answerLesson('animal', id)) return;
+              const move = action === 'idle' ? 'wave' : action;
+              setAction(move);
+              setDiscovery(false);
+              setFeedback('');
+              speak(characterActionCue(id, move));
+            }}
+          />
           {selected !== 'all' && (
             <ContactShadows
               position={[0, -0.751, 0]}
@@ -233,26 +291,71 @@ export default function CharacterGallery({ playground = false }: { playground?: 
           )}
       </div>
       <div className="gallery-controls" aria-label="Animation">
-        {['idle', 'happy', 'wave', 'jump', 'run', 'sleep', 'roar'].map((mood) => (
+        {['idle', ...learningActions, 'roar'].map((mood) => (
           <button
             key={mood}
             aria-pressed={action === mood}
             onClick={() => {
               setAction(mood);
-              if (!answerLesson('action', mood))
+              setDiscovery(false);
+              if (!answerLesson('action', mood)) {
+                setFeedback('');
                 speak(characterActionCue(selected === 'all' ? 'foxy' : selected, mood));
+              }
             }}
           >
-            {mood}
+            {isLearningAction(mood) ? `${moves[mood].icon} ${moves[mood].label}` : mood}
           </button>
         ))}
       </div>
       {playground && (
         <section className="listening-play" aria-label="English listening games">
-          <h2>Listen, find & move!</h2>
+          <h2>
+            Смотри, слушай и повторяй!{' '}
+            <span aria-label={`${stars} learning stars`}>⭐ {stars}</span>
+          </h2>
+          {isLearningAction(action) && !lesson && !discovery && (
+            <div className="phrase-card">
+              <strong>{moves[action].phrase}</strong>
+              <span>{moves[action].ru}</span>
+              <small>{moves[action].hint}</small>
+              <button
+                onClick={() =>
+                  speak(characterActionCue(selected === 'all' ? 'foxy' : selected, action))
+                }
+              >
+                🔊 Повторить
+              </button>
+            </div>
+          )}
           <div className="gallery-controls">
             <button onClick={() => startLesson('animal')}>Listen & find a friend</button>
             <button onClick={() => startLesson('action')}>Listen & choose a move</button>
+            {selected !== 'all' && (
+              <>
+                <button
+                  onClick={() => {
+                    setDiscovery(true);
+                    setLesson(null);
+                    setFeedback('');
+                    setAction('wave');
+                    speak(`character-${selected}-discover`);
+                  }}
+                >
+                  💬 Расскажи о себе
+                </button>
+                <button
+                  onClick={() => {
+                    setSelected(selected);
+                    setAction('happy');
+                    setDiscovery(false);
+                    speak(characterActionCue(selected, 'happy'));
+                  }}
+                >
+                  🤗 Обнять друга
+                </button>
+              </>
+            )}
             {selected !== 'all' && (
               <button
                 onClick={() => {
@@ -270,12 +373,19 @@ export default function CharacterGallery({ playground = false }: { playground?: 
             )}
           </div>
           <p aria-live="polite">
-            {feedback ||
-              cueTexts[characterActionCue(selected === 'all' ? 'foxy' : selected, action)]}
+            {discovery && selected !== 'all'
+              ? discoveries[selected]
+              : feedback ||
+                cueTexts[characterActionCue(selected === 'all' ? 'foxy' : selected, action)]}
           </p>
         </section>
       )}
-      {playground && <p>3D play · Tap a friend, then choose a move.</p>}
+      {playground && (
+        <>
+          <p>Выбери друга и действие. Послушай фразу, покажи движение и повтори по-английски.</p>
+          <KidNav />
+        </>
+      )}
     </main>
   );
 }

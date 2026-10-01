@@ -109,7 +109,8 @@ function validEvent(string $event, $payload): ?array {
     $animals=['cat','dog','lion','foxy','bunny','bear','panda','elephant'];
     $friends=['foxy','cat','dog','lion','bunny','bear','panda','elephant'];
     $moods=['idle','lookAround','point','happy','surprised','scared','laugh','dance','fall'];
-    $actions=array_merge($moods,['jump','play','spin','chase tail','run','sit','sleep','roll','wave','roar','woof','meow']);
+    $actions=array_merge($moods,['jump','play','spin','chase tail','run','sit','sleep','roll','wave','roar','woof','meow','sing','tired','hungry','thirsty','sad']);
+    $worlds=['meadow','space','forest','trampoline'];
     $states=['BOOT','WELCOME','CAMERA_PERMISSION','INTRO','FINALE','COMPLETE','FREE_PLAY'];
     foreach ($animals as $animal) { $upper=strtoupper($animal); array_push($states,'FIND_'.$upper,$upper.'_FOUND',$upper.'_PLAY'); }
     $cues=['rabbit','bear','panda','elephant','hello','intro','great','friends','cat','dog','lion',
@@ -118,8 +119,10 @@ function validEvent(string $event, $payload): ?array {
     foreach ($manifest['clips'] ?? [] as $clip) { if (isset($clip['cue']) && is_string($clip['cue'])) $cues[]=$clip['cue']; }
     if ($event === 'FRIEND_SCENE') {
         $animal=$payload['id'] ?? null;
-        return ($animal === null || in_array($animal,$friends,true)) && in_array($payload['action'] ?? null,$actions,true)
-            ? ['id'=>$animal,'action'=>$payload['action']] : null;
+        return ($animal === null || in_array($animal,$friends,true)) && in_array($payload['action'] ?? null,$actions,true) &&
+            (!isset($payload['world']) || in_array($payload['world'],$worlds,true)) &&
+            (!isset($payload['caption']) || is_string($payload['caption']) && strlen($payload['caption'])<=120)
+            ? array_merge(['id'=>$animal,'action'=>$payload['action']],isset($payload['world']) ? ['world'=>$payload['world']] : [],isset($payload['caption']) ? ['caption'=>$payload['caption']] : []) : null;
     }
     if ($event === 'AUDIO_ROUTE') return in_array($payload['target'] ?? null,['ipad','tv'],true) ? ['target'=>$payload['target']] : null;
     if ($event === 'AUDIO_CUE') return in_array($payload['cue'] ?? null,$cues,true) ? ['cue'=>$payload['cue']] : null;
@@ -135,10 +138,12 @@ function validEvent(string $event, $payload): ?array {
         $scene['reveal']<0 || $scene['reveal']>1 ||
         !in_array($scene['action'] ?? null,$actions,true) || !in_array($scene['foxy'] ?? null,$moods,true) ||
         !is_bool($scene['effects'] ?? null) || !is_bool($scene['finale'] ?? null) ||
+        (isset($scene['world']) && !in_array($scene['world'],$worlds,true)) ||
         (isset($payload['paused']) && !is_bool($payload['paused']))) return null;
     return ['state'=>$payload['state'],'paused'=>$payload['paused'] ?? false,
         'scene'=>['caption'=>$scene['caption'],'animal'=>$scene['animal'] ?? null,'reveal'=>(float)$scene['reveal'],
-            'action'=>$scene['action'],'foxy'=>$scene['foxy'],'effects'=>$scene['effects'],'finale'=>$scene['finale']]];
+            'action'=>$scene['action'],'foxy'=>$scene['foxy'],'effects'=>$scene['effects'],'finale'=>$scene['finale']] +
+            (isset($scene['world']) ? ['world'=>$scene['world']] : [])];
 }
 function errorTo(array &$db, string $sid, string $code, string $message): void {
     sendTo($db,$sid,['kind'=>'error','code'=>$code,'message'=>$message]);

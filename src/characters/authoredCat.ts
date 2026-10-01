@@ -7,6 +7,7 @@ import { CAST_MODEL_URLS } from './castAssets';
 import type { Character } from './catalog';
 import { collectSecondaryControls, animateSecondaryControls } from './secondaryMotion';
 import { audio } from '../audio/AudioManager';
+import { collectExpressiveControls, animateExpression } from './expressiveMotion';
 
 const assets = new Map<Character, GLTF>();
 const pending = new Map<Character, Promise<void>>();
@@ -55,11 +56,12 @@ async function load(id: Character, priority: boolean) {
   publishStatus(id, { phase: 'queued', loaded: 0, total: 0 });
   // Transfer a reserved slot directly to the next waiter, so a new request
   // cannot overtake it and exceed the two-download limit.
-  if (activeLoads >= 2) await new Promise<void>((resolve) => {
-    const item = { id, resolve };
-    if (priority) waitingLoads.unshift(item);
-    else waitingLoads.push(item);
-  });
+  if (activeLoads >= 2)
+    await new Promise<void>((resolve) => {
+      const item = { id, resolve };
+      if (priority) waitingLoads.unshift(item);
+      else waitingLoads.push(item);
+    });
   else activeLoads++;
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 60000);
@@ -69,7 +71,8 @@ async function load(id: Character, priority: boolean) {
     if (!response.ok) throw new Error('Model download failed');
     const total = Number(response.headers.get('content-length')) || 0;
     const chunks: Uint8Array[] = [];
-    let loaded = 0, lastUpdate = 0;
+    let loaded = 0,
+      lastUpdate = 0;
     const reader = response.body?.getReader();
     if (reader) {
       let chunk = await reader.read();
@@ -91,7 +94,10 @@ async function load(id: Character, priority: boolean) {
     window.clearTimeout(timeout);
     const buffer = new Uint8Array(loaded);
     let offset = 0;
-    for (const chunk of chunks) { buffer.set(chunk, offset); offset += chunk.length; }
+    for (const chunk of chunks) {
+      buffer.set(chunk, offset);
+      offset += chunk.length;
+    }
     publishStatus(id, { phase: 'decoding', loaded, total: loaded });
     sharedLoader ??= new GLTFLoader().setDRACOLoader(
       new DRACOLoader().setDecoderPath('/draco/').setWorkerLimit(1),
@@ -110,9 +116,16 @@ async function load(id: Character, priority: boolean) {
     if ('caches' in window) {
       try {
         const keys = await caches.keys();
-        await Promise.all(keys.filter((key) => key === 'animals-models-v1' || key.includes('precache'))
-          .map(async (key) => (await caches.open(key)).delete(characterModelUrl(id), { ignoreSearch: true })));
-      } catch { /* Storage may be unavailable; the visible retry still works online. */ }
+        await Promise.all(
+          keys
+            .filter((key) => key === 'animals-models-v1' || key.includes('precache'))
+            .map(async (key) =>
+              (await caches.open(key)).delete(characterModelUrl(id), { ignoreSearch: true }),
+            ),
+        );
+      } catch {
+        /* Storage may be unavailable; the visible retry still works online. */
+      }
     }
     const error = `${id.toUpperCase()} could not load. Check your connection and try again.`;
     characterAssetErrors.set(id, error);
@@ -211,11 +224,17 @@ export function makeAuthoredCharacter(kind: Character): THREE.Group | null {
     revealUniform,
     ownedMaterials,
     secondaryControls: collectSecondaryControls(content),
+    expressiveControls: collectExpressiveControls(content),
     mouths: [] as Array<{ mesh: THREE.Mesh; index: number }>,
+    tiredLids: [] as Array<{ mesh: THREE.Mesh; index: number }>,
   };
   content.traverse((node) => {
     if (node instanceof THREE.Mesh && node.morphTargetDictionary?.mouthOpen !== undefined)
       root.userData.mouths.push({ mesh: node, index: node.morphTargetDictionary.mouthOpen });
+    if (node instanceof THREE.Mesh && node.morphTargetDictionary) {
+      for (const [name, index] of Object.entries(node.morphTargetDictionary))
+        if (name.startsWith('blinkHalf_')) root.userData.tiredLids.push({ mesh: node, index });
+    }
   });
   revealAuthoredCat(root, 1);
   animateAuthoredCat(root, 0, 'idle');
@@ -242,7 +261,7 @@ export function animateAuthoredCat(root: THREE.Group, time: number, action: stri
       ? 'wave'
       : ['meow', 'woof', 'surprised'].includes(action)
         ? 'roar'
-        : ['dance', 'laugh', 'play'].includes(action)
+        : ['dance', 'laugh', 'play', 'sing'].includes(action)
           ? 'happy'
           : 'idle';
   if (data.action !== clipName) {
@@ -262,10 +281,19 @@ export function animateAuthoredCat(root: THREE.Group, time: number, action: stri
   const dt = data.previousTime === null ? 0 : Math.max(0, Math.min(0.1, time - data.previousTime));
   mixer.update(dt);
   animateSecondaryControls(data.secondaryControls, data.kind, time, action);
+  animateExpression(data.expressiveControls, data.kind, time, action);
+  if (action === 'tired') {
+    for (const { mesh, index } of data.tiredLids as Array<{ mesh: THREE.Mesh; index: number }>)
+      if (mesh.morphTargetInfluences)
+        mesh.morphTargetInfluences[index] = Math.max(mesh.morphTargetInfluences[index], 0.65);
+  }
   const speaking = audio.mouthLevelFor(data.kind);
   for (const { mesh, index } of data.mouths as Array<{ mesh: THREE.Mesh; index: number }>) {
     if (mesh.morphTargetInfluences)
-      mesh.morphTargetInfluences[index] = Math.max(mesh.morphTargetInfluences[index], speaking * .85);
+      mesh.morphTargetInfluences[index] = Math.max(
+        mesh.morphTargetInfluences[index],
+        speaking * 0.85,
+      );
   }
   data.previousTime = time;
   const content = data.content as THREE.Object3D;

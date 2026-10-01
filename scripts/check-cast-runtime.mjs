@@ -45,7 +45,7 @@ try {
   });
   await page.goto('http://127.0.0.1:4173/test-cast/index.html');
   await page
-    .waitForFunction(() => window.castReport || false, {}, { timeout: 30000 })
+    .waitForFunction(() => window.castReport || false, {}, { timeout: 60000 })
     .catch((error) => {
       throw Error(errors.join('\n') || error.message);
     });
@@ -59,22 +59,40 @@ try {
       ['wave', 0.7],
       ['roar', 0.7],
       ['sleep', 2.2],
+      ['jump-crouch', 0.375],
+      ['jump-apex', 0.917],
     ]) {
       await page.evaluate(
         ([id, action, time]) => window.showCharacter(id, action, time),
-        [id, action, time],
+        [id, action.startsWith('jump-') ? 'jump' : action, time],
       );
       await page.screenshot({ path: `${dir}/${id}-${action}.png` });
     }
+    if (['foxy', 'dog'].includes(id)) {
+      await page.evaluate(([id]) => window.showCharacter(id, 'roar', 0.875, 1.25), [id]);
+      await page.screenshot({ path: `${dir}/${id}-mouth-profile.png` });
+    }
+    if (['cat', 'dog', 'elephant'].includes(id)) {
+      for (const action of ['sing', 'tired', 'hungry', 'thirsty', 'sad']) {
+        await page.evaluate(([id, action]) => window.showCharacter(id, action, 0.7), [id, action]);
+        await page.screenshot({ path: `${dir}/${id}-${action}.png` });
+      }
+    }
   }
   await page.evaluate(() => {
-    const button=document.createElement('button');button.id='voice-check';button.textContent='Voice check';
-    button.onclick=()=>{window.voiceCheckPromise=window.startVoiceCheck()};document.body.append(button);
+    const button = document.createElement('button');
+    button.id = 'voice-check';
+    button.textContent = 'Voice check';
+    button.onclick = () => {
+      window.voiceCheckPromise = window.startVoiceCheck();
+    };
+    document.body.append(button);
   });
   await page.locator('#voice-check').click();
-  const voice=await page.evaluate(()=>window.voiceCheckPromise);
-  if(voice.catMouth<.025 || voice.dogMouth>.001)throw Error(`Wrong voice/mouth routing: ${JSON.stringify(voice)}`);
-  console.log('PASS actual recorded CAT audio drives its mouth, not DOG',voice);
+  const voice = await page.evaluate(() => window.voiceCheckPromise);
+  if (voice.catMouth < 0.025 || voice.dogMouth > 0.001)
+    throw Error(`Wrong voice/mouth routing: ${JSON.stringify(voice)}`);
+  console.log('PASS actual recorded CAT audio drives its mouth, not DOG', voice);
   await writeFile(`${dir}/results.json`, JSON.stringify({ report, errors }, null, 2));
   await page.evaluate(() => window.disposeCast());
 } finally {

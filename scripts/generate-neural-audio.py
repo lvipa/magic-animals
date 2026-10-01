@@ -22,7 +22,10 @@ kokoro = Kokoro.from_session(session, str(cache / 'voices-v1.0.bin'))
 lines = json.loads((root / 'scripts/audio-lines.json').read_text(encoding='utf-8'))
 output = root / 'public/audio'
 ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
-report = []
+incremental = '--only-new' in sys.argv
+manifest_path = output / 'manifest.json'
+existing = json.loads(manifest_path.read_text(encoding='utf-8'))['clips'] if incremental and manifest_path.exists() else []
+report = list(existing)
 sr = 24000
 
 def normalized(samples, peak_db=-4.0):
@@ -36,6 +39,7 @@ def normalized(samples, peak_db=-4.0):
     return samples / np.max(np.abs(samples)) * 10 ** (peak_db / 20)
 
 def save(cue, group, samples, text, phonemes='', kind='speech', voice='af_heart', pitch=None):
+    report[:] = [entry for entry in report if entry['cue'] != cue]
     path = output / group / f'{cue}.wav'
     path.parent.mkdir(parents=True, exist_ok=True)
     samples = np.asarray(samples, dtype=np.float64)
@@ -61,6 +65,9 @@ def save(cue, group, samples, text, phonemes='', kind='speech', voice='af_heart'
     print(f'{cue}: {len(data) / rate:.2f}s; peak {peak:.1f} dBFS; {phonemes}', flush=True)
 
 for cue, line in lines.items():
+    old = next((entry for entry in existing if entry['cue'] == cue), None)
+    if old and old['text'] == line['text'] and old['voice'] == line.get('voice','af_heart') and (output / old['group'] / f'{cue}.mp3').exists():
+        continue
     phonemes = kokoro.tokenizer.phonemize(line['text'], lang='en-us')
     if 'expectedIPA' in line:
         clean = lambda value: ''.join(c for c in value if c not in 'ˈˌ!?., ')
@@ -85,10 +92,11 @@ def voiced(duration, pitches, formants, breath=.025):
     shaped += sosfilt(butter(2, 1800, 'lowpass', fs=sr, output='sos'), rng.normal(0, breath, len(t)))
     envelope = np.sin(np.pi * t / duration) ** .65
     return shaped * envelope
-save('meow', 'animals', voiced(.73, [560, 850, 700, 400], [(550, 1000, 1), (1500, 2300, .6)], .012), 'Soft cartoon meow', kind='sfx')
+if not incremental: save('meow', 'animals', voiced(.73, [560, 850, 700, 400], [(550, 1000, 1), (1500, 2300, .6)], .012), 'Soft cartoon meow', kind='sfx')
 woof = voiced(.22, [240, 190, 145], [(220, 650, 1), (950, 1600, .25)], .11)
-save('woof', 'animals', np.concatenate([woof, np.zeros(int(sr * .09)), woof * .72]), 'Two soft cartoon woofs', kind='sfx')
-save('roar', 'animals', voiced(.76, [160, 135, 125, 150], [(180, 580, 1), (900, 1400, .28)], .09), 'Friendly baby-lion rumble', kind='sfx')
+if not incremental:
+    save('woof', 'animals', np.concatenate([woof, np.zeros(int(sr * .09)), woof * .72]), 'Two soft cartoon woofs', kind='sfx')
+    save('roar', 'animals', voiced(.76, [160, 135, 125, 150], [(180, 580, 1), (900, 1400, .28)], .09), 'Friendly baby-lion rumble', kind='sfx')
 
 preview = []
 for cue in ['hello', 'intro', 'find-cat', 'cat', 'a-cat', 'meow', 'find-dog', 'dog', 'woof', 'find-lion', 'lion', 'roar', 'great']:

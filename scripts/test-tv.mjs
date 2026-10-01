@@ -148,6 +148,37 @@ try {
   });
   assert.equal((await controller.next((m) => m.kind === 'error')).code, 'BAD_EVENT');
   pass('All eight bonus friends and their actions synchronize; unknown characters rejected');
+  for (const action of ['sing', 'tired', 'hungry', 'thirsty', 'sad']) {
+    controller.send({
+      kind: 'event',
+      event: 'FRIEND_SCENE',
+      payload: { id: 'dog', action, world: 'space' },
+    });
+    const friend = await tv.next((m) => m.kind === 'event' && m.event === 'FRIEND_SCENE');
+    assert.deepEqual(friend.payload, { id: 'dog', action, world: 'space' });
+  }
+  controller.send({
+    kind: 'event',
+    event: 'SCENE_SYNC',
+    payload: {
+      state: 'FREE_PLAY',
+      scene: { ...initialScene, animal: 'cat', action: 'sing', world: 'forest' },
+    },
+  });
+  assert.equal((await tv.next((m) => m.kind === 'snapshot')).snapshot.scene.world, 'forest');
+  controller.send({
+    kind: 'event',
+    event: 'FRIEND_SCENE',
+    payload: { id: 'dog', action: 'sing', world: 'unknown' },
+  });
+  assert.equal((await controller.next((m) => m.kind === 'error')).code, 'BAD_EVENT');
+  pass('All new educational actions and world choice synchronize; invalid world rejected');
+  controller.send({
+    kind: 'event',
+    event: 'FRIEND_SCENE',
+    payload: { id: 'elephant', action: 'wave', world: 'space' },
+  });
+  await tv.next((m) => m.kind === 'event' && m.event === 'FRIEND_SCENE');
   const attacker = peer();
   await attacker.open();
   attacker.send({ kind: 'resume', code: room.code, role: 'controller', token: 'я'.repeat(43) });
@@ -184,7 +215,7 @@ try {
   assert.deepEqual(restored.snapshot.released, ['cat']);
   assert.deepEqual(
     (await tvResume.next((m) => m.kind === 'event' && m.event === 'FRIEND_SCENE')).payload,
-    { id: 'elephant', action: 'wave' },
+    { id: 'elephant', action: 'wave', world: 'space' },
   );
   pass('Reconnect restores scene and released animals without duplicates');
   controller.socket.close();
@@ -247,10 +278,12 @@ try {
           await context.close();
         }
       });
-      const manifest=JSON.parse(await readFile('public/audio/manifest.json','utf8'));
+      const manifest = JSON.parse(await readFile('public/audio/manifest.json', 'utf8'));
       assert.equal(decoded.length, manifest.clips.length);
       assert.equal(new Set(decoded).size, manifest.clips.length);
-      pass(`All ${decoded.length} cartoon voice/effect MP3 files decode with non-silent unclipped samples`);
+      pass(
+        `All ${decoded.length} cartoon voice/effect MP3 files decode with non-silent unclipped samples`,
+      );
       await screen.getByRole('button', { name: 'START TV' }).click();
       await screen.waitForFunction(() =>
         /^\d{6}$/.test(document.querySelector('.tv-code')?.textContent),
@@ -279,6 +312,18 @@ try {
       await screen.reload();
       await screen.locator('.tv-caption').filter({ hasText: 'CAT!' }).waitFor();
       pass('TV page reload resumes the paired session and latest scene');
+      await ipad.goto(`${base}/friends`);
+      await ipad.getByRole('button', { name: /DOG/ }).click();
+      await ipad.getByRole('button', { name: /Космос/ }).click();
+      await ipad.getByRole('button', { name: '🎵 Sing', exact: true }).click();
+      await screen.locator('.tv-caption').filter({ hasText: 'I am singing!' }).waitFor();
+      await screen.locator('.tv-stage .world-space').waitFor();
+      await screen.reload();
+      await screen.locator('.tv-caption').filter({ hasText: 'I am singing!' }).waitFor();
+      await screen.locator('.tv-stage .world-space').waitFor();
+      pass(
+        'Rendered TV shows the child-selected rocket world and English singing phrase, restored after reload',
+      );
       assert.deepEqual(errors, []);
       await tvContext.close();
       await ipadContext.close();

@@ -10,6 +10,7 @@ import {
 import { characterIds, type Character } from '../src/characters/catalog';
 import { audio } from '../src/audio/AudioManager';
 import { animateSecondaryControls } from '../src/characters/secondaryMotion';
+import { animateExpression } from '../src/characters/expressiveMotion';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setSize(1280, 800);
@@ -45,6 +46,14 @@ const pose = (model: THREE.Group, action: string, time: number) => {
   playing.time = time;
   mixer.update(0);
   animateSecondaryControls(model.userData.secondaryControls, model.userData.kind, time, action);
+  animateExpression(model.userData.expressiveControls, model.userData.kind, time, action);
+  if (action === 'tired')
+    for (const { mesh, index } of model.userData.tiredLids as Array<{
+      mesh: THREE.Mesh;
+      index: number;
+    }>)
+      if (mesh.morphTargetInfluences)
+        mesh.morphTargetInfluences[index] = Math.max(mesh.morphTargetInfluences[index], 0.65);
   model.updateMatrixWorld(true);
   model.traverse((node) => {
     if (node instanceof THREE.SkinnedMesh) node.skeleton.update();
@@ -119,28 +128,49 @@ for (const [index, id] of characterIds.entries()) {
   });
   if (unweighted) throw Error(`${id}: invalid skin weights ${unweighted}`);
   const secondary: Record<string, number> = {};
-  for (const name of ['ear_L', 'ear_R', ...(id === 'elephant' ? ['trunk_base', 'trunk_tip'] : [])]) {
+  for (const name of [
+    'ear_L',
+    'ear_R',
+    ...(id === 'elephant' ? ['trunk_base', 'trunk_tip'] : []),
+  ]) {
     let vertex: { mesh: THREE.SkinnedMesh; index: number; weight: number } | undefined;
     model.traverse((node) => {
       if (!(node instanceof THREE.SkinnedMesh) || node.userData.part !== 'body') return;
       const boneIndex = node.skeleton.bones.findIndex((bone) => bone.name === name);
-      const indices = node.geometry.attributes.skinIndex, weights = node.geometry.attributes.skinWeight;
+      const indices = node.geometry.attributes.skinIndex,
+        weights = node.geometry.attributes.skinWeight;
       for (let i = 0; i < indices.count; i++) {
         let weight = 0;
-        for (let k = 0; k < 4; k++) if (indices.getComponent(i,k) === boneIndex) weight += weights.getComponent(i,k);
+        for (let k = 0; k < 4; k++)
+          if (indices.getComponent(i, k) === boneIndex) weight += weights.getComponent(i, k);
         if (!vertex || weight > vertex.weight) vertex = { mesh: node, index: i, weight };
       }
     });
-    if (!vertex || vertex.weight < .5) throw Error(`${id}: ${name} is not bound to an actual surface`);
+    if (!vertex || vertex.weight < 0.5)
+      throw Error(`${id}: ${name} is not bound to an actual surface`);
     pose(model, 'idle', 0);
-    const start = vertex.mesh.getVertexPosition(vertex.index, new THREE.Vector3()).applyMatrix4(vertex.mesh.matrixWorld);
+    const start = vertex.mesh
+      .getVertexPosition(vertex.index, new THREE.Vector3())
+      .applyMatrix4(vertex.mesh.matrixWorld);
     animateSecondaryControls(model.userData.secondaryControls, id, 1.1, 'idle');
     model.updateMatrixWorld(true);
-    model.traverse((node) => { if (node instanceof THREE.SkinnedMesh) node.skeleton.update(); });
-    const end = vertex.mesh.getVertexPosition(vertex.index, new THREE.Vector3()).applyMatrix4(vertex.mesh.matrixWorld);
+    model.traverse((node) => {
+      if (node instanceof THREE.SkinnedMesh) node.skeleton.update();
+    });
+    const end = vertex.mesh
+      .getVertexPosition(vertex.index, new THREE.Vector3())
+      .applyMatrix4(vertex.mesh.matrixWorld);
     secondary[name] = start.distanceTo(end);
-    if (secondary[name] < .001) throw Error(`${id}: ${name} does not deform the skin`);
+    if (secondary[name] < 0.001) throw Error(`${id}: ${name} does not deform the skin`);
   }
+  pose(model, 'idle', 0);
+  const restingPaw = bone(model, 'paw_R');
+  pose(model, 'hungry', 0.7);
+  const hungryPaw = restingPaw.distanceTo(bone(model, 'paw_R'));
+  pose(model, 'thirsty', 0.7);
+  const thirstyPaw = restingPaw.distanceTo(bone(model, 'paw_R'));
+  if (hungryPaw < 0.1 || thirstyPaw < 0.1)
+    throw Error(`${id}: gestures did not move the actual arm: ${hungryPaw}, ${thirstyPaw}`);
   report.push({
     id,
     skinnedMeshes: meshes,
@@ -149,6 +179,8 @@ for (const [index, id] of characterIds.entries()) {
     runFootDistance: run,
     height: rest.max.y - rest.min.y,
     secondary,
+    hungryPaw,
+    thirstyPaw,
   });
   console.log('PASS browser skin and pose', id);
   pose(model, 'idle', 0);
@@ -162,23 +194,36 @@ Object.assign(window, {
   startVoiceCheck: async () => {
     audio.unlockAudio();
     audio.say('character-cat-wave');
-    const cat=models.get('cat')!, dog=models.get('dog')!;
-    let catMouth=0,dogMouth=0;const start=performance.now();
-    while(performance.now()-start<2200) {
+    const cat = models.get('cat')!,
+      dog = models.get('dog')!;
+    pose(cat, 'idle', 0);
+    pose(dog, 'idle', 0);
+    let catMouth = 0,
+      dogMouth = 0;
+    const start = performance.now();
+    while (performance.now() - start < 2200) {
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-      const time=performance.now()/1000;
-      animateCharacter(cat,time,'idle');animateCharacter(dog,time,'idle');
-      for(const [model,isCat] of [[cat,true],[dog,false]] as const) {
-        for(const {mesh,index} of model.userData.mouths as Array<{mesh:THREE.Mesh;index:number}>) {
-          const value=mesh.morphTargetInfluences?.[index]??0;
-          if(isCat)catMouth=Math.max(catMouth,value);else dogMouth=Math.max(dogMouth,value);
+      const time = performance.now() / 1000;
+      animateCharacter(cat, time, 'idle');
+      animateCharacter(dog, time, 'idle');
+      for (const [model, isCat] of [
+        [cat, true],
+        [dog, false],
+      ] as const) {
+        for (const { mesh, index } of model.userData.mouths as Array<{
+          mesh: THREE.Mesh;
+          index: number;
+        }>) {
+          const value = mesh.morphTargetInfluences?.[index] ?? 0;
+          if (isCat) catMouth = Math.max(catMouth, value);
+          else dogMouth = Math.max(dogMouth, value);
         }
       }
-      renderer.render(scene,camera);
+      renderer.render(scene, camera);
     }
     audio.stop();
-    animateCharacter(cat,performance.now()/1000,'idle');
-    return {catMouth,dogMouth};
+    animateCharacter(cat, performance.now() / 1000, 'idle');
+    return { catMouth, dogMouth };
   },
   showCast: () => {
     camera.position.set(0, 1.05, 6.8);
@@ -202,6 +247,10 @@ Object.assign(window, {
     camera.position.set(Math.sin(angle) * 2.9, 0.68, Math.cos(angle) * 2.9);
     camera.lookAt(0, 0.6, 0);
     renderer.render(scene, camera);
+    return {
+      arms: m.userData.expressiveControls.arms.length,
+      paws: ['paw_L', 'paw_R'].map((name) => bone(m, name).toArray()),
+    };
   },
   disposeCast: () => {
     models.forEach(disposeCharacter);

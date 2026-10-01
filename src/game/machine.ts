@@ -21,12 +21,14 @@ export type GameEvent =
         | 'PLAY_DONE'
         | 'FINALE_DONE'
         | 'RESET'
+        | 'HOME'
         | 'FREE_PLAY'
         | 'SKIP';
     }
   | { type: 'TARGET_FOUND'; id: AnimalId };
 const ordered = storyAnimals.map((a) => a.id);
 export function transition(state: GameState, event: GameEvent): GameState {
+  if (event.type === 'HOME') return 'WELCOME';
   if (event.type === 'RESET') return 'WELCOME';
   if (event.type === 'FREE_PLAY') return 'FREE_PLAY';
   if (event.type === 'SKIP') {

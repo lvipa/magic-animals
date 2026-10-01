@@ -644,5 +644,691 @@
     "speed": 0.98,
     "voice": "af_bella",
     "pitch": 3.0
+  },
+  "character-foxy-learn-happy": {
+    "text": "I am happy!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-learn-wave": {
+    "text": "I am waving!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-learn-jump": {
+    "text": "I am jumping!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-learn-run": {
+    "text": "I am running!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-learn-sleep": {
+    "text": "I am sleeping.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 2.4
+  },
+  "character-foxy-learn-sing": {
+    "text": "I am singing! La, la, la!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-learn-tired": {
+    "text": "I am tired.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 2.4
+  },
+  "character-foxy-learn-hungry": {
+    "text": "I am hungry.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-learn-thirsty": {
+    "text": "I am thirsty.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-foxy-learn-sad": {
+    "text": "I am sad.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_bella",
+    "pitch": 2.4
+  },
+  "character-foxy-discover": {
+    "text": "I have a fluffy tail and pointed ears. Tail! Ears!",
+    "group": "characters",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "character-cat-learn-happy": {
+    "text": "I am happy!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-learn-wave": {
+    "text": "I am waving!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-learn-jump": {
+    "text": "I am jumping!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-learn-run": {
+    "text": "I am running!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-learn-sleep": {
+    "text": "I am sleeping.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 2.6
+  },
+  "character-cat-learn-sing": {
+    "text": "I am singing! La, la, la!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-learn-tired": {
+    "text": "I am tired.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 2.6
+  },
+  "character-cat-learn-hungry": {
+    "text": "I am hungry.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-learn-thirsty": {
+    "text": "I am thirsty.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-cat-learn-sad": {
+    "text": "I am sad.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_heart",
+    "pitch": 2.6
+  },
+  "character-cat-discover": {
+    "text": "I have whiskers and soft paws. Whiskers! Paws!",
+    "group": "characters",
+    "speed": 0.94,
+    "voice": "af_heart",
+    "pitch": 3.2
+  },
+  "character-dog-learn-happy": {
+    "text": "I am happy!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-learn-wave": {
+    "text": "I am waving!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-learn-jump": {
+    "text": "I am jumping!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-learn-run": {
+    "text": "I am running!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-learn-sleep": {
+    "text": "I am sleeping.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 3.6
+  },
+  "character-dog-learn-sing": {
+    "text": "I am singing! La, la, la!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-learn-tired": {
+    "text": "I am tired.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 3.6
+  },
+  "character-dog-learn-hungry": {
+    "text": "I am hungry.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-learn-thirsty": {
+    "text": "I am thirsty.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-dog-learn-sad": {
+    "text": "I am sad.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_fenrir",
+    "pitch": 3.6
+  },
+  "character-dog-discover": {
+    "text": "I have floppy ears and little paws. Ears! Paws!",
+    "group": "characters",
+    "speed": 0.94,
+    "voice": "am_fenrir",
+    "pitch": 4.2
+  },
+  "character-lion-learn-happy": {
+    "text": "I am happy!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-learn-wave": {
+    "text": "I am waving!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-learn-jump": {
+    "text": "I am jumping!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-learn-run": {
+    "text": "I am running!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-learn-sleep": {
+    "text": "I am sleeping.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 1.6999999999999997
+  },
+  "character-lion-learn-sing": {
+    "text": "I am singing! La, la, la!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-learn-tired": {
+    "text": "I am tired.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 1.6999999999999997
+  },
+  "character-lion-learn-hungry": {
+    "text": "I am hungry.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-learn-thirsty": {
+    "text": "I am thirsty.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-lion-learn-sad": {
+    "text": "I am sad.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_michael",
+    "pitch": 1.6999999999999997
+  },
+  "character-lion-discover": {
+    "text": "I have a soft mane and big paws. Mane! Paws!",
+    "group": "characters",
+    "speed": 0.94,
+    "voice": "am_michael",
+    "pitch": 2.3
+  },
+  "character-bunny-learn-happy": {
+    "text": "I am happy!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-learn-wave": {
+    "text": "I am waving!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-learn-jump": {
+    "text": "I am jumping!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-learn-run": {
+    "text": "I am running!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-learn-sleep": {
+    "text": "I am sleeping.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.1999999999999997
+  },
+  "character-bunny-learn-sing": {
+    "text": "I am singing! La, la, la!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-learn-tired": {
+    "text": "I am tired.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.1999999999999997
+  },
+  "character-bunny-learn-hungry": {
+    "text": "I am hungry.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-learn-thirsty": {
+    "text": "I am thirsty.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bunny-learn-sad": {
+    "text": "I am sad.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sky",
+    "pitch": 3.1999999999999997
+  },
+  "character-bunny-discover": {
+    "text": "I have long ears. I can hop! Long ears! Hop!",
+    "group": "characters",
+    "speed": 0.94,
+    "voice": "af_sky",
+    "pitch": 3.8
+  },
+  "character-bear-learn-happy": {
+    "text": "I am happy!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-learn-wave": {
+    "text": "I am waving!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-learn-jump": {
+    "text": "I am jumping!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-learn-run": {
+    "text": "I am running!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-learn-sleep": {
+    "text": "I am sleeping.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.2000000000000002
+  },
+  "character-bear-learn-sing": {
+    "text": "I am singing! La, la, la!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-learn-tired": {
+    "text": "I am tired.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.2000000000000002
+  },
+  "character-bear-learn-hungry": {
+    "text": "I am hungry.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-learn-thirsty": {
+    "text": "I am thirsty.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-bear-learn-sad": {
+    "text": "I am sad.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "am_adam",
+    "pitch": 1.2000000000000002
+  },
+  "character-bear-discover": {
+    "text": "I have round ears and soft paws. Round ears! Paws!",
+    "group": "characters",
+    "speed": 0.94,
+    "voice": "am_adam",
+    "pitch": 1.8
+  },
+  "character-panda-learn-happy": {
+    "text": "I am happy!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-learn-wave": {
+    "text": "I am waving!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-learn-jump": {
+    "text": "I am jumping!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-learn-run": {
+    "text": "I am running!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-learn-sleep": {
+    "text": "I am sleeping.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 1.9
+  },
+  "character-panda-learn-sing": {
+    "text": "I am singing! La, la, la!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-learn-tired": {
+    "text": "I am tired.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 1.9
+  },
+  "character-panda-learn-hungry": {
+    "text": "I am hungry.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-learn-thirsty": {
+    "text": "I am thirsty.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-panda-learn-sad": {
+    "text": "I am sad.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_nicole",
+    "pitch": 1.9
+  },
+  "character-panda-discover": {
+    "text": "I am black and white. I have soft paws. Black! White!",
+    "group": "characters",
+    "speed": 0.94,
+    "voice": "af_nicole",
+    "pitch": 2.5
+  },
+  "character-elephant-learn-happy": {
+    "text": "I am happy!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-learn-wave": {
+    "text": "I am waving!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-learn-jump": {
+    "text": "I am jumping!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-learn-run": {
+    "text": "I am running!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-learn-sleep": {
+    "text": "I am sleeping.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 1.4
+  },
+  "character-elephant-learn-sing": {
+    "text": "I am singing! La, la, la!",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-learn-tired": {
+    "text": "I am tired.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 1.4
+  },
+  "character-elephant-learn-hungry": {
+    "text": "I am hungry.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-learn-thirsty": {
+    "text": "I am thirsty.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "character-elephant-learn-sad": {
+    "text": "I am sad.",
+    "group": "characters",
+    "speed": 0.92,
+    "voice": "af_sarah",
+    "pitch": 1.4
+  },
+  "character-elephant-discover": {
+    "text": "I have big ears and a trunk. Big ears! Trunk!",
+    "group": "characters",
+    "speed": 0.94,
+    "voice": "af_sarah",
+    "pitch": 2.0
+  },
+  "ask-sing": {
+    "text": "Can you find singing? Sing!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "ask-tired": {
+    "text": "Who is tired? Tired!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "ask-hungry": {
+    "text": "Who is hungry? Hungry!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "ask-thirsty": {
+    "text": "Who is thirsty? Thirsty!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "ask-sad": {
+    "text": "Who is sad? Sad!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "hunt-start": {
+    "text": "Let's find all eight friends! Show me a card!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "world-space": {
+    "text": "Space! A rocket! Blast off!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "world-meadow": {
+    "text": "A meadow! Flowers and sunshine!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "world-forest": {
+    "text": "A forest! So many trees!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
+  },
+  "world-trampoline": {
+    "text": "Trampolines! Bounce, bounce!",
+    "group": "foxy",
+    "speed": 0.94,
+    "voice": "af_bella",
+    "pitch": 3.0
   }
 }

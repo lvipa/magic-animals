@@ -39,6 +39,11 @@ const actions = [
   'roar',
   'woof',
   'meow',
+  'sing',
+  'tired',
+  'hungry',
+  'thirsty',
+  'sad',
 ];
 const legacyCues = [
   'rabbit',
@@ -62,7 +67,15 @@ const legacyCues = [
   'woof',
   'roar',
 ];
-const cues = [...new Set([...legacyCues, ...JSON.parse(readFileSync(new URL('../public/audio/manifest.json', import.meta.url), 'utf8')).clips.map((clip) => clip.cue)])];
+const cues = [
+  ...new Set([
+    ...legacyCues,
+    ...JSON.parse(
+      readFileSync(new URL('../public/audio/manifest.json', import.meta.url), 'utf8'),
+    ).clips.map((clip) => clip.cue),
+  ]),
+];
+const worlds = ['meadow', 'space', 'forest', 'trampoline'];
 export function sceneSnapshot(value) {
   const s = value?.scene;
   if (
@@ -78,6 +91,7 @@ export function sceneSnapshot(value) {
     !moods.includes(s.foxy) ||
     typeof s.effects !== 'boolean' ||
     typeof s.finale !== 'boolean' ||
+    (s.world !== undefined && !worlds.includes(s.world)) ||
     (value.paused !== undefined && typeof value.paused !== 'boolean')
   )
     return null;
@@ -92,6 +106,7 @@ export function sceneSnapshot(value) {
       foxy: s.foxy,
       effects: s.effects,
       finale: s.finale,
+      ...(s.world !== undefined ? { world: s.world } : {}),
     },
   };
 }
@@ -99,8 +114,16 @@ export function gameEvent(event, payload) {
   if (event === 'FRIEND_SCENE')
     return (payload?.id === null ||
       ['foxy', ...animalIds, 'bunny', 'bear', 'panda', 'elephant'].includes(payload?.id)) &&
-      actions.includes(payload?.action)
-      ? { id: payload.id, action: payload.action }
+      actions.includes(payload?.action) &&
+      (payload.world === undefined || worlds.includes(payload.world)) &&
+      (payload.caption === undefined ||
+        (typeof payload.caption === 'string' && payload.caption.length <= 120))
+      ? {
+          id: payload.id,
+          action: payload.action,
+          ...(payload.world !== undefined ? { world: payload.world } : {}),
+          ...(payload.caption !== undefined ? { caption: payload.caption } : {}),
+        }
       : null;
   if (event === 'AUDIO_ROUTE')
     return ['ipad', 'tv'].includes(payload?.target) ? { target: payload.target } : null;
