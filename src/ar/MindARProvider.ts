@@ -369,7 +369,15 @@ export class MindARProvider implements ARProvider {
       this.controller = null;
       this.frameStopped = null;
     }
-    this.targets.forEach((target) => disposeCharacter(target.root));
+    this.targets.forEach((target) => {
+      // Authored clones own their rig/materials, but share immutable geometry.
+      // Dispose through that contract before releasing the procedural anchor.
+      if (target.model.userData.authored) {
+        target.root.remove(target.model);
+        disposeCharacter(target.model);
+      }
+      disposeCharacter(target.root);
+    });
     this.targets.clear();
     this.renderer?.domElement.removeEventListener('pointerdown', this.onTap);
     this.renderer?.dispose();

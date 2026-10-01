@@ -141,6 +141,11 @@ export function disposeAuthoredCat(root: THREE.Group) {
   const mixer = root.userData.mixer as THREE.AnimationMixer;
   mixer.stopAllAction();
   mixer.uncacheRoot(root.userData.content as THREE.Object3D);
+  const skeletons = new Set<THREE.Skeleton>();
+  (root.userData.content as THREE.Object3D).traverse((node) => {
+    if (node instanceof THREE.SkinnedMesh) skeletons.add(node.skeleton);
+  });
+  skeletons.forEach((skeleton) => skeleton.dispose());
   (root.userData.ownedMaterials as THREE.Material[]).forEach((material) => material.dispose());
   // Clones own their rig; immutable geometry/textures belong to the shared asset cache.
 }
