@@ -32,12 +32,12 @@ npm run preview
 
 | Адрес | Назначение |
 |---|---|
-| `/` | Игра с тремя бумажными карточками |
+| `/` | Сканирование восьми карточек в любом порядке и история из трёх глав |
 | `/friends` | Восемь друзей, движения, задания «слушай и найди» / «слушай и двигайся» |
 | `/tv` | Экран телевизора, QR и код сопряжения |
 | `/connect-tv` | Поле ввода TV-кода; QR заполняет его автоматически |
 | `/printables/cards.html` | Карточки для печати |
-| `/printables/magic-animals-a4.pdf` | Готовый лист A4, масштаб 100% |
+| `/printables/magic-animals-milo-a4.pdf` | Восемь карточек на трёх листах A4, масштаб 100% |
 | `/printables/magic-animals-print-sources.zip` | PNG, SVG, HTML и PDF |
 
 ## TV
@@ -57,20 +57,22 @@ npm run preview
 - [PRINT_GUIDE.md](PRINT_GUIDE.md) — печать и распознавание камерой.
 - [AUDIO_PRODUCTION.md](AUDIO_PRODUCTION.md) — восемь голосов, звук и генерация.
 - [CHARACTER_ART_DIRECTION.md](CHARACTER_ART_DIRECTION.md) — требования и этап утверждения CAT.
-- `assets/characters/cat/milo-master.blend` — редактируемая модель CAT.
-- `scripts/build-cat-master.py` — воспроизводимая сборка CAT в Blender.
+- [MILO_AR_RELEASE.md](MILO_AR_RELEASE.md) — текущий CAT, короткая шерсть, восемь целей и проверки.
+- `scripts/export-milo-game.py` — экспорт новой основы CAT из локального Blender-источника.
+- `assets/characters/cat/milo-master.blend` — архив предыдущей версии CAT.
 - [CAT_PRODUCTION.md](CAT_PRODUCTION.md) — редактирование, экспорт сохранённого Blender-источника и проверка ракурсов.
 - [CAT_REVIEW.md](CAT_REVIEW.md) — технический результат, 32 снимка WebGL и непройденные художественные критерии.
 - [CAT_ART_HANDOFF.md](CAT_ART_HANDOFF.md) — требования к новому художественному CAT, поставке исходника и визуальной приёмке.
 - [BLENDER_WORKFLOW.md](BLENDER_WORKFLOW.md) — локальный официальный Blender MCP, запуск и новая сцена Milo без Meshy.
 - [FUTURE_WORK_HANDOFF.md](FUTURE_WORK_HANDOFF.md) — договорённости по остальным персонажам, будущим играм и передаче работы в другой Codex.
 - `assets/characters/cat/milo-authoring.blend` — отдельный незавершённый этюд нового Milo; пока не используется в игре.
-- `public/markers/*.svg` — редактируемые оригиналы карточек.
+- `public/markers/milo-v2/*.svg` — редактируемые оригиналы восьми карточек.
 
 ## Текущий статус
 
-Камера распознаёт **CAT, DOG и LION**. FOX, RABBIT, BEAR, PANDA и ELEPHANT пока
-доступны в 3D-галерее; новые карточки для них ещё не подключены к MindAR.
+Камера распознаёт **CAT, DOG, LION, FOX, RABBIT, BEAR, PANDA и ELEPHANT**.
+Нажмите **SCAN ANY CARD** для свободного порядка с первого экрана.
+В игре используется новая основа Milo CAT с семью движениями и короткой шерстью.
 CAT — текущий кандидат на визуальный эталон, **ещё не утверждён пользователем**.
 Остальные модели сохраняют прежний прототипный вид до утверждения CAT.
 Физическое тестирование на iPad/iPhone/Smart TV остаётся отдельным этапом.

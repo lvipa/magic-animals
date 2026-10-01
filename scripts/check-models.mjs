@@ -4,14 +4,19 @@ import * as THREE from 'three';
 import { chromium } from 'playwright';
 import { browserExecutable, isolateTestContext } from './browser-runtime.mjs';
 const results = [];
+const catInfo = JSON.parse(await readFile('public/models/cat-master-info.json', 'utf8'));
 for (const id of ['foxy', 'cat', 'dog', 'lion', 'bunny', 'bear', 'panda', 'elephant']) {
-  const data = await readFile(`public/models/${id}.glb`);
+  const data = await readFile(`public/models/${id === 'cat' ? catInfo.asset : id + '.glb'}`);
   if (id === 'cat') {
-    const gltf = JSON.parse(data.subarray(20,20+data.readUInt32LE(12)).toString());
-    if (gltf.animations.length !== 7 || gltf.skins[0].joints.length !== 33)
+    const gltf = JSON.parse(data.subarray(20, 20 + data.readUInt32LE(12)).toString());
+    if (gltf.animations.length !== 7 || gltf.skins[0].joints.length !== 21 || catInfo.version !== 8)
       throw new Error('CAT: invalid production skeleton or clip set');
-    results.push({ id, clips: gltf.animations.map(c => c.name),
-      pipeline: 'CAT structure checked here; exported motion in check-cat-studio.py; browser render reviewed separately' });
+    results.push({
+      id,
+      clips: gltf.animations.map((c) => c.name),
+      pipeline:
+        'CAT structure checked here; exported motion in check-cat-studio.py; browser render reviewed separately',
+    });
     console.log('PASS CAT production GLB structure');
     continue;
   }

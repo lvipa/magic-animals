@@ -1,4 +1,4 @@
-import { animalById, animals, type AnimalId, type FoxyMood } from '../config/animals';
+import { animalById, animals, storyAnimals, type AnimalId, type FoxyMood } from '../config/animals';
 import { requestedAnimal, type GameEvent, type GameState } from './machine';
 import type { ARProvider } from '../ar/ARProvider';
 import { NoopTVBridge, type TVBridge } from '../tv/TVBridge';
@@ -220,7 +220,7 @@ export class GameEngine {
       });
       this.say('friends');
       this.after(2500, () => this.update({ foxy: 'dance', action: 'dance' }));
-      animals.forEach((content, index) => {
+      storyAnimals.forEach((content, index) => {
         this.after(4000 + index * 3100, () => {
           this.update({ caption: content.word + '!' });
           this.say(content.sounds.word);
@@ -260,10 +260,11 @@ export class GameEngine {
         finale: false,
         foxy: 'happy',
       });
-      this.interact(id);
+      this.update({ action: 'wave' });
       this.say(animalById[id].sounds.word);
       this.after(1300, () => this.say(animalById[id].sounds.call));
       this.after(2500, () => this.update({ effects: false }));
+      this.after(3000, () => this.update({ action: 'idle' }));
     }
   }
   interact(id: AnimalId) {

@@ -11,6 +11,7 @@ import { makeMagic, animateMagic } from '../scenes/magic';
 import type { ARProvider, TrackingInfo } from './ARProvider';
 import { useRuntime } from '../tracking/runtime';
 import { disposeTrackingTensors } from './disposeTracking';
+import { imageTargetsUrl } from '../config/arCards';
 interface Target {
   root: THREE.Group;
   model: THREE.Group;
@@ -41,6 +42,7 @@ export class MindARProvider implements ARProvider {
   private abort = new AbortController();
   private stopped = false;
   private markerTest = false;
+  private pixelRatio = 1.5;
   private focusQueued = false;
   private lastValidation = performance.now();
   private markerNormal = new THREE.Vector3();
@@ -71,7 +73,7 @@ export class MindARProvider implements ARProvider {
   }
   async registerTargets(ids: AnimalId[]) {
     this.ids = ids;
-    const response = await fetch('/markers/targets.mind', { signal: this.abort.signal });
+    const response = await fetch(imageTargetsUrl, { signal: this.abort.signal });
     if (!response.ok) throw new Error('Compiled image targets unavailable');
     this.bytes = await response.arrayBuffer();
   }
@@ -129,12 +131,8 @@ export class MindARProvider implements ARProvider {
       const root = new THREE.Group();
       root.matrixAutoUpdate = false;
       root.visible = false;
-      const model = makeCharacter(id);
-      model.scale.setScalar(0.38);
-      model.rotation.x = Math.PI / 2;
-      model.position.set(0, -0.1, 0.02);
-      model.userData.headTilt = -1.12;
-      revealCharacter(model, 0);
+      // Allocate each GPU character only when its card is first recognized.
+      const model = new THREE.Group();
       root.add(model);
       const magic = makeMagic();
       magic.rotation.x = Math.PI / 2;
@@ -194,6 +192,7 @@ export class MindARProvider implements ARProvider {
       }
       this.targets.forEach((target) => {
         target.root.visible = target.visible || performance.now() - target.lostAt < 1200;
+        if (!target.model.userData.kind || !target.root.visible) return;
         const standing = (target.model.userData.standing as number) ?? 1;
         target.model.rotation.x = THREE.MathUtils.lerp(
           target.model.rotation.x,
@@ -258,6 +257,16 @@ export class MindARProvider implements ARProvider {
     const target = this.targets.get(id);
     if (!target) return;
     if (data.worldMatrix) {
+      if (!target.model.userData.kind) {
+        target.root.remove(target.model);
+        target.model = makeCharacter(id);
+        if (id === 'cat') target.model.userData.lowDetail = this.pixelRatio <= 1;
+        target.model.scale.setScalar(0.34);
+        target.model.rotation.x = Math.PI / 2;
+        target.model.position.set(0, -0.1, 0.02);
+        revealCharacter(target.model, target.progress);
+        target.root.add(target.model);
+      }
       this.targets.forEach((other, otherId) => {
         if (otherId !== id && other.visible) this.markLost(otherId, other);
       });
@@ -385,7 +394,7 @@ export class MindARProvider implements ARProvider {
     const target = this.targets.get(id);
     if (!target) return;
     target.progress = progress;
-    revealCharacter(target.model, progress);
+    if (target.model.userData.kind) revealCharacter(target.model, progress);
     target.magic.visible = progress > 0 && progress < 1;
     target.glow.visible = progress > 0;
   }
@@ -398,7 +407,13 @@ export class MindARProvider implements ARProvider {
     if (!this.tracking.visible || this.tracking.target !== id) this.focusQueued = true;
   }
   setQuality(pixelRatio: number) {
+    this.pixelRatio = pixelRatio;
     this.renderer?.setPixelRatio(Math.min(devicePixelRatio, pixelRatio));
+    const cat = this.targets.get('cat');
+    if (cat?.model.userData.kind) {
+      cat.model.userData.lowDetail = pixelRatio <= 1;
+      revealCharacter(cat.model, cat.progress);
+    }
   }
   getTracking() {
     return this.tracking;

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-export const animalIds = ['cat', 'dog', 'lion'];
+export const animalIds = ['cat', 'dog', 'lion', 'foxy', 'bunny', 'bear', 'panda', 'elephant'];
 const states = [
   'BOOT',
   'WELCOME',

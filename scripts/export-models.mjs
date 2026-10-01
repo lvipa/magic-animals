@@ -28,10 +28,26 @@ const compiled = ts.transpileModule(source, {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
 });
 const modulePath = resolve('.test-artifacts/character-models.mjs');
-await writeFile(modulePath, compiled.outputText.replace("'./toyFactory'", "'./toy-factory.mjs'").replace("'./authoredCat'", "'./authored-cat.mjs'"));
-await writeFile(resolve('.test-artifacts/authored-cat.mjs'), ts.transpileModule(await readFile('src/characters/authoredCat.ts','utf8'), {
-  compilerOptions: {target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}
-}).outputText);
+await writeFile(
+  modulePath,
+  compiled.outputText
+    .replace("'./toyFactory'", "'./toy-factory.mjs'")
+    .replace("'./authoredCat'", "'./authored-cat.mjs'"),
+);
+await writeFile(
+  resolve('.test-artifacts/authored-cat.mjs'),
+  ts
+    .transpileModule(await readFile('src/characters/authoredCat.ts', 'utf8'), {
+      compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
+    })
+    .outputText.replace("'./catAsset'", "'./cat-asset.mjs'"),
+);
+await writeFile(
+  resolve('.test-artifacts/cat-asset.mjs'),
+  ts.transpileModule(await readFile('src/characters/catAsset.ts', 'utf8'), {
+    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ES2022 },
+  }).outputText,
+);
 const factorySource = await readFile('src/characters/toyFactory.ts', 'utf8');
 await writeFile(
   resolve('.test-artifacts/toy-factory.mjs'),
@@ -45,12 +61,20 @@ const { makeCharacter, animateCharacter, disposeCharacter } = await import(
 const report = [];
 for (const id of ['foxy', 'cat', 'dog', 'lion', 'bunny', 'bear', 'panda', 'elephant']) {
   if (id === 'cat') {
-    const data = await readFile('public/models/cat-studio.glb');
-    const gltf = JSON.parse(data.subarray(20, 20 + data.readUInt32LE(12)).toString());
     const info = JSON.parse(await readFile('public/models/cat-master-info.json', 'utf8'));
-    await writeFile('public/models/cat.glb', data);
-    report.push({ id, bytes: data.length, meshes: gltf.meshes.length, triangles: info.triangles,
-      source: info.source, pipeline: info.pipeline, approval: info.approval, animations: info.clips });
+    const data = await readFile(`public/models/${info.asset}`);
+    const gltf = JSON.parse(data.subarray(20, 20 + data.readUInt32LE(12)).toString());
+    report.push({
+      id,
+      asset: info.asset,
+      bytes: data.length,
+      meshes: gltf.meshes.length,
+      triangles: info.triangles,
+      source: info.source,
+      pipeline: info.pipeline,
+      approval: info.approval,
+      animations: info.clips,
+    });
     console.log('Preserved CAT production GLB; no primitive export');
     continue;
   }

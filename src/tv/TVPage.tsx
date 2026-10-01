@@ -11,7 +11,7 @@ import {
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Actor, Magic } from '../scenes/GameScene';
-import { animalById, animals, type AnimalId } from '../config/animals';
+import { animalById, storyAnimals, type AnimalId } from '../config/animals';
 import { initialScene } from '../game/GameEngine';
 import { audio } from '../audio/AudioManager';
 import { WebSocketTVBridge } from './WebSocketTVBridge';
@@ -20,6 +20,7 @@ import FullscreenButton from '../components/FullscreenButton';
 import { StudioEnvironment } from '../scenes/StudioLighting';
 import { characterDetails, type Character } from '../characters/catalog';
 import PairingQR from './PairingQR';
+import { useCastLayout } from '../scenes/CastLayout';
 type FriendScene = { id: Character | null; action: string };
 
 const initial: TVSnapshot = {
@@ -52,7 +53,15 @@ function PresentationReady({ onReady }: { onReady: (ready: boolean) => void }) {
   }, [gl, onReady]);
   return null;
 }
-function Portal({ plan, now, x }: { plan: TransferPlan; now: () => number; x: number }) {
+function Portal({
+  plan,
+  now,
+  position,
+}: {
+  plan: TransferPlan;
+  now: () => number;
+  position: [number, number, number];
+}) {
   const ring = useRef<THREE.Group>(null);
   useFrame(() => {
     if (!ring.current) return;
@@ -62,7 +71,7 @@ function Portal({ plan, now, x }: { plan: TransferPlan; now: () => number; x: nu
     ring.current.rotation.z += 0.025;
   });
   return (
-    <group position={[x, -0.12, 0.02]}>
+    <group position={position}>
       <group ref={ring}>
         <mesh>
           <torusGeometry args={[0.53, 0.045, 8, 48]} />
@@ -89,7 +98,7 @@ function FallbackStage({
     onReady(true);
   }, [onReady]);
   const ids = snapshot.scene.finale
-    ? animals.map((a) => a.id)
+    ? storyAnimals.map((a) => a.id)
     : [
         ...new Set([
           ...snapshot.released,
@@ -124,6 +133,60 @@ class TVRenderBoundary extends Component<
     return this.state.failed ? this.props.fallback : this.props.children;
   }
 }
+function TVActors({
+  snapshot,
+  transfers,
+  now,
+}: {
+  snapshot: TVSnapshot;
+  transfers: TransferPlan[];
+  now: () => number;
+}) {
+  const scene = snapshot.scene;
+  const ids: Character[] = [
+    ...new Set<Character>([
+      'foxy',
+      ...(scene.finale ? storyAnimals.map((a) => a.id) : snapshot.released),
+      ...(scene.animal ? [scene.animal] : []),
+    ]),
+  ];
+  const layout = useCastLayout(ids.length);
+  return (
+    <>
+      {ids.map((id, index) => (
+        <Actor
+          key={id}
+          kind={id}
+          position={layout.position(index)}
+          scale={layout.scale}
+          reveal={id === scene.animal && !snapshot.released.includes(id) ? scene.reveal : 1}
+          action={
+            snapshot.paused
+              ? 'idle'
+              : scene.finale
+                ? id === 'dog'
+                  ? 'jump'
+                  : 'happy'
+                : id === scene.animal
+                  ? scene.action
+                  : id === 'foxy'
+                    ? scene.foxy
+                    : 'idle'
+          }
+        />
+      ))}
+      {transfers.map((plan) => {
+        const index = ids.indexOf(plan.id);
+        if (index < 0) return null;
+        const position = layout.position(index);
+        position[1] += 0.58 * layout.scale;
+        position[2] = 0.02;
+        return <Portal key={plan.transferId} plan={plan} now={now} position={position} />;
+      })}
+      {scene.effects && !snapshot.paused && <Magic count={12} />}
+    </>
+  );
+}
 function TVScene({
   snapshot,
   friend,
@@ -137,8 +200,6 @@ function TVScene({
   now: () => number;
   onReady: (ready: boolean) => void;
 }) {
-  const scene = snapshot.scene,
-    friends = scene.finale ? animals.map((a) => a.id) : snapshot.released;
   const fallback = <FallbackStage snapshot={snapshot} friend={friend} onReady={onReady} />;
   return (
     <div className="tv-stage">
@@ -156,56 +217,7 @@ function TVScene({
           {friend?.id ? (
             <Actor kind={friend.id} position={[0, -1, 0]} scale={1.7} action={friend.action} />
           ) : (
-            <>
-              <Actor
-                kind="foxy"
-                position={[-2, -0.83, 0]}
-                scale={1.05}
-                action={snapshot.paused ? 'idle' : scene.foxy}
-              />
-              {friends.map((id) => {
-                const i = animals.findIndex((a) => a.id === id);
-                return (
-                  <Actor
-                    key={id}
-                    kind={id}
-                    position={[-0.65 + i * 1.18, -0.84, 0]}
-                    scale={0.95}
-                    action={
-                      snapshot.paused
-                        ? 'idle'
-                        : scene.finale
-                          ? i === 0
-                            ? 'spin'
-                            : i === 1
-                              ? 'jump'
-                              : 'dance'
-                          : scene.animal === id
-                            ? scene.action
-                            : 'idle'
-                    }
-                  />
-                );
-              })}
-              {!scene.finale && scene.animal && !friends.includes(scene.animal) && (
-                <Actor
-                  kind={scene.animal}
-                  reveal={scene.reveal}
-                  action={snapshot.paused ? 'idle' : scene.action}
-                  position={[0.48, -0.88, 0.18]}
-                  scale={1.35}
-                />
-              )}
-              {transfers.map((plan) => (
-                <Portal
-                  key={plan.transferId}
-                  plan={plan}
-                  now={now}
-                  x={-0.65 + animals.findIndex((a) => a.id === plan.id) * 1.18}
-                />
-              ))}
-              {scene.effects && !snapshot.paused && <Magic count={12} />}
-            </>
+            <TVActors snapshot={snapshot} transfers={transfers} now={now} />
           )}
           <PresentationReady onReady={onReady} />
         </Canvas>

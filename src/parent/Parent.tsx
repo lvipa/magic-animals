@@ -11,7 +11,7 @@ export default function Parent() {
     <main className="parent-page">
       <Link to="/">← Back to game</Link>
       <h1>Parent Mode</h1>
-      <p>Three paper cards. A camera. A little surprise.</p>
+      <p>Eight paper friends. Scan any card, or play Foxy's three-chapter adventure.</p>
       <div className="parent-grid">
         <Link to="/camera-test">Camera test</Link>
         <Link to="/marker-test">Marker test</Link>

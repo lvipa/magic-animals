@@ -1,18 +1,22 @@
 # Печать карточек
 
-Готовый PDF: `public/printables/magic-animals-a4.pdf`.
+Готовый PDF: `public/printables/magic-animals-milo-a4.pdf` — три листа A4.
 Архив PNG/SVG/HTML/PDF: `public/printables/magic-animals-print-sources.zip`.
 На сайте эти файлы доступны по тем же путям без префикса `public/`.
 PDF печатается как A4 portrait, **Actual size / 100%**, без Fit to page.
-Сейчас поддерживаются три camera target: CAT, DOG, LION.
+Восемь camera targets: CAT, DOG, LION, FOX, RABBIT, BEAR, PANDA, ELEPHANT.
+На первом экране **SCAN ANY CARD** принимает их в любом порядке; **PLAY**
+сохраняет историю CAT → DOG → LION. Печатайте новый набор Milo v2.
 Генератор PDF/архива: `scripts/package-printables.py` (Python + reportlab).
 
 1. Откройте `/printables/cards.html` на сайте или в локальном preview.
-2. В меню печати выберите **A4, portrait, scale 100%, одна страница**, без header/footer. Фоновые изображения не нужны: все признаки уже включены в PNG.
+2. В меню печати выберите **A4, portrait, scale 100%, три страницы**, без header/footer. Фоновые изображения не нужны: все признаки уже включены в PNG.
 3. Печатайте в цвете на матовой белой бумаге, желательно 160–200 г/м², при нормальном/высоком качестве. Не используйте draft mode, глянцевое покрытие или сильное увеличение контраста.
 4. Вырежьте карточки по промежуткам, сохранив ВСЮ изображённую рамку и узор. Не вырезайте одного кота.
 
-Размер каждой image target при данной вёрстке — около **113 × 82 мм**. Исходники 1100 × 800 пикселей подходят для печати этого размера. Распечатать только CAT можно выбором/обрезкой нужной карточки после печати страницы; для первого теста остальные две можно убрать.
+Размер каждой image target — около **113 × 82 мм**. Исходники 1100 × 800 пикселей
+находятся в `public/markers/milo-v2/`. Первый лист: CAT/DOG/LION, второй:
+FOX/RABBIT/BEAR, третий: PANDA/ELEPHANT. Печатать можно выбранные листы.
 
 ## Первый tracking
 
@@ -33,6 +37,7 @@ PDF печатается как A4 portrait, **Actual size / 100%**, без Fit 
 npm run cards
 npm run targets
 npm run test:tracking
+python scripts/package-printables.py
 npm run build
 ```
 

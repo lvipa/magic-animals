@@ -1,32 +1,90 @@
 {
   "compiler": "MindAR 1.2.5",
-  "target": "targets.mind",
-  "bytes": 2264114,
-  "sha256": "d04782ff06eb92a484b259a83c8ba621258468c92b072049542c4c369e03c6a0",
+  "matching": "Unique side confetti only; full card tracking and anchor coordinates",
+  "version": "milo-v2",
+  "target": "milo-v2/targets.mind",
+  "bytes": 2513338,
+  "sha256": "d739a4e72b2d167e3af961e8b92da692b8d2ec39fdc9228d2a6613b32c8d474e",
   "images": [
     {
       "id": "cat",
+      "word": "CAT",
+      "name": "Milo",
       "targetIndex": 0,
-      "image": "cat.png",
+      "image": "milo-v2/cat.png",
       "width": 1100,
       "height": 800,
-      "sha256": "1982b244f70b41319e5e77e2e5d6b80473a47f882e7cca6abb0f1cad058714ee"
+      "sha256": "af0eccae8b7f4cd1ec783c0ba3973f27578ff9a019106b2d299e3b2d4596ce03"
     },
     {
       "id": "dog",
+      "word": "DOG",
+      "name": "Bubbles",
       "targetIndex": 1,
-      "image": "dog.png",
+      "image": "milo-v2/dog.png",
       "width": 1100,
       "height": 800,
-      "sha256": "69dccc57bf3052e91950502633238a58c56407d888c3edf4d738c74cd0b711f0"
+      "sha256": "74f6c091578945403109caf2fcb3bca20f954f721bff2473055b67e3c22ac625"
     },
     {
       "id": "lion",
+      "word": "LION",
+      "name": "Sunny",
       "targetIndex": 2,
-      "image": "lion.png",
+      "image": "milo-v2/lion.png",
       "width": 1100,
       "height": 800,
-      "sha256": "f1f4309c686fc5524a9dbfefd6fcdcc095bd999008c5f5571091cf6000ed915a"
+      "sha256": "048d8f68b279595d9fc354bdec86e298b225b7f4064c90b8ae77ef6618edd7b8"
+    },
+    {
+      "id": "foxy",
+      "word": "FOX",
+      "name": "Foxy",
+      "targetIndex": 3,
+      "image": "milo-v2/foxy.png",
+      "width": 1100,
+      "height": 800,
+      "sha256": "f048c208727d7abd5a79614ebaa3f343e3263628670525f581ad34924d21508d"
+    },
+    {
+      "id": "bunny",
+      "word": "RABBIT",
+      "name": "Poppy",
+      "targetIndex": 4,
+      "image": "milo-v2/bunny.png",
+      "width": 1100,
+      "height": 800,
+      "sha256": "c3b6dacdb9717d54e5ecc8d12b40c9d5576eb03ed66bddab23ddbdfba99cb051"
+    },
+    {
+      "id": "bear",
+      "word": "BEAR",
+      "name": "Maple",
+      "targetIndex": 5,
+      "image": "milo-v2/bear.png",
+      "width": 1100,
+      "height": 800,
+      "sha256": "90cc7b310b97853f2275cb893502741187606535d2d145e52a1564456702ca20"
+    },
+    {
+      "id": "panda",
+      "word": "PANDA",
+      "name": "Pebble",
+      "targetIndex": 6,
+      "image": "milo-v2/panda.png",
+      "width": 1100,
+      "height": 800,
+      "sha256": "43f0103298d79948e2b9c59a6f4c4412de4988ccf58910cf92ef2ea507767578"
+    },
+    {
+      "id": "elephant",
+      "word": "ELEPHANT",
+      "name": "Ellie",
+      "targetIndex": 7,
+      "image": "milo-v2/elephant.png",
+      "width": 1100,
+      "height": 800,
+      "sha256": "ec1d0b246a89587a028ef53a3f17f878819e6763550763862113ad30b9dc3ee2"
     }
   ]
 }

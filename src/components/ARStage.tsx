@@ -18,6 +18,8 @@ export function ARStage(props: Props) {
     callbacks = useRef(props);
   callbacks.current = props;
   const { pixelRatio } = useQuality();
+  const qualityRatio = useRef(pixelRatio);
+  qualityRatio.current = pixelRatio;
   useEffect(() => {
     if (!root.current) return;
     let p: MindARProvider | null = null;
@@ -29,6 +31,7 @@ export function ARStage(props: Props) {
         p = new Provider();
         provider.current = p;
         await p.initialize(root.current!, props.markerTest);
+        p.setQuality(qualityRatio.current);
         if (disposed) return;
         await p.registerTargets(animals.map((a) => a.id));
         if (disposed) return;

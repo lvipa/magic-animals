@@ -9,6 +9,7 @@ import { getTVBridge } from '../tv/WebSocketTVBridge';
 import { characterActionCue, learningActions } from '../audio/characterVoices';
 import { cueTexts } from '../audio/generated';
 import { catAssetStatus } from '../characters/authoredCat';
+import { CAT_MODEL_URL } from '../characters/catAsset';
 import {
   animateCharacter,
   disposeCharacter,
@@ -89,13 +90,17 @@ export default function CharacterGallery({ playground = false }: { playground?: 
     if (bridge.shouldSpeakOnTV()) bridge.sendEvent('AUDIO_CUE', { cue });
     else audio.say(cue);
   };
-  const questionCue = (kind: 'animal' | 'action', target: string) => kind === 'animal'
-    ? `find-${characterDetails[target as Character].word.toLowerCase()}` : `ask-${target}`;
+  const questionCue = (kind: 'animal' | 'action', target: string) =>
+    kind === 'animal'
+      ? `find-${characterDetails[target as Character].word.toLowerCase()}`
+      : `ask-${target}`;
   const startLesson = (kind: 'animal' | 'action') => {
     const options = kind === 'animal' ? characters : [...learningActions];
     const available = options.filter((value) => value !== lesson?.target);
     const target = available[Math.floor(Math.random() * available.length)];
-    setLesson({ kind, target }); setFeedback('Listen carefully…'); setAction('idle');
+    setLesson({ kind, target });
+    setFeedback('Listen carefully…');
+    setAction('idle');
     if (kind === 'animal') setSelected('all');
     else if (selected === 'all') setSelected('cat');
     speak(questionCue(kind, target));
@@ -103,13 +108,22 @@ export default function CharacterGallery({ playground = false }: { playground?: 
   const answerLesson = (kind: 'animal' | 'action', answer: string) => {
     if (!lesson || lesson.kind !== kind) return false;
     if (answer === lesson.target) {
-      setFeedback(kind === 'animal' ? `Yes! ${characterDetails[answer as Character].word}!` : `Great! ${answer.toUpperCase()}!`);
-      speak(kind === 'animal' ? `well-done-${characterDetails[answer as Character].word.toLowerCase()}` : 'great');
+      setFeedback(
+        kind === 'animal'
+          ? `Yes! ${characterDetails[answer as Character].word}!`
+          : `Great! ${answer.toUpperCase()}!`,
+      );
+      speak(
+        kind === 'animal'
+          ? `well-done-${characterDetails[answer as Character].word.toLowerCase()}`
+          : 'great',
+      );
       setLesson(null);
       if (kind === 'animal') setAction('happy');
     } else {
       setFeedback('Try again. Listen to Foxy!');
-      speak('try-again'); speak(questionCue(lesson.kind, lesson.target), false);
+      speak('try-again');
+      speak(questionCue(lesson.kind, lesson.target), false);
     }
     return true;
   };
@@ -167,12 +181,23 @@ export default function CharacterGallery({ playground = false }: { playground?: 
           gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }}
         >
           <StudioEnvironment />
-          <hemisphereLight args={['#fff0df', '#687384', .6]} />
+          <hemisphereLight args={['#fff0df', '#687384', 0.6]} />
           <directionalLight position={[-3, 4, 5]} intensity={1.65} color="#ffedda" />
-          <directionalLight position={[3, 1, 3]} intensity={.45} color="#cdd8f5" />
+          <directionalLight position={[3, 1, 3]} intensity={0.45} color="#cdd8f5" />
           <directionalLight position={[2, 3, -3]} intensity={1.25} color="#e6cbf1" />
           <GalleryActors selected={selected} action={action} />
-          {selected !== 'all' && <ContactShadows position={[0,-.751,0]} opacity={.38} scale={4} blur={2.8} far={2.5} resolution={256} frames={30} color="#101826" />}
+          {selected !== 'all' && (
+            <ContactShadows
+              position={[0, -0.751, 0]}
+              opacity={0.38}
+              scale={4}
+              blur={2.8}
+              far={2.5}
+              resolution={256}
+              frames={30}
+              color="#101826"
+            />
+          )}
           <OrbitControls
             target={[0, selected === 'all' ? 0.27 : 0.13, 0]}
             enablePan={false}
@@ -192,7 +217,7 @@ export default function CharacterGallery({ playground = false }: { playground?: 
                 {characterDetails[id].name} · {characterDetails[id].word}
               </span>
             ) : (
-              <a key={id} href={`/models/${id}.glb`} download>
+              <a key={id} href={id === 'cat' ? CAT_MODEL_URL : `/models/${id}.glb`} download>
                 {characterDetails[id].name} · {characterDetails[id].word}
                 <small>Download GLB ↓</small>
               </a>
@@ -201,24 +226,47 @@ export default function CharacterGallery({ playground = false }: { playground?: 
       </div>
       <div className="gallery-controls" aria-label="Animation">
         {['idle', 'happy', 'wave', 'jump', 'run', 'sleep', 'roar'].map((mood) => (
-          <button key={mood} aria-pressed={action === mood} onClick={() => {
-            setAction(mood);
-            if (!answerLesson('action', mood)) speak(characterActionCue(selected === 'all' ? 'foxy' : selected, mood));
-          }}>
+          <button
+            key={mood}
+            aria-pressed={action === mood}
+            onClick={() => {
+              setAction(mood);
+              if (!answerLesson('action', mood))
+                speak(characterActionCue(selected === 'all' ? 'foxy' : selected, mood));
+            }}
+          >
             {mood}
           </button>
         ))}
       </div>
-      {playground && <section className="listening-play" aria-label="English listening games">
-        <h2>Listen, find & move!</h2>
-        <div className="gallery-controls">
-          <button onClick={() => startLesson('animal')}>Listen & find a friend</button>
-          <button onClick={() => startLesson('action')}>Listen & choose a move</button>
-          {selected !== 'all' && <button onClick={() => { setAction('roar'); speak(`call-${selected}`); }}>My sound 🔊</button>}
-          {lesson && <button onClick={() => speak(questionCue(lesson.kind, lesson.target))}>Hear again 🔊</button>}
-        </div>
-        <p aria-live="polite">{feedback || cueTexts[characterActionCue(selected === 'all' ? 'foxy' : selected, action)]}</p>
-      </section>}
+      {playground && (
+        <section className="listening-play" aria-label="English listening games">
+          <h2>Listen, find & move!</h2>
+          <div className="gallery-controls">
+            <button onClick={() => startLesson('animal')}>Listen & find a friend</button>
+            <button onClick={() => startLesson('action')}>Listen & choose a move</button>
+            {selected !== 'all' && (
+              <button
+                onClick={() => {
+                  setAction('roar');
+                  speak(`call-${selected}`);
+                }}
+              >
+                My sound 🔊
+              </button>
+            )}
+            {lesson && (
+              <button onClick={() => speak(questionCue(lesson.kind, lesson.target))}>
+                Hear again 🔊
+              </button>
+            )}
+          </div>
+          <p aria-live="polite">
+            {feedback ||
+              cueTexts[characterActionCue(selected === 'all' ? 'foxy' : selected, action)]}
+          </p>
+        </section>
+      )}
       {playground && <p>3D play · Tap a friend, then choose a move.</p>}
     </main>
   );

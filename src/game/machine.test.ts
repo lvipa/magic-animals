@@ -36,7 +36,8 @@ describe('finite game machine', () => {
     expect(transition('FINALE', { type: 'SKIP' })).toBe('COMPLETE');
   });
   it('free play accepts all cards without mission progression', () => {
-    for (const id of ['cat', 'dog', 'lion'] as const)
+    expect(transition('WELCOME', { type: 'FREE_PLAY' })).toBe('FREE_PLAY');
+    for (const id of ['elephant', 'panda', 'cat', 'bunny', 'foxy', 'dog', 'bear', 'lion'] as const)
       expect(transition('FREE_PLAY', { type: 'TARGET_FOUND', id })).toBe('FREE_PLAY');
   });
   it('awards stars as animals emerge', () => {

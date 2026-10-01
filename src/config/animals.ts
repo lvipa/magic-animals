@@ -1,4 +1,7 @@
-export type AnimalId = 'cat' | 'dog' | 'lion';
+import { characterDetails, type Character } from '../characters/catalog';
+import { markerBase } from './arCards';
+import { CAT_MODEL_URL } from '../characters/catAsset';
+export type AnimalId = Character;
 export type FoxyMood =
   'idle' | 'lookAround' | 'point' | 'happy' | 'surprised' | 'scared' | 'laugh' | 'dance' | 'fall';
 export interface AppearanceBeat {
@@ -33,9 +36,9 @@ export const animals: AnimalConfig[] = [
     word: 'CAT',
     article: 'A cat!',
     targetIndex: 0,
-    image: '/markers/cat.png',
-    thumbnail: '/markers/cat.png',
-    model: '/models/cat.glb',
+    image: `${markerBase}/cat.png`,
+    thumbnail: `${markerBase}/cat.png`,
+    model: CAT_MODEL_URL,
     color: '#f8b460',
     call: 'Meow!',
     sounds: { word: 'cat', article: 'a-cat', call: 'meow' },
@@ -59,8 +62,8 @@ export const animals: AnimalConfig[] = [
     word: 'DOG',
     article: 'A dog!',
     targetIndex: 1,
-    image: '/markers/dog.png',
-    thumbnail: '/markers/dog.png',
+    image: `${markerBase}/dog.png`,
+    thumbnail: `${markerBase}/dog.png`,
     model: '/models/dog.glb',
     color: '#89c9dc',
     call: 'Woof!',
@@ -89,8 +92,8 @@ export const animals: AnimalConfig[] = [
     word: 'LION',
     article: 'A lion!',
     targetIndex: 2,
-    image: '/markers/lion.png',
-    thumbnail: '/markers/lion.png',
+    image: `${markerBase}/lion.png`,
+    thumbnail: `${markerBase}/lion.png`,
     model: '/models/lion.glb',
     color: '#f5cf61',
     call: 'Tiny roar!',
@@ -109,7 +112,35 @@ export const animals: AnimalConfig[] = [
     ],
     interactions: ['roar', 'roll', 'sleep', 'jump', 'wave'],
   },
+  ...(['foxy', 'bunny', 'bear', 'panda', 'elephant'] as const).map((id, index): AnimalConfig => {
+    const details = characterDetails[id];
+    const word = details.word.toLowerCase();
+    return {
+      id,
+      word: details.word,
+      article: `A ${word}!`,
+      targetIndex: index + 3,
+      image: `${markerBase}/${id}.png`,
+      thumbnail: `${markerBase}/${id}.png`,
+      model: `/models/${id}.glb`,
+      color: details.color,
+      call: 'Hello!',
+      sounds: { word, article: `character-${id}-idle`, call: `character-${id}-roar` },
+      animations: ['idle', 'happy', 'wave', 'jump', 'run', 'sleep', 'roar'],
+      appearanceDuration: 2800,
+      appearanceSequence: [
+        { at: 400, reveal: 0.25 },
+        { at: 800, reveal: 0.6 },
+        { at: 1200, reveal: 1 },
+        { at: 1400, cue: word },
+      ],
+      interactions: ['happy', 'wave', 'jump', 'run', 'sleep', 'roar'],
+    };
+  }),
 ];
+// The narrated adventure keeps its three chapters; all eight cards are
+// immediately available in Scan any card / Free Play.
+export const storyAnimals = animals.filter((a) => ['cat', 'dog', 'lion'].includes(a.id));
 export const animalById = Object.fromEntries(animals.map((a) => [a.id, a])) as Record<
   AnimalId,
   AnimalConfig

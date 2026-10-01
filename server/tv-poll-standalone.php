@@ -106,7 +106,7 @@ function joined(array &$db, string $sid, string $code, string $role): void {
 }
 function validEvent(string $event, $payload): ?array {
     if (!is_array($payload)) $payload=[];
-    $animals=['cat','dog','lion'];
+    $animals=['cat','dog','lion','foxy','bunny','bear','panda','elephant'];
     $friends=['foxy','cat','dog','lion','bunny','bear','panda','elephant'];
     $moods=['idle','lookAround','point','happy','surprised','scared','laugh','dance','fall'];
     $actions=array_merge($moods,['jump','play','spin','chase tail','run','sit','sleep','roll','wave','roar','woof','meow']);

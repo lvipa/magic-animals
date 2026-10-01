@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { audioFiles } from '../audio/AudioManager';
 import { characterIds } from '../characters/catalog';
+import { imageTargetsUrl, markerBase } from '../config/arCards';
+import { CAT_MODEL_URL } from '../characters/catAsset';
 export function Install() {
   const ios =
     /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -66,14 +68,14 @@ export function Offline() {
       };
       const groups: Record<string, string[]> = {
         'GAME ENGINE': ['/index.html'],
-        MODELS: [...characterIds.map((id) => `/models/${id}.glb`), '/models/cat-studio.glb', '/draco/draco_wasm_wrapper.js', '/draco/draco_decoder.wasm'],
-        AUDIO: audioFiles,
-        MARKERS: [
-          '/markers/targets.mind',
-          '/markers/cat.png',
-          '/markers/dog.png',
-          '/markers/lion.png',
+        MODELS: [
+          ...characterIds.filter((id) => id !== 'cat').map((id) => `/models/${id}.glb`),
+          CAT_MODEL_URL,
+          '/draco/draco_wasm_wrapper.js',
+          '/draco/draco_decoder.wasm',
         ],
+        AUDIO: audioFiles,
+        MARKERS: [imageTargetsUrl, ...characterIds.map((id) => `${markerBase}/${id}.png`)],
       };
       for (const [name, paths] of Object.entries(groups)) {
         const ready = (await Promise.all(paths.map(cached))).every(Boolean);
@@ -101,9 +103,7 @@ export function Offline() {
           </div>
         ))}
       </div>
-      <p>
-        MODELS uses original procedural meshes bundled into the engine. No GLB downloads are needed.
-      </p>
+      <p>CAT uses the new Milo GLB with its skeleton, facial controls and short fur.</p>
       <p>
         READY means assets are present in this build's precache. To verify a relaunch, disconnect
         Wi-Fi and reopen the Home Screen icon. Safari can evict storage under pressure.

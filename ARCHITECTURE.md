@@ -2,7 +2,7 @@
 
 ## Системы
 
-## Текущее устройство (2026-09-29)
+## Текущее устройство (2026-10-01)
 
 ```mermaid
 flowchart TD
@@ -10,7 +10,7 @@ flowchart TD
   Engine --> Audio[Howler: локальные MP3 / WAV]
   Engine --> AR[MindAR: камера и image tracking]
   AR --> Render[Three.js / React Three Fiber]
-  Asset[Blender CAT: mesh, PBR, groom, 33-joint rig, 7 clips] --> GLB[GLB + Draco]
+  Asset[Blender Milo: PBR, short fur, 21-joint rig, 7 clips + morphs] --> GLB[GLB + Draco]
   GLB --> Render
   UI --> TV[TVBridge]
   TV --> WS[Локально: Node / WebSocket]
@@ -53,14 +53,33 @@ Workbox precache → static app, markers, audio, models, icons, printables
 
 `src/ar/ARProvider.ts` — контракт initialize/registerTargets/start/stop/found/lost/reveal/quality/action. AR renderer принимает только настоящие target callbacks. `ARStage` лениво загружает адаптер после PLAY, показывает диагностику через отдельный store и освобождает provider при выходе. Video и Three canvas используют один crop/projection. Target pose нормализуется шириной карточки. На карточке, лежащей на столе, модель стоит наружу от плоскости; при почти фронтальном взгляде наклон мягко меняется для читаемости лица и тела.
 
-Controller регулярно сравнивает все три цели, сбрасывая своё tracking-состояние только между кадрами. Это позволяет сменить животное в Free Play. Нельзя ограничивать matcher только ожидаемой целью: общие признаки разных иллюстраций способны дать ошибочное совпадение. Логический anchor удерживается во время короткого повторного warmup, поэтому подтверждение той же цели не повторяет реакцию. Набор карточек использует разные силуэты и независимые узоры; tracking-тест также проверяет отсутствие совпадений с двумя неверными индексами.
+Controller регулярно сравнивает все восемь целей, сбрасывая tracking-состояние
+только между кадрами. SCAN ANY CARD открывает Free Play сразу. Начальное
+совпадение использует уникальные боковые узоры: при компиляции общие подписи,
+рамки и похожие центральные портреты исключаются, кластеры пересобираются.
+Tracking сохраняет целое изображение. Нельзя ограничивать matcher только
+ожидаемой целью. Логический anchor удерживается во время короткого повторного
+warmup; подтверждение той же цели не повторяет реакцию. Tracking-тест проверяет
+каждую карточку против семи чужих индексов. Порядок targets закреплён в
+`scripts/marker-roster.mjs` и `src/config/animals.ts`; storyAnimals оставляет
+озвученную историю из трёх глав.
 
 `src/scenes/GameScene.tsx` — Foxy, fallback и camera-relative праздничная сцена. Финал сохраняет video; персонажи собираются в экранной сцене, поскольку обычное image tracking не обеспечивает floor/room anchors. Procedural geometry и эффекты ограничены; heavy postprocessing/shadow maps не используются.
 
 ## Lifecycle и память
 
-- CAT загружается через GLTFLoader/DRACOLoader (`authoredCat.ts`), клонируется с собственным скелетом через SkeletonUtils и анимируется AnimationMixer. Геометрия и текстуры разделяются между экземплярами, rig/mixer принадлежат экземпляру. GLB содержит шесть текстур, PBR cloth/fur/eyes, 33 сустава, семь skeletal clips и один компактный слой силуэтной шерсти. Источник — `assets/characters/cat/milo-master.blend`. Остальные семь животных пока создаются прежним `toyFactory.ts`; их качество не считается утверждённым. `models.ts` выбирает CAT GLB без подмены процедурным CAT и общий контракт animate/reveal/dispose.
-- AR стартует только после PLAY или явного открытия взрослой диагностики.
+- CAT загружается по immutable URL из `catAsset.ts` через GLTFLoader/DRACOLoader,
+  клонируется с собственным скелетом через SkeletonUtils и анимируется AnimationMixer.
+  GLB новой основы Milo содержит 21 сустав, семь skeletal clips, лицевые morphs,
+  два взаимно исключающих слоя короткой шерсти и PBR-карты до 1024². Reveal shader
+  работает с rest positions и наследует extras при разбиении меша по материалам.
+  Источник текущей поставки — локальный `.deployment/incoming-milo/milo-game-short-fur.blend`.
+  Остальные семь животных пока создаются `toyFactory.ts`; утверждение их качества
+  и перенос на новый skeleton pipeline остаются отдельным этапом.
+- AR стартует после PLAY, SCAN ANY CARD или открытия взрослой диагностики.
+- Модели целей создаются лениво, при первом распознавании; скрытые не анимируются.
+- Finale и TV используют один адаптивный `useCastLayout`, с двумя столбцами
+  на телефоне и максимум четырьмя на широком экране.
 - При закрытии provider: tracks.stop, stopProcessVideo, Worker.terminate, stop render loop, geometry/material.dispose, renderer.dispose, remove resize listener/video/canvas.
 - При уходе React scene её геометрия освобождается. Внутри модели общая геометрия и материалы освобождаются один раз. Frame loop использует заранее найденные moving nodes, без повторного поиска или новых Vector3. Одновременно в финале нужны четыре персонажа.
 - AUTO уменьшает render DPR до LOW при FPS ниже 25; эффекты имеют 8/16/24 элемента. Изменения качества не создают новый camera stream.

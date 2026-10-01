@@ -11,10 +11,7 @@ export default defineConfig({
       includeAssets: [
         'icons/apple-touch-icon.png',
         'icons/favicon.png',
-        'markers/targets.mind',
-        'markers/cat.png',
-        'markers/dog.png',
-        'markers/lion.png',
+        'markers/milo-v2/targets.mind',
       ],
       manifest: {
         name: 'Magic Animals',
@@ -23,7 +20,7 @@ export default defineConfig({
         start_url: '/',
         scope: '/',
         display: 'standalone',
-        orientation: 'landscape',
+        orientation: 'any',
         background_color: '#122536',
         theme_color: '#122536',
         icons: [
@@ -32,12 +29,20 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // The CAT revision query bypasses old workers during an online update;
-        // the current worker still serves its matching precached model offline.
+        // The current CAT and tracking targets have immutable/versioned URLs.
         ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/],
         globPatterns: ['**/*.{js,wasm,css,html,png,svg,mind,mp3,aac,ogg,wav,glb,txt,json,pdf}'],
         // Production review renders are optional online documentation.
-        globIgnores: ['**/review/**'],
+        globIgnores: [
+          '**/review/**',
+          'markers/milo-v2/*.svg',
+          'models/cat.glb',
+          'models/cat-studio.glb',
+          'markers/cat.*',
+          'markers/dog.*',
+          'markers/lion.*',
+          'markers/targets.mind',
+        ],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/audio\//, /^\/markers\//, /^\/models\//, /^\/review\//],
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,

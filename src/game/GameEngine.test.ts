@@ -71,6 +71,35 @@ describe('timeline and recognition boundary', () => {
     expect(show.mock.lastCall?.[0].animal).toBe('lion');
     engine.dispose();
   });
+  it('switches all eight cards in any order and cancels the previous sound timeline', () => {
+    vi.useFakeTimers();
+    const { engine, show, say, send } = setup('FREE_PLAY');
+    engine.enter('FREE_PLAY');
+    for (const id of [
+      'elephant',
+      'cat',
+      'panda',
+      'dog',
+      'bunny',
+      'lion',
+      'bear',
+      'foxy',
+    ] as const) {
+      engine.targetFound(id);
+      expect(show.mock.lastCall?.[0].animal).toBe(id);
+      expect(show.mock.lastCall?.[0].action).toBe('wave');
+      expect(send).toHaveBeenCalledWith({ type: 'TARGET_FOUND', id });
+      vi.advanceTimersByTime(100);
+    }
+    say.mockClear();
+    vi.advanceTimersByTime(1300);
+    expect(say).toHaveBeenCalledTimes(1);
+    expect(say).toHaveBeenCalledWith('character-foxy-roar');
+    vi.advanceTimersByTime(3000);
+    expect(show.mock.lastCall?.[0].animal).toBe('foxy');
+    expect(show.mock.lastCall?.[0].action).toBe('idle');
+    engine.dispose();
+  });
   it('keeps a 17.5 second celebration', () => {
     vi.useFakeTimers();
     const { engine, send } = setup('FINALE');

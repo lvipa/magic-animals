@@ -1,5 +1,5 @@
 import { Component, useEffect, useMemo, type ReactNode } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Float } from '@react-three/drei';
 import {
   animateCharacter,
@@ -9,12 +9,13 @@ import {
   type Character,
 } from '../characters/models';
 import { animateMagic, makeMagic } from './magic';
-import { animals, type AnimalId } from '../config/animals';
+import { storyAnimals, type AnimalId } from '../config/animals';
 import type { SceneState } from '../game/GameEngine';
 import type { Mode } from '../storage/store';
 import { useQuality } from '../hooks/useQuality';
 import { FrameMeter } from './FrameMeter';
 import { StudioEnvironment } from './StudioLighting';
+import { useCastLayout } from './CastLayout';
 export function Actor({
   kind,
   action = 'idle',
@@ -66,6 +67,64 @@ class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean
     return this.state.failed ? <div className="no-webgl">🦊 ✨</div> : this.props.children;
   }
 }
+function FinaleActors({ scene, onTap }: { scene: SceneState; onTap: (id: AnimalId) => void }) {
+  const layout = useCastLayout(storyAnimals.length + 1);
+  return (
+    <>
+      <Actor kind="foxy" action={scene.foxy} position={layout.position(0)} scale={layout.scale} />
+      {storyAnimals.map((animal, index) => (
+        <Actor
+          key={animal.id}
+          kind={animal.id}
+          action={
+            scene.action === 'dance'
+              ? index === 0
+                ? 'happy'
+                : index === 1
+                  ? 'jump'
+                  : 'dance'
+              : 'idle'
+          }
+          position={layout.position(index + 1)}
+          scale={layout.scale}
+          onTap={() => onTap(animal.id)}
+        />
+      ))}
+    </>
+  );
+}
+function PlayActors({
+  scene,
+  mode,
+  onTap,
+}: {
+  scene: SceneState;
+  mode: Mode;
+  onTap: (id: AnimalId) => void;
+}) {
+  const { width, height } = useThree((state) => state.viewport);
+  return (
+    <>
+      <Actor
+        kind="foxy"
+        action={scene.foxy}
+        position={[-Math.min(1.65, width * 0.34), -0.7, 0]}
+        scale={Math.min(0.78, width / 3.3)}
+      />
+      {mode !== 'AR_MODE' && scene.animal && (
+        <Actor
+          key={scene.animal}
+          kind={scene.animal}
+          action={scene.action}
+          reveal={scene.reveal}
+          position={[0, -0.6, 0]}
+          scale={Math.min(1.5, width / 1.45, (height * 0.48) / 1.45)}
+          onTap={() => onTap(scene.animal!)}
+        />
+      )}
+    </>
+  );
+}
 export function GameScene({
   scene,
   welcome,
@@ -98,42 +157,9 @@ export function GameScene({
               <Actor kind="foxy" action="lookAround" position={[0, -0.95, 0]} scale={1.55} />
             </Float>
           ) : scene.finale ? (
-            <>
-              <Actor kind="foxy" action={scene.foxy} position={[-1.3, -0.55, 0]} scale={1.1} />
-              {animals.map((a, i) => (
-                <Actor
-                  key={a.id}
-                  kind={a.id}
-                  action={
-                    scene.action === 'dance'
-                      ? i === 0
-                        ? 'spin'
-                        : i === 1
-                          ? 'jump'
-                          : 'dance'
-                      : 'idle'
-                  }
-                  position={[-0.2 + i * 0.8, -0.55, (i % 2) * 0.1]}
-                  scale={0.85}
-                  onTap={() => onTap(a.id)}
-                />
-              ))}
-            </>
+            <FinaleActors scene={scene} onTap={onTap} />
           ) : (
-            <>
-              <Actor kind="foxy" action={scene.foxy} position={[-1.65, -0.7, 0]} scale={0.78} />
-              {mode !== 'AR_MODE' && scene.animal && (
-                <Actor
-                  key={scene.animal}
-                  kind={scene.animal}
-                  action={scene.action}
-                  reveal={scene.reveal}
-                  position={[0, -0.6, 0]}
-                  scale={1.5}
-                  onTap={() => onTap(scene.animal!)}
-                />
-              )}
-            </>
+            <PlayActors scene={scene} mode={mode} onTap={onTap} />
           )}
           {scene.effects && <Magic count={quality.particles} />}
           <FrameMeter enabled={welcome || mode !== 'AR_MODE'} />

@@ -16,7 +16,9 @@ const pass = (name) => {
   report.push(name);
   console.log('PASS', name);
 };
-const browserArgs = ['--enable-webgl', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'];
+// Use the regular graphics path, as on the production device. Forced
+// SwiftShader on this Windows host can stall both UI timers and audio.
+const browserArgs = ['--enable-webgl'];
 async function hold(page, locator, duration) {
   const box = await locator.boundingBox();
   if (!box) throw new Error('Hold button missing');
@@ -89,7 +91,7 @@ try {
   const raster = await browser.newPage();
   const yuv = [];
   for (const id of ['cat', 'dog', 'lion']) {
-    await raster.goto(`${base}/markers/${id}.png`);
+    await raster.goto(`${base}/markers/milo-v2/${id}.png`);
     const rgba = await raster.evaluate(async () => {
       const image = document.querySelector('img');
       await image.decode();

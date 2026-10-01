@@ -1,4 +1,4 @@
-import { animals, type AnimalId } from '../config/animals';
+import { storyAnimals, type AnimalId } from '../config/animals';
 export type GameState =
   | 'BOOT'
   | 'WELCOME'
@@ -25,7 +25,7 @@ export type GameEvent =
         | 'SKIP';
     }
   | { type: 'TARGET_FOUND'; id: AnimalId };
-const ordered = animals.map((a) => a.id);
+const ordered = storyAnimals.map((a) => a.id);
 export function transition(state: GameState, event: GameEvent): GameState {
   if (event.type === 'RESET') return 'WELCOME';
   if (event.type === 'FREE_PLAY') return 'FREE_PLAY';

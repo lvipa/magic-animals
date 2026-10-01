@@ -20,9 +20,9 @@
     },
     {
       "id": "cat",
-      "bytes": 2577472,
-      "meshes": 18,
-      "triangles": 76884,
+      "bytes": 6934716,
+      "meshes": 9,
+      "triangles": 128076,
       "animations": [
         "idle",
         "happy",
@@ -32,9 +32,10 @@
         "sleep",
         "roar"
       ],
-      "source": "assets/characters/cat/milo-master.blend",
-      "approval": "pending",
-      "pipeline": "Connected control cages / UV / PBR / skin weights / GLB"
+      "source": "User-supplied Meshy Milo; original SHA256 de0e348c7eece526c4a7464ab876a73a72287f0cd0313d056b8e803afb1a9e90",
+      "approval": "user requested game integration; further art polish pending",
+      "pipeline": "Blender shared skeleton, PBR atlas, eyelid in-betweens, connected mouth, skinned short-fur ribbons",
+      "asset": "cat-milo-56d1f528f55c.glb"
     },
     {
       "id": "dog",

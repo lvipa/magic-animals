@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { writeFile } from 'node:fs/promises';
+import { writeFile, readFile } from 'node:fs/promises';
 import { WebSocket } from 'ws';
 import { chromium } from 'playwright';
 import { createTVServer } from '../server/tv-server.mjs';
@@ -89,9 +89,13 @@ try {
   controller.send({ kind: 'event', event: 'AUDIO_CUE', payload: { cue: 'cat' } });
   await tv.next((m) => m.kind === 'event' && m.event === 'AUDIO_CUE' && m.payload.cue === 'cat');
   controller.send({ kind: 'event', event: 'AUDIO_CUE', payload: { cue: 'character-cat-wave' } });
-  await tv.next((m) => m.kind === 'event' && m.event === 'AUDIO_CUE' && m.payload.cue === 'character-cat-wave');
+  await tv.next(
+    (m) => m.kind === 'event' && m.event === 'AUDIO_CUE' && m.payload.cue === 'character-cat-wave',
+  );
   controller.send({ kind: 'event', event: 'AUDIO_CUE', payload: { cue: 'ask-jump' } });
-  await tv.next((m) => m.kind === 'event' && m.event === 'AUDIO_CUE' && m.payload.cue === 'ask-jump');
+  await tv.next(
+    (m) => m.kind === 'event' && m.event === 'AUDIO_CUE' && m.payload.cue === 'ask-jump',
+  );
   tv.send({ kind: 'sound-ready', ready: false });
   await controller.next((m) => m.kind === 'presence' && !m.tvSoundReady && m.audioTarget === 'tv');
   controller.send({ kind: 'event', event: 'AUDIO_ROUTE', payload: { target: 'ipad' } });
@@ -122,12 +126,26 @@ try {
   });
   assert.equal((await tv.next((m) => m.kind === 'error')).code, 'READ_ONLY');
   pass('Validated scene synchronization; camera uploads and TV control commands rejected');
-  for (const id of ['foxy', 'cat', 'dog', 'lion', 'bunny', 'bear', 'panda', 'elephant']) {
-    controller.send({kind: 'event', event: 'FRIEND_SCENE', payload: {id, action: 'wave'}});
-    const friend = await tv.next((m) => m.kind === 'event' && m.event === 'FRIEND_SCENE');
-    assert.deepEqual(friend.payload, {id, action: 'wave'});
+  for (const id of ['elephant', 'panda', 'cat', 'bunny', 'foxy', 'dog', 'bear', 'lion']) {
+    controller.send({
+      kind: 'event',
+      event: 'SCENE_SYNC',
+      payload: { state: 'FREE_PLAY', scene: { ...initialScene, animal: id } },
+    });
+    const message = await tv.next((m) => m.kind === 'snapshot');
+    assert.equal(message.snapshot.scene.animal, id);
   }
-  controller.send({kind: 'event', event: 'FRIEND_SCENE', payload: {id: 'unknown', action: 'wave'}});
+  pass('Eight unordered AR card scenes synchronize to TV');
+  for (const id of ['foxy', 'cat', 'dog', 'lion', 'bunny', 'bear', 'panda', 'elephant']) {
+    controller.send({ kind: 'event', event: 'FRIEND_SCENE', payload: { id, action: 'wave' } });
+    const friend = await tv.next((m) => m.kind === 'event' && m.event === 'FRIEND_SCENE');
+    assert.deepEqual(friend.payload, { id, action: 'wave' });
+  }
+  controller.send({
+    kind: 'event',
+    event: 'FRIEND_SCENE',
+    payload: { id: 'unknown', action: 'wave' },
+  });
   assert.equal((await controller.next((m) => m.kind === 'error')).code, 'BAD_EVENT');
   pass('All eight bonus friends and their actions synchronize; unknown characters rejected');
   const attacker = peer();
@@ -164,7 +182,10 @@ try {
   await tvResume.next((m) => m.kind === 'joined');
   const restored = await tvResume.next((m) => m.kind === 'snapshot');
   assert.deepEqual(restored.snapshot.released, ['cat']);
-  assert.deepEqual((await tvResume.next((m) => m.kind === 'event' && m.event === 'FRIEND_SCENE')).payload, {id:'elephant', action:'wave'});
+  assert.deepEqual(
+    (await tvResume.next((m) => m.kind === 'event' && m.event === 'FRIEND_SCENE')).payload,
+    { id: 'elephant', action: 'wave' },
+  );
   pass('Reconnect restores scene and released animals without duplicates');
   controller.socket.close();
   const resumedController = peer();
@@ -193,78 +214,82 @@ try {
   for (const socket of sockets) socket.close();
 
   if (!process.argv.includes('--protocol-only')) {
-  const browser = await chromium.launch({
-    headless: true,
-    executablePath: browserExecutable(),
-    args: ['--enable-webgl', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
-  });
-  try {
-    const tvContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
-    await isolateTestContext(tvContext);
-    const screen = await tvContext.newPage();
-    const errors = [];
-    screen.on('pageerror', (error) => errors.push(error.message));
-    await screen.goto(`${base}/tv`);
-    const decoded = await screen.evaluate(async () => {
-      const context = new AudioContext();
-      try {
-        const manifest = await fetch('/audio/manifest.json').then((r) => r.json());
-        return await Promise.all(
-          manifest.clips.map(async (clip) => {
-            const response = await fetch(`/audio/${clip.group}/${clip.cue}.mp3`);
-            if (!response.ok) throw new Error(`Missing audio: ${clip.cue}`);
-            const buffer = await context.decodeAudioData(await response.arrayBuffer());
-            const samples = buffer.getChannelData(0);
-            let peak = 0;
-            for (const sample of samples) peak = Math.max(peak, Math.abs(sample));
-            if (buffer.duration < 0.2 || peak < 0.005 || peak >= 1)
-              throw new Error(`Invalid audio: ${clip.cue}`);
-            return clip.cue;
-          }),
-        );
-      } finally {
-        await context.close();
-      }
+    const browser = await chromium.launch({
+      headless: true,
+      executablePath: browserExecutable(),
+      args: ['--enable-webgl'],
     });
-    assert.equal(decoded.length, 20);
-    pass('All 20 cartoon voice/effect MP3 files decode with non-silent unclipped samples');
-    await screen.getByRole('button', { name: 'START TV' }).click();
-    await screen.waitForFunction(() =>
-      /^\d{6}$/.test(document.querySelector('.tv-code')?.textContent),
-    );
-    const code = await screen.locator('.tv-code').innerText();
-    await screen.screenshot({ path: 'artifacts/tv-pairing.png' });
-    const ipadContext = await browser.newContext({ viewport: { width: 1180, height: 820 } });
-    await isolateTestContext(ipadContext);
-    const ipad = await ipadContext.newPage();
-    ipad.on('pageerror', (error) => errors.push(error.message));
-    await ipad.goto(`${base}/parent/tv`);
-    await hold(ipad, ipad.getByRole('button', { name: 'Hold PARENT' }), 2150);
-    await ipad.getByLabel('TV code').fill(code);
-    await ipad.getByRole('button', { name: 'Connect TV', exact: true }).click();
-    await ipad.getByRole('heading', { name: 'TV connected ✓' }).waitFor();
-    await screen.getByText('iPad connected ✓', { exact: false }).waitFor();
-    pass('Two browser screens pair through the actual TV relay');
-    await ipad.getByRole('link', { name: 'Back to game', exact: true }).click();
-    await hold(ipad, ipad.locator('.parent-corner'), 3100);
-    await hold(ipad, ipad.getByRole('button', { name: 'Hold PARENT' }), 2150);
-    await ipad.getByRole('button', { name: 'Force CAT' }).click();
-    await screen.locator('.tv-caption').filter({ hasText: 'CAT!' }).waitFor();
-    await screen.waitForTimeout(450);
-    await screen.screenshot({ path: 'artifacts/tv-cat.png' });
-    pass('GameEngine sends a real scene update to the rendered TV character');
-    await screen.reload();
-    await screen.locator('.tv-caption').filter({ hasText: 'CAT!' }).waitFor();
-    pass('TV page reload resumes the paired session and latest scene');
-    assert.deepEqual(errors, []);
-    await tvContext.close();
-    await ipadContext.close();
-  } finally {
-    await browser.close();
-  }
+    try {
+      const tvContext = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      await isolateTestContext(tvContext);
+      const screen = await tvContext.newPage();
+      const errors = [];
+      screen.on('pageerror', (error) => errors.push(error.message));
+      await screen.goto(`${base}/tv`);
+      const decoded = await screen.evaluate(async () => {
+        const context = new AudioContext();
+        try {
+          const manifest = await fetch('/audio/manifest.json').then((r) => r.json());
+          return await Promise.all(
+            manifest.clips.map(async (clip) => {
+              const response = await fetch(`/audio/${clip.group}/${clip.cue}.mp3`);
+              if (!response.ok) throw new Error(`Missing audio: ${clip.cue}`);
+              const buffer = await context.decodeAudioData(await response.arrayBuffer());
+              const samples = buffer.getChannelData(0);
+              let peak = 0;
+              for (const sample of samples) peak = Math.max(peak, Math.abs(sample));
+              if (buffer.duration < 0.2 || peak < 0.005 || peak >= 1)
+                throw new Error(`Invalid audio: ${clip.cue}`);
+              return clip.cue;
+            }),
+          );
+        } finally {
+          await context.close();
+        }
+      });
+      const manifest=JSON.parse(await readFile('public/audio/manifest.json','utf8'));
+      assert.equal(decoded.length, manifest.clips.length);
+      assert.equal(new Set(decoded).size, manifest.clips.length);
+      pass(`All ${decoded.length} cartoon voice/effect MP3 files decode with non-silent unclipped samples`);
+      await screen.getByRole('button', { name: 'START TV' }).click();
+      await screen.waitForFunction(() =>
+        /^\d{6}$/.test(document.querySelector('.tv-code')?.textContent),
+      );
+      const code = await screen.locator('.tv-code').innerText();
+      await screen.screenshot({ path: 'artifacts/tv-pairing.png' });
+      const ipadContext = await browser.newContext({ viewport: { width: 1180, height: 820 } });
+      await isolateTestContext(ipadContext);
+      const ipad = await ipadContext.newPage();
+      ipad.on('pageerror', (error) => errors.push(error.message));
+      await ipad.goto(`${base}/parent/tv`);
+      await hold(ipad, ipad.getByRole('button', { name: 'Hold PARENT' }), 2150);
+      await ipad.getByLabel('TV code').fill(code);
+      await ipad.getByRole('button', { name: 'Connect TV', exact: true }).click();
+      await ipad.getByRole('heading', { name: 'TV connected ✓' }).waitFor();
+      await screen.getByText('iPad connected ✓', { exact: false }).waitFor();
+      pass('Two browser screens pair through the actual TV relay');
+      await ipad.getByRole('link', { name: 'Back to game', exact: true }).click();
+      await hold(ipad, ipad.locator('.parent-corner'), 3100);
+      await hold(ipad, ipad.getByRole('button', { name: 'Hold PARENT' }), 2150);
+      await ipad.getByRole('button', { name: 'Force CAT' }).click();
+      await screen.locator('.tv-caption').filter({ hasText: 'CAT!' }).waitFor();
+      await screen.waitForTimeout(450);
+      await screen.screenshot({ path: 'artifacts/tv-cat.png' });
+      pass('GameEngine sends a real scene update to the rendered TV character');
+      await screen.reload();
+      await screen.locator('.tv-caption').filter({ hasText: 'CAT!' }).waitFor();
+      pass('TV page reload resumes the paired session and latest scene');
+      assert.deepEqual(errors, []);
+      await tvContext.close();
+      await ipadContext.close();
+    } finally {
+      await browser.close();
+    }
   }
   await writeFile(
-    process.argv.includes('--protocol-only') ? 'TV_PROTOCOL_TEST_RESULTS.json' : 'TV_TEST_RESULTS.json',
+    process.argv.includes('--protocol-only')
+      ? 'TV_PROTOCOL_TEST_RESULTS.json'
+      : 'TV_TEST_RESULTS.json',
     JSON.stringify(
       {
         environment:

@@ -3,10 +3,11 @@
 ## Пользователю
 
 1. Откройте https://animals.flowlabli.online/ в Safari на iPad/iPhone или Chrome/Edge.
-2. [Скачайте лист A4](https://animals.flowlabli.online/printables/magic-animals-a4.pdf).
+2. [Скачайте три листа A4](https://animals.flowlabli.online/printables/magic-animals-milo-a4.pdf).
    Печатайте **A4, вертикально, 100% / Actual size**, без «вписать в страницу».
-3. Вырежьте три карточки с полной рамкой и узором. Положите одну на ровную поверхность.
-4. Нажмите **PLAY** и разрешите камеру. Покажите карточку целиком с расстояния примерно
+3. Вырежьте восемь карточек с полной рамкой и узором. Положите одну на ровную поверхность.
+4. Нажмите **SCAN ANY CARD** для любого порядка или **PLAY** для истории CAT → DOG → LION.
+   Разрешите камеру. Покажите карточку целиком с расстояния примерно
    20–40 см при ровном освещении. Если камера недоступна, выберите игру без камеры.
 5. На `/friends` выбирайте друга и движения. Кнопки **Listen & find a friend** и
    **Listen & choose a move** предлагают задание на слух. **Hear again** повторяет
@@ -55,13 +56,14 @@ npm run cards
 npm run targets
 npm run test:tracking
 
-# CAT: экспорт текущего сохранённого Blender-источника:
-blender --background assets/characters/cat/milo-master.blend --python scripts/export-cat-master.py
+# CAT: при наличии локального milo-animation-study-WIP.blend:
+blender --background --python scripts/export-milo-game.py
 npm run build
 python scripts/check-cat-studio.py
 ```
 
-`build-cat-master.py` используется только для создания начального источника и
+Актуальная поставка описана в [MILO_AR_RELEASE.md](MILO_AR_RELEASE.md).
+`build-cat-master.py` относится к архивной версии CAT и
 перезаписывает `.blend`. После ручных правок используйте экспорт сохранённого
 файла выше. Подробнее: [CAT_PRODUCTION.md](CAT_PRODUCTION.md).
 

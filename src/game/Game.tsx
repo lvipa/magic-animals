@@ -19,7 +19,7 @@ export default function Game() {
     setMode = useGame((s) => s.setMode),
     parent = useGame((s) => s.parent),
     debug = useGame((s) => s.debug),
-    completed = useGame((s) => s.completed);
+    available = useGame((s) => s.available);
   const [scene, setScene] = useState(initialScene),
     [cameraChoice, setCameraChoice] = useState(false);
   const navigate = useNavigate();
@@ -90,6 +90,12 @@ export default function Game() {
   const ready = () => {
     if (useGame.getState().state === 'CAMERA_PERMISSION') send({ type: 'CAMERA_READY' });
   };
+  const scanAnyCard = () => {
+    audio.unlockAudio();
+    audio.setVolume(useGame.getState().volume);
+    setCameraChoice(false);
+    send({ type: 'FREE_PLAY' });
+  };
   const playAgain = () => {
     engine.attachAR(null);
     send({ type: 'RESET' });
@@ -136,24 +142,26 @@ export default function Game() {
                 <em>Real magic.</em>
               </h1>
               <p>Help Foxy find three little friends.</p>
-              <button className="welcome-free" onClick={() => navigate('/connect-tv')}>Connect TV · QR / code</button>
+              <button className="welcome-free" onClick={() => navigate('/connect-tv')}>
+                Connect TV · QR / code
+              </button>
               <button aria-label="PLAY" className="play-button" onClick={start}>
                 PLAY <span aria-hidden="true">▶</span>
               </button>
-              {completed && (
-                <button
-                  className="welcome-free"
-                  onClick={() => {
-                    audio.unlockAudio();
-                    send({ type: 'FREE_PLAY' });
-                  }}
-                >
-                  FREE PLAY
-                </button>
-              )}
+              <button className="welcome-free scan-any-card" onClick={scanAnyCard}>
+                SCAN ANY CARD · 8 friends
+              </button>
+              <a
+                className="welcome-free"
+                href="/printables/cards.html"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Print 8 cards
+              </a>
             </div>
             <div className="paper-friends">
-              {animals.map((a) => (
+              {animals.slice(0, 3).map((a) => (
                 <img key={a.id} src={a.thumbnail} alt="" />
               ))}
             </div>
@@ -179,10 +187,17 @@ export default function Game() {
         ) : (
           <>
             <div className="hud">
-              <div className="stars" aria-label={`${starCount(state)} of 3 friends found`}>
-                {[0, 1, 2].map((i) => (
-                  <span key={i}>{i < starCount(state) ? '★' : '☆'}</span>
-                ))}
+              <div
+                className="stars"
+                aria-label={
+                  state === 'FREE_PLAY'
+                    ? `${available.length} of 8 friends found`
+                    : `${starCount(state)} of 3 friends found`
+                }
+              >
+                {state === 'FREE_PLAY'
+                  ? `${available.length} / 8`
+                  : [0, 1, 2].map((i) => <span key={i}>{i < starCount(state) ? '★' : '☆'}</span>)}
               </div>
               {step && <img className="animal-badge" src={animalById[step].thumbnail} alt={step} />}
             </div>
@@ -205,7 +220,7 @@ export default function Game() {
                 </small>
               </div>
             )}
-            {mode !== 'AR_MODE' && state !== 'COMPLETE' && state !== 'FINALE' && (
+            {mode !== 'AR_MODE' && !cameraChoice && state !== 'COMPLETE' && state !== 'FINALE' && (
               <div className="fallback-controls">
                 <p>{mode === 'CAMERA_MODE' ? 'Tap a friend to place it' : 'Choose a friend'}</p>
                 {animals.map((a) => (
@@ -239,7 +254,7 @@ export default function Game() {
             )}
             {state === 'FREE_PLAY' && (
               <div className="free-note">
-                {mode === 'AR_MODE' ? 'Show any card again' : 'Tap any friend'} ✨
+                {mode === 'AR_MODE' ? 'Scan any of the 8 cards' : 'Tap any friend'} ✨
               </div>
             )}
             {mode !== 'AR_MODE' && (

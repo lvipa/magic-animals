@@ -40,11 +40,12 @@ const browser = await chromium.launch({
 });
 const results = [];
 try {
-  for (const [index, id] of ['cat', 'dog', 'lion'].entries()) {
+  for (const [index, entry] of catalog.images.entries()) {
+    const { id, image } = entry;
     const page = await browser.newPage();
-    await page.goto(`${base}/public/markers/${id}.png`);
+    await page.goto(`${base}/public/markers/${image}`);
     const result = await page.evaluate(
-      async ({ base, index, id }) => {
+      async ({ base, index, id, image: imagePath, target, total }) => {
         const { Controller } = await import(
           `${base}/node_modules/mind-ar/dist/mindar-image.prod.js`
         );
@@ -55,7 +56,7 @@ try {
           const img = new Image();
           img.onload = () => r(img);
           img.onerror = j;
-          img.src = `${base}/public/markers/${id}.png`;
+          img.src = `${base}/public/markers/${imagePath}`;
         });
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#aaa';
@@ -85,7 +86,7 @@ try {
             },
           });
           try {
-            await controller.addImageTargets(`${base}/public/markers/targets.mind`);
+            await controller.addImageTargets(`${base}/public/markers/${target}`);
             controller.dummyRun(canvas);
             controller.processVideo(canvas);
           } catch (e) {
@@ -97,7 +98,7 @@ try {
         await new Promise((r) => setTimeout(r, 100));
         const { featurePoints } = await controller.detect(canvas);
         const mistaken = [];
-        for (let other = 0; other < 3; other++) {
+        for (let other = 0; other < total; other++) {
           if (other === index) continue;
           const match = await controller.match(featurePoints, other);
           if (match.modelViewTransform) mistaken.push(other);
@@ -115,7 +116,7 @@ try {
           singleTargetFalseMatches: mistaken,
         };
       },
-      { base, index, id },
+      { base, index, id, image, target: catalog.target, total: catalog.images.length },
     );
     results.push(result);
     console.log('PASS', result);
