@@ -10,6 +10,12 @@
 отдельные глаза/веки, короткий ворс и семь движений. Текущие ассеты,
 происхождение и восстановление: [MILO_CAST_RELEASE.md](MILO_CAST_RELEASE.md).
 
+Модели скачиваются при выборе и сохраняются на устройстве. Для игры без сети
+на `/offline-status` нажмите **Save all friends for offline play** и дождитесь
+READY. Если обычный Safari удерживает старую сборку, откройте
+https://animals.flowlabli.online/review/update.html и нажмите **Update and open friends**.
+Это сохраняет прогресс игры. Подробности: [CACHE_UPDATES.md](CACHE_UPDATES.md).
+
 ## Быстрый запуск
 
 Нужны Node.js 24 LTS и npm. Ассеты камеры, модели и озвучка уже включены.

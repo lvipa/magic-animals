@@ -62,7 +62,7 @@ npm run build
 python scripts/check-cat-studio.py
 ```
 
-Актуальная поставка описана в [MILO_AR_RELEASE.md](MILO_AR_RELEASE.md).
+Актуальная поставка описана в [MILO_CAST_RELEASE.md](MILO_CAST_RELEASE.md).
 `build-cat-master.py` относится к архивной версии CAT и
 перезаписывает `.blend`. После ручных правок используйте экспорт сохранённого
 файла выше. Подробнее: [CAT_PRODUCTION.md](CAT_PRODUCTION.md).

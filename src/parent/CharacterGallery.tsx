@@ -9,12 +9,12 @@ import { getTVBridge } from '../tv/WebSocketTVBridge';
 import { characterActionCue, learningActions } from '../audio/characterVoices';
 import { cueTexts } from '../audio/generated';
 import {
-  characterAssetErrors,
   characterModelUrl,
   characterAssetRevision,
   subscribeCharacterAssets,
 } from '../characters/authoredCat';
 import { useCharacterModel } from '../characters/useCharacterModel';
+import { ModelLoadStatus } from '../characters/ModelLoadStatus';
 import { animateCharacter, type Character } from '../characters/models';
 
 const characters = [...characterIds];
@@ -54,7 +54,7 @@ function Model({
   scale: number;
   lowDetail: boolean;
 }) {
-  const model = useCharacterModel(kind);
+  const model = useCharacterModel(kind, !lowDetail);
   useEffect(() => {
     if (model.userData.authored) {
       model.userData.lowDetail = lowDetail;
@@ -176,9 +176,7 @@ export default function CharacterGallery({ playground = false }: { playground?: 
         ))}
       </div>
       <div className="gallery-stage">
-        {selected !== 'all' && characterAssetErrors.get(selected) && (
-          <p role="alert">{characterAssetErrors.get(selected)}</p>
-        )}
+        <ModelLoadStatus ids={selected === 'all' ? characters : [selected]} />
         <Canvas
           camera={{ position: [0, 1.1, selected === 'all' ? 6.8 : 4.6], fov: 33 }}
           dpr={[1, 1.5]}

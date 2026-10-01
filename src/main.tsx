@@ -3,9 +3,22 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './app/App';
 import './app/style.css';
 import { registerSW } from 'virtual:pwa-register';
-import { loadAuthoredCat } from './characters/authoredCat';
+let reloading = false;
+const reloadUpdatedApp = () => {
+  if (reloading) return;
+  reloading = true;
+  window.location.reload();
+};
+if ('serviceWorker' in navigator) {
+  let previousController = navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (previousController) reloadUpdatedApp();
+    previousController = navigator.serviceWorker.controller;
+  });
+}
 registerSW({
   immediate: true,
+  onNeedReload: reloadUpdatedApp,
   onRegisteredSW(_url, registration) {
     if (!registration) return;
 
@@ -16,15 +29,15 @@ registerSW({
     };
 
     checkForUpdate();
-    window.setInterval(checkForUpdate, 15 * 60 * 1000);
+    window.setInterval(checkForUpdate, 60 * 1000);
     window.addEventListener('online', checkForUpdate);
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) checkForUpdate();
     });
   },
 });
-void loadAuthoredCat().finally(() => createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
     <App />
   </BrowserRouter>,
-));
+);

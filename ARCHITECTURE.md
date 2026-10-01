@@ -46,7 +46,13 @@ GameEngine (timeline, dialogue, reactions, TV events)
 SceneState → React Three Fiber / drei overlay scene
 animals.ts → appearance beats, targets, audio IDs, reactions
 localStorage → completed, available, volume, quality
-Workbox precache → static app, markers, audio, models, icons, printables
+Workbox precache → static app, markers, audio, icons, printables
+
+GLB → CacheFirst `animals-models-v1`, загрузка по запросу. HTML → NetworkFirst
+с offline fallback на precached index. UI не ожидает CAT перед открытием.
+Загрузчик ограничивает скачивания двумя, переиспользует один Draco worker,
+показывает queued/download/decode/error и позволяет повторить неудачный запрос.
+Все восемь моделей для offline скачиваются явно на `/offline-status`.
 ```
 
 `src/game/machine.ts` — чистая функция переходов. Animal states строятся как template literal types из AnimalId. Нет набора `isCatFound/showLion` boolean-флагов. `GameEngine` не импортирует MindAR, React или WebGL renderer; принимает state/event/audio/presentation через зависимости. Все отложенные действия принадлежат отменяемой timeline. Уход из сцены отменяет их, reset не оставляет запоздалого animalFound.

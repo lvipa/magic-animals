@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#18374a">
+<title>Update Magic Animals</title>
+<style>
+body{margin:0;background:#18374a;color:#fff2cd;font:18px/1.6 system-ui,sans-serif;display:grid;min-height:100svh;place-items:center}
+main{width:min(85%,480px);padding:30px 0}h1{line-height:1.2}button{border:0;border-radius:18px;padding:16px 24px;background:#ffdc98;color:#18374a;font:700 18px system-ui;cursor:pointer}button:disabled{opacity:.65}a{color:#ffdc98}
+</style>
+<main>
+<h1>Update Magic Animals</h1>
+<p>Get the latest friends in your regular browser. Your saved game progress will be kept.</p>
+<button id="update">Update and open friends</button>
+<p id="status" role="status"></p>
+<a href="/friends">Back to friends</a>
+</main>
+<script>
+const button=document.getElementById('update'), status=document.getElementById('status');
+function waitFor(worker, states){
+ return new Promise((resolve,reject)=>{
+  const check=()=>{if(states.includes(worker.state)){finish();resolve()}else if(worker.state==='redundant'){finish();reject(Error('Install failed'))}};
+  const timeout=setTimeout(()=>{finish();reject(Error('Update timed out'))},90000);
+  const finish=()=>{clearTimeout(timeout);worker.removeEventListener('statechange',check)};
+  worker.addEventListener('statechange',check);check();
+ });
+}
+button.onclick=async()=>{
+ button.disabled=true;status.textContent='Getting the latest version… Keep this page open.';
+ try{
+  if(!('serviceWorker' in navigator)) { location.replace('/friends');return; }
+  const registration=await navigator.serviceWorker.register('/sw.js',{scope:'/',updateViaCache:'none'});
+  await registration.update();
+  const worker=registration.installing||registration.waiting;
+  if(worker){
+   await waitFor(worker,['installed','activating','activated']);
+   registration.waiting?.postMessage({type:'SKIP_WAITING'});
+   await waitFor(worker,['activated']);
+  }
+  location.replace('/friends');
+ }catch{status.textContent='Please check your internet connection and available storage, then try again.';button.disabled=false;}
+};
+</script>
+</html>

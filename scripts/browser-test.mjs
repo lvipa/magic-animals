@@ -238,6 +238,8 @@ try {
       await navigator.serviceWorker.ready;
     });
     await arPage.goto(`${base}/offline-status`);
+    await arPage.getByRole('button', { name: 'Save all friends for offline play' }).click();
+    await arPage.getByText('All friends saved.', { exact: false }).waitFor({ timeout: 120000 });
     await arPage.locator('.offline-checks').filter({ hasText: 'READY' }).waitFor();
     const status = await arPage.locator('.offline-checks').innerText();
     if (status.includes('NOT CACHED')) throw new Error(status);

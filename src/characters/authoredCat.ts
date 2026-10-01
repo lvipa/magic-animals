@@ -11,7 +11,19 @@ const pending = new Map<Character, Promise<void>>();
 const revisions = new Map<Character, number>();
 const listeners = new Set<() => void>();
 let activeLoads = 0;
-const waitingLoads: Array<() => void> = [];
+const waitingLoads: Array<{ id: Character; resolve: () => void }> = [];
+export type CharacterLoadStatus = {
+  phase: 'queued' | 'downloading' | 'decoding' | 'ready' | 'error';
+  loaded: number;
+  total: number;
+};
+export const characterLoadStatus = new Map<Character, CharacterLoadStatus>();
+let sharedLoader: GLTFLoader | undefined;
+function publishStatus(id: Character, status: CharacterLoadStatus) {
+  characterLoadStatus.set(id, status);
+  revisions.set(id, characterAssetRevision(id) + 1);
+  listeners.forEach((listener) => listener());
+}
 export const characterAssetErrors = new Map<Character, string>();
 export const characterModelUrl = (id: Character) =>
   id === 'cat' ? CAT_MODEL_URL : CAST_MODEL_URLS[id];
@@ -23,37 +35,93 @@ export const subscribeCharacterAssets = (listener: () => void) => {
 };
 export const characterAssetRevision = (id: Character) => revisions.get(id) ?? 0;
 export const catAssetStatus = { ready: false, error: '' };
-export function loadAuthoredCharacter(id: Character): Promise<void> {
+export function loadAuthoredCharacter(id: Character, priority = true): Promise<void> {
   if (assets.has(id)) return Promise.resolve();
   const previous = pending.get(id);
-  if (previous) return previous;
-  const loading = load(id);
+  if (previous) {
+    const index = waitingLoads.findIndex((item) => item.id === id);
+    if (priority && index > 0) waitingLoads.unshift(...waitingLoads.splice(index, 1));
+    return previous;
+  }
+  const loading = load(id, priority);
   pending.set(id, loading);
   return loading;
 }
 export const loadAuthoredCat = () => loadAuthoredCharacter('cat');
-async function load(id: Character) {
-  if (activeLoads >= 2) await new Promise<void>((resolve) => waitingLoads.push(resolve));
-  activeLoads++;
-  const draco = new DRACOLoader().setDecoderPath('/draco/').setWorkerLimit(1);
+async function load(id: Character, priority: boolean) {
+  characterAssetErrors.delete(id);
+  publishStatus(id, { phase: 'queued', loaded: 0, total: 0 });
+  // Transfer a reserved slot directly to the next waiter, so a new request
+  // cannot overtake it and exceed the two-download limit.
+  if (activeLoads >= 2) await new Promise<void>((resolve) => {
+    const item = { id, resolve };
+    if (priority) waitingLoads.unshift(item);
+    else waitingLoads.push(item);
+  });
+  else activeLoads++;
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 60000);
   try {
-    const asset = await new GLTFLoader().setDRACOLoader(draco).loadAsync(characterModelUrl(id));
+    publishStatus(id, { phase: 'downloading', loaded: 0, total: 0 });
+    const response = await fetch(characterModelUrl(id), { signal: controller.signal });
+    if (!response.ok) throw new Error('Model download failed');
+    const total = Number(response.headers.get('content-length')) || 0;
+    const chunks: Uint8Array[] = [];
+    let loaded = 0, lastUpdate = 0;
+    const reader = response.body?.getReader();
+    if (reader) {
+      let chunk = await reader.read();
+      while (!chunk.done) {
+        const value = chunk.value;
+        chunks.push(value);
+        loaded += value.length;
+        if (performance.now() - lastUpdate > 200) {
+          publishStatus(id, { phase: 'downloading', loaded, total });
+          lastUpdate = performance.now();
+        }
+        chunk = await reader.read();
+      }
+    } else {
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      chunks.push(bytes);
+      loaded = bytes.length;
+    }
+    window.clearTimeout(timeout);
+    const buffer = new Uint8Array(loaded);
+    let offset = 0;
+    for (const chunk of chunks) { buffer.set(chunk, offset); offset += chunk.length; }
+    publishStatus(id, { phase: 'decoding', loaded, total: loaded });
+    sharedLoader ??= new GLTFLoader().setDRACOLoader(
+      new DRACOLoader().setDecoderPath('/draco/').setWorkerLimit(1),
+    );
+    const asset = await sharedLoader.parseAsync(buffer.buffer, '/models/');
     assets.set(id, asset);
     characterAssetErrors.delete(id);
     if (id === 'cat') {
       catAssetStatus.ready = true;
       catAssetStatus.error = '';
     }
+    publishStatus(id, { phase: 'ready', loaded, total: loaded });
   } catch {
-    const error = `${id.toUpperCase()} model could not be loaded. Please reload when connected.`;
+    // A 200 response can still contain an incomplete/invalid GLB. Evict only
+    // this immutable asset so Try again can reach the server next time.
+    if ('caches' in window) {
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys.filter((key) => key === 'animals-models-v1' || key.includes('precache'))
+          .map(async (key) => (await caches.open(key)).delete(characterModelUrl(id), { ignoreSearch: true })));
+      } catch { /* Storage may be unavailable; the visible retry still works online. */ }
+    }
+    const error = `${id.toUpperCase()} could not load. Check your connection and try again.`;
     characterAssetErrors.set(id, error);
     if (id === 'cat') catAssetStatus.error = error;
+    publishStatus(id, { phase: 'error', loaded: 0, total: 0 });
   } finally {
-    draco.dispose();
-    activeLoads--;
-    waitingLoads.shift()?.();
-    revisions.set(id, characterAssetRevision(id) + 1);
-    listeners.forEach((listener) => listener());
+    window.clearTimeout(timeout);
+    pending.delete(id);
+    const next = waitingLoads.shift();
+    if (next) next.resolve();
+    else activeLoads--;
   }
 }
 export const makeAuthoredCat = () => makeAuthoredCharacter('cat');

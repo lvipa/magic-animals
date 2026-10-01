@@ -44,6 +44,29 @@ export function Install() {
 export function Offline() {
   const [checks, setChecks] = useState<Record<string, string>>({}),
     [controlled, setControlled] = useState(false);
+  const [refresh, setRefresh] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const [downloadMessage, setDownloadMessage] = useState('');
+  const prepare = async () => {
+    setSaving(true);
+    try {
+      const cache = await caches.open('animals-models-v1');
+      for (const [index, id] of characterIds.entries()) {
+        setDownloadMessage(`Saving friends… ${index + 1}/${characterIds.length}`);
+        const url = characterModelUrl(id);
+        const existing = await caches.match(url, { ignoreSearch: true });
+        const response = existing ?? await fetch(url);
+        if (!response.ok) throw new Error('Download failed');
+        await cache.put(url, response);
+      }
+      setDownloadMessage('All friends saved. Check the READY statuses below before going offline.');
+    } catch {
+      setDownloadMessage('Could not save all friends. Check your connection and available storage, then try again.');
+    } finally {
+      setSaving(false);
+      setRefresh((value) => value + 1);
+    }
+  };
   useEffect(() => {
     let disposed = false;
     const run = async () => {
@@ -58,9 +81,9 @@ export function Offline() {
       }
       setControlled(Boolean(navigator.serviceWorker.controller));
       const keys = await caches.keys();
-      const precache = keys.filter((k) => k.includes('precache'));
+      const appCaches = keys.filter((k) => k.includes('precache') || k.startsWith('animals-'));
       const cached = async (path: string) => {
-        for (const key of precache) {
+        for (const key of appCaches) {
           const cache = await caches.open(key);
           if (await cache.match(path, { ignoreSearch: true })) return true;
         }
@@ -82,14 +105,22 @@ export function Offline() {
       }
     };
     void run();
+    navigator.serviceWorker?.addEventListener('controllerchange', run);
     return () => {
       disposed = true;
+      navigator.serviceWorker?.removeEventListener('controllerchange', run);
     };
-  }, []);
+  }, [refresh]);
   return (
     <main className="parent-page">
       <Link to="/parent">← Parent</Link>
       <h1>Offline status</h1>
+      <p><a href="/review/update.html">Get the latest version</a></p>
+      <p>Friends download when you choose them. Save all eight before playing without internet (about 51 MB).</p>
+      <button disabled={saving || !controlled} onClick={() => void prepare()}>
+        {saving ? 'Saving friends…' : 'Save all friends for offline play'}
+      </button>
+      <p role="status">{downloadMessage}</p>
       <p>
         Service Worker:{' '}
         {controlled ? 'CONTROLLING THIS PAGE' : 'Load the production build and reload once'}
@@ -104,7 +135,7 @@ export function Offline() {
       </div>
       <p>All friends use Milo-family GLBs with skeletons, facial controls and short fur.</p>
       <p>
-        READY means assets are present in this build's precache. To verify a relaunch, disconnect
+        READY means this version's assets are saved on this device. To verify a relaunch, disconnect
         Wi-Fi and reopen the Home Screen icon. Safari can evict storage under pressure.
       </p>
     </main>

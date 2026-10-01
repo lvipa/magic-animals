@@ -799,12 +799,29 @@ h1 {
   line-height: 1.6;
 }
 .gallery-stage {
+  position: relative;
   height: clamp(290px, 49vh, 540px);
   border-radius: 34px;
   background: radial-gradient(ellipse at 50% 65%, #5b9296, #2b526b 70%, #214359);
   margin: 20px 0 0;
   overflow: hidden;
 }
+.model-loading {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  width: min(90%, 430px);
+  padding: 8px 14px;
+  border-radius: 16px;
+  text-align: center;
+  background: #18374ae8;
+  color: #fff2cd;
+}
+.model-loading p { margin: 5px 0; }
+.model-loading progress { width: min(100%, 260px); accent-color: #ffdc98; }
+.model-loading button { margin: 6px; }
 .cat-import-review {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
