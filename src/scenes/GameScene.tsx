@@ -32,9 +32,11 @@ export function Actor({
   onTap?: () => void;
 }) {
   const model = useCharacterModel(kind);
+  const quality = useQuality();
   useEffect(() => {
+    if (model.userData.authored && quality.effective === 'LOW') model.userData.lowDetail = true;
     revealCharacter(model, reveal);
-  }, [model, reveal]);
+  }, [model, reveal, quality.effective]);
   useFrame(({ clock }) => animateCharacter(model, clock.elapsedTime, action));
   return (
     <primitive

@@ -1,13 +1,13 @@
 {
-  "version": 8,
+  "version": 9,
   "approval": "user requested game integration; further art polish pending",
   "source": "User-supplied Meshy Milo; original SHA256 de0e348c7eece526c4a7464ab876a73a72287f0cd0313d056b8e803afb1a9e90",
-  "pipeline": "Blender shared skeleton, PBR atlas, eyelid in-betweens, connected mouth, skinned short-fur ribbons",
-  "asset": "cat-milo-56d1f528f55c.glb",
-  "sha256": "56d1f528f55cdf5693a39063cb68e0072fd9aa466168d396c6c85cb30d92a58e",
-  "bytes": 6934716,
+  "pipeline": "Milo shared PBR/rig, original body and facial shapes, clean short fur, soft ear/trunk controls, compact morph normals",
+  "asset": "cat-milo-polished-2be5c4101481.glb",
+  "sha256": "2be5c41014815627c7a355e7125a1107b0fa9dc14d73a8cc8ff7461540185f2e",
+  "bytes": 5531668,
   "height": 1.15,
-  "bones": 21,
+  "bones": 23,
   "clips": [
     "idle",
     "happy",
@@ -28,5 +28,15 @@
     "Remaining crown/cheek reconstruction artifacts",
     "Cloth weights and facial corners still need polish",
     "Physical iPhone AR performance must be measured"
-  ]
+  ],
+  "secondary_controls": {
+    "ear_L": 1496,
+    "ear_R": 1574
+  },
+  "optimization": {
+    "normal_epsilon": 1e-06,
+    "removed_noise_vectors": 101685,
+    "saved_bytes": 1423456
+  },
+  "previous_asset": "cat-milo-56d1f528f55c.glb"
 }

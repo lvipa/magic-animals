@@ -23,7 +23,7 @@ await writeFile(
     {
       format: 'glTF 2.0',
       source: 'Blender Milo-family production pipeline',
-      note: 'All eight use authored skinned meshes. CAT v8 is preserved unchanged. Sunny uses the supplied Cozy Cub lion; Maple is derived from the supplied panda geometry with a fur-only atlas repaint.',
+      note: 'Milo v9: original body meshes/maps and seven clips, clean short fur, 23 joints (25 for elephant), soft ear/trunk controls, compact morph normal noise. Original CAT v8 remains archived. Sunny uses the supplied Cozy Cub lion; Maple derives from the panda with a fur-only atlas repaint.',
       models,
     },
     null,

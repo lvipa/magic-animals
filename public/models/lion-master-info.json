@@ -1,14 +1,14 @@
 {
   "id": "lion",
-  "asset": "lion-milo-family-743b159a1993.glb",
-  "sha256": "743b159a1993c183487854582c8543e1222483800a727ff2acd5f46cc006fd21",
-  "bytes": 7701788,
+  "asset": "lion-milo-polished-2e580b7a0f2b.glb",
+  "sha256": "2e580b7a0f2be140e6e602d8ce8f374832d5920975eabe9a53c748d91a1b0171",
+  "bytes": 7701964,
   "height": 1.15,
-  "bones": 21,
+  "bones": 23,
   "source_file": "Meshy_AI_Cozy_Cub_0930215316_texture.glb",
   "source_sha256": "7a76deeea38cdbd1178f0a0b885873a36f3afdcef4348433aa28787d51cca8c0",
   "derived_from": null,
-  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "pipeline": "Milo shared PBR/rig, original body and facial shapes, clean short fur, soft ear/trunk controls, compact morph normals",
   "facial": {
     "separate_eyes": true,
     "eye_bones": 2,
@@ -28,5 +28,16 @@
   "limitations": [
     "Automatic cloth weights require further pose polish",
     "Physical mobile GPU and camera testing pending"
-  ]
+  ],
+  "version": 9,
+  "secondary_controls": {
+    "ear_L": 1552,
+    "ear_R": 1781
+  },
+  "optimization": {
+    "normal_epsilon": 1e-06,
+    "removed_noise_vectors": 2410,
+    "saved_bytes": 33596
+  },
+  "previous_asset": "lion-milo-family-743b159a1993.glb"
 }

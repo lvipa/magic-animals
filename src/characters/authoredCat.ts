@@ -5,6 +5,8 @@ import { clone } from 'three/addons/utils/SkeletonUtils.js';
 import { CAT_MODEL_URL } from './catAsset';
 import { CAST_MODEL_URLS } from './castAssets';
 import type { Character } from './catalog';
+import { collectSecondaryControls, animateSecondaryControls } from './secondaryMotion';
+import { audio } from '../audio/AudioManager';
 
 const assets = new Map<Character, GLTF>();
 const pending = new Map<Character, Promise<void>>();
@@ -143,6 +145,8 @@ export function makeAuthoredCharacter(kind: Character): THREE.Group | null {
   const lowDetail =
     location.pathname === '/tv' ||
     /SmartTV|Tizen|Web0S/i.test(navigator.userAgent) ||
+    /iPad|iPhone|Android/i.test(navigator.userAgent) ||
+    (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1) ||
     (navigator.hardwareConcurrency ?? 8) < 4;
   content.traverse((node) => {
     if (node instanceof THREE.Mesh) {
@@ -206,7 +210,13 @@ export function makeAuthoredCharacter(kind: Character): THREE.Group | null {
     reveal: 1,
     revealUniform,
     ownedMaterials,
+    secondaryControls: collectSecondaryControls(content),
+    mouths: [] as Array<{ mesh: THREE.Mesh; index: number }>,
   };
+  content.traverse((node) => {
+    if (node instanceof THREE.Mesh && node.morphTargetDictionary?.mouthOpen !== undefined)
+      root.userData.mouths.push({ mesh: node, index: node.morphTargetDictionary.mouthOpen });
+  });
   revealAuthoredCat(root, 1);
   animateAuthoredCat(root, 0, 'idle');
   return root;
@@ -251,6 +261,12 @@ export function animateAuthoredCat(root: THREE.Group, time: number, action: stri
   }
   const dt = data.previousTime === null ? 0 : Math.max(0, Math.min(0.1, time - data.previousTime));
   mixer.update(dt);
+  animateSecondaryControls(data.secondaryControls, data.kind, time, action);
+  const speaking = audio.mouthLevelFor(data.kind);
+  for (const { mesh, index } of data.mouths as Array<{ mesh: THREE.Mesh; index: number }>) {
+    if (mesh.morphTargetInfluences)
+      mesh.morphTargetInfluences[index] = Math.max(mesh.morphTargetInfluences[index], speaking * .85);
+  }
   data.previousTime = time;
   const content = data.content as THREE.Object3D;
   content.rotation.y = ['spin', 'chase tail'].includes(action) ? time * 2.8 : 0;

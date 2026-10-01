@@ -1,14 +1,14 @@
 {
   "id": "panda",
-  "asset": "panda-milo-family-6c543bd2aff1.glb",
-  "sha256": "6c543bd2aff167fc8d30ac32a36f2a7a86252a5c7236138743cec3f4c78d6ce7",
-  "bytes": 6194268,
+  "asset": "panda-milo-polished-10143b74513e.glb",
+  "sha256": "10143b74513e5610c58d44f00ca948dfe784714e508bd059056e071c1c729ca7",
+  "bytes": 5039100,
   "height": 1.15,
-  "bones": 21,
+  "bones": 23,
   "source_file": "Meshy_AI_Hoodie_Panda_0930215421_texture.glb",
   "source_sha256": "e88f6f334903ab55974a48ecab2ea515ef61c907bba28da026f3a5d070697875",
   "derived_from": null,
-  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "pipeline": "Milo shared PBR/rig, original body and facial shapes, clean short fur, soft ear/trunk controls, compact morph normals",
   "facial": {
     "separate_eyes": true,
     "eye_bones": 2,
@@ -28,5 +28,16 @@
   "limitations": [
     "Automatic cloth weights require further pose polish",
     "Physical mobile GPU and camera testing pending"
-  ]
+  ],
+  "version": 9,
+  "secondary_controls": {
+    "ear_L": 1117,
+    "ear_R": 1314
+  },
+  "optimization": {
+    "normal_epsilon": 1e-06,
+    "removed_noise_vectors": 83919,
+    "saved_bytes": 1174724
+  },
+  "previous_asset": "panda-milo-family-6c543bd2aff1.glb"
 }

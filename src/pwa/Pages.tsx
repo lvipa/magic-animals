@@ -116,7 +116,7 @@ export function Offline() {
       <Link to="/parent">← Parent</Link>
       <h1>Offline status</h1>
       <p><a href="/review/update.html">Get the latest version</a></p>
-      <p>Friends download when you choose them. Save all eight before playing without internet (about 51 MB).</p>
+      <p>Friends download when you choose them. Save all eight before playing without internet (about 47 MB).</p>
       <button disabled={saving || !controlled} onClick={() => void prepare()}>
         {saving ? 'Saving friends…' : 'Save all friends for offline play'}
       </button>

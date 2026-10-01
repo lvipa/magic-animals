@@ -8,6 +8,8 @@ import {
   disposeCharacter,
 } from '../src/characters/models';
 import { characterIds, type Character } from '../src/characters/catalog';
+import { audio } from '../src/audio/AudioManager';
+import { animateSecondaryControls } from '../src/characters/secondaryMotion';
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
 renderer.setSize(1280, 800);
@@ -42,6 +44,7 @@ const pose = (model: THREE.Group, action: string, time: number) => {
   playing.setEffectiveWeight(1);
   playing.time = time;
   mixer.update(0);
+  animateSecondaryControls(model.userData.secondaryControls, model.userData.kind, time, action);
   model.updateMatrixWorld(true);
   model.traverse((node) => {
     if (node instanceof THREE.SkinnedMesh) node.skeleton.update();
@@ -115,6 +118,29 @@ for (const [index, id] of characterIds.entries()) {
     }
   });
   if (unweighted) throw Error(`${id}: invalid skin weights ${unweighted}`);
+  const secondary: Record<string, number> = {};
+  for (const name of ['ear_L', 'ear_R', ...(id === 'elephant' ? ['trunk_base', 'trunk_tip'] : [])]) {
+    let vertex: { mesh: THREE.SkinnedMesh; index: number; weight: number } | undefined;
+    model.traverse((node) => {
+      if (!(node instanceof THREE.SkinnedMesh) || node.userData.part !== 'body') return;
+      const boneIndex = node.skeleton.bones.findIndex((bone) => bone.name === name);
+      const indices = node.geometry.attributes.skinIndex, weights = node.geometry.attributes.skinWeight;
+      for (let i = 0; i < indices.count; i++) {
+        let weight = 0;
+        for (let k = 0; k < 4; k++) if (indices.getComponent(i,k) === boneIndex) weight += weights.getComponent(i,k);
+        if (!vertex || weight > vertex.weight) vertex = { mesh: node, index: i, weight };
+      }
+    });
+    if (!vertex || vertex.weight < .5) throw Error(`${id}: ${name} is not bound to an actual surface`);
+    pose(model, 'idle', 0);
+    const start = vertex.mesh.getVertexPosition(vertex.index, new THREE.Vector3()).applyMatrix4(vertex.mesh.matrixWorld);
+    animateSecondaryControls(model.userData.secondaryControls, id, 1.1, 'idle');
+    model.updateMatrixWorld(true);
+    model.traverse((node) => { if (node instanceof THREE.SkinnedMesh) node.skeleton.update(); });
+    const end = vertex.mesh.getVertexPosition(vertex.index, new THREE.Vector3()).applyMatrix4(vertex.mesh.matrixWorld);
+    secondary[name] = start.distanceTo(end);
+    if (secondary[name] < .001) throw Error(`${id}: ${name} does not deform the skin`);
+  }
   report.push({
     id,
     skinnedMeshes: meshes,
@@ -122,6 +148,7 @@ for (const [index, id] of characterIds.entries()) {
     waveSkinDistance: surfaceMotion,
     runFootDistance: run,
     height: rest.max.y - rest.min.y,
+    secondary,
   });
   console.log('PASS browser skin and pose', id);
   pose(model, 'idle', 0);
@@ -132,6 +159,27 @@ for (const [index, id] of characterIds.entries()) {
 renderer.render(scene, camera);
 Object.assign(window, {
   castReport: report,
+  startVoiceCheck: async () => {
+    audio.unlockAudio();
+    audio.say('character-cat-wave');
+    const cat=models.get('cat')!, dog=models.get('dog')!;
+    let catMouth=0,dogMouth=0;const start=performance.now();
+    while(performance.now()-start<2200) {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const time=performance.now()/1000;
+      animateCharacter(cat,time,'idle');animateCharacter(dog,time,'idle');
+      for(const [model,isCat] of [[cat,true],[dog,false]] as const) {
+        for(const {mesh,index} of model.userData.mouths as Array<{mesh:THREE.Mesh;index:number}>) {
+          const value=mesh.morphTargetInfluences?.[index]??0;
+          if(isCat)catMouth=Math.max(catMouth,value);else dogMouth=Math.max(dogMouth,value);
+        }
+      }
+      renderer.render(scene,camera);
+    }
+    audio.stop();
+    animateCharacter(cat,performance.now()/1000,'idle');
+    return {catMouth,dogMouth};
+  },
   showCast: () => {
     camera.position.set(0, 1.05, 6.8);
     camera.lookAt(0, 0.15, 0);

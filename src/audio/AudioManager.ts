@@ -1,5 +1,6 @@
 import { Howl, Howler } from 'howler';
 import { cueDurations, cueTexts, cueGroups } from './generated';
+import { characterIds, type Character } from '../characters/catalog';
 
 export const spoken = cueTexts;
 export type Cue = keyof typeof spoken;
@@ -12,6 +13,10 @@ export const audioFiles = (Object.keys(spoken) as Cue[]).flatMap((cue) => [
 ]);
 
 export class AudioManager {
+  private analyser: AnalyserNode | null = null;
+  private samples = new Uint8Array(256);
+  private mouthLevel = 0;
+  private lastMouthSample = 0;
   private sounds = new Map<Cue, Howl>();
   private speech: Cue | null = null;
   private queue: Cue[] = [];
@@ -43,6 +48,11 @@ export class AudioManager {
   unlockAudio() {
     this.get('hello');
     void Howler.ctx?.resume();
+    if (!this.analyser && Howler.ctx && Howler.masterGain) {
+      this.analyser = Howler.ctx.createAnalyser();
+      this.analyser.fftSize = 256;
+      Howler.masterGain.connect(this.analyser);
+    }
     // Remaining clips load on demand; the service worker caches them offline.
   }
   setVolume(value: number) {
@@ -50,6 +60,24 @@ export class AudioManager {
   }
   duration(cue: string) {
     return cueDurations[cue] ?? 1;
+  }
+  mouthLevelFor(character: Character) {
+    const effect = this.effect && this.sounds.get(this.effect)?.playing() ? this.effect : null;
+    const cue = effect ?? this.speech;
+    if (!cue || !this.analyser) return 0;
+    const speaker = characterIds.find((id) => cue.startsWith(`character-${id}-`) || cue === `call-${id}` || cue === id || cue === `a-${id}`)
+      ?? ({ meow: 'cat', woof: 'dog', roar: 'lion' } as Record<string, Character>)[cue] ?? 'foxy';
+    if (speaker !== character) return 0;
+    const now = performance.now();
+    if (now - this.lastMouthSample >= 16) {
+      this.analyser.getByteTimeDomainData(this.samples);
+      let sum = 0;
+      for (const sample of this.samples) sum += ((sample - 128) / 128) ** 2;
+      const target = Math.min(1, Math.max(0, (Math.sqrt(sum / this.samples.length) - .008) * 7));
+      this.mouthLevel += (target - this.mouthLevel) * (target > this.mouthLevel ? .6 : .35);
+      this.lastMouthSample = now;
+    }
+    return this.mouthLevel;
   }
   say(value: Cue | string) {
     if (!Object.prototype.hasOwnProperty.call(spoken, value)) return;
@@ -77,6 +105,7 @@ export class AudioManager {
     this.queue = [];
     this.speech = null;
     this.effect = null;
+    this.mouthLevel = 0;
     this.sounds.forEach((sound) => sound.stop());
   }
 }

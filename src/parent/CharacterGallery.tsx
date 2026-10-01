@@ -15,6 +15,8 @@ import {
 } from '../characters/authoredCat';
 import { useCharacterModel } from '../characters/useCharacterModel';
 import { ModelLoadStatus } from '../characters/ModelLoadStatus';
+import { useQuality } from '../hooks/useQuality';
+import { FrameMeter } from '../scenes/FrameMeter';
 import { animateCharacter, type Character } from '../characters/models';
 
 const characters = [...characterIds];
@@ -55,16 +57,18 @@ function Model({
   lowDetail: boolean;
 }) {
   const model = useCharacterModel(kind, !lowDetail);
+  const quality = useQuality();
   useEffect(() => {
     if (model.userData.authored) {
-      model.userData.lowDetail = lowDetail;
+      const reduced = lowDetail || quality.effective === 'LOW' || /iPad|iPhone|Android/i.test(navigator.userAgent) || (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+      model.userData.lowDetail = reduced;
       // Keep only one groom layer visible when eight characters share the stage.
       model.traverse((node) => {
-        if (node.name.includes('Groom_HIGH')) node.visible = !lowDetail;
-        if (node.name.includes('Groom_LOW')) node.visible = lowDetail;
+        if (node.name.includes('Groom_HIGH')) node.visible = !reduced;
+        if (node.name.includes('Groom_LOW')) node.visible = reduced;
       });
     }
-  }, [model, lowDetail]);
+  }, [model, lowDetail, quality.effective]);
   useFrame(({ clock }) => animateCharacter(model, clock.elapsedTime, action));
   return (
     <group position={[x, y, 0]} scale={scale}>
@@ -77,6 +81,7 @@ function Model({
   );
 }
 export default function CharacterGallery({ playground = false }: { playground?: boolean }) {
+  const quality = useQuality();
   const [selected, setSelected] = useState<Character | 'all'>(playground ? 'bunny' : 'all');
   const [action, setAction] = useState('idle');
   useSyncExternalStore(subscribeCharacterAssets, () =>
@@ -179,10 +184,11 @@ export default function CharacterGallery({ playground = false }: { playground?: 
         <ModelLoadStatus ids={selected === 'all' ? characters : [selected]} />
         <Canvas
           camera={{ position: [0, 1.1, selected === 'all' ? 6.8 : 4.6], fov: 33 }}
-          dpr={[1, 1.5]}
+          dpr={quality.pixelRatio}
           gl={{ alpha: true, antialias: true, powerPreference: 'low-power' }}
         >
           <StudioEnvironment />
+          <FrameMeter enabled />
           <hemisphereLight args={['#fff0df', '#687384', 0.6]} />
           <directionalLight position={[-3, 4, 5]} intensity={1.65} color="#ffedda" />
           <directionalLight position={[3, 1, 3]} intensity={0.45} color="#cdd8f5" />

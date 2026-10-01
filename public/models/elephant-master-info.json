@@ -1,14 +1,14 @@
 {
   "id": "elephant",
-  "asset": "elephant-milo-family-ca9e69c609ae.glb",
-  "sha256": "ca9e69c609ae6ac92b11997849be0613203dc541e3538d3f84c7d69b282d2093",
-  "bytes": 7377140,
+  "asset": "elephant-milo-polished-dcbb7fd942e8.glb",
+  "sha256": "dcbb7fd942e8bf70d43cd22310ae997fd375bd66364eac0db8091fb4d1ef27d8",
+  "bytes": 7311672,
   "height": 1.15,
-  "bones": 21,
+  "bones": 25,
   "source_file": "Meshy_AI_Blue_Hoodie_Elephant_0930215525_texture.glb",
   "source_sha256": "a66b7c83d9232aca5846259050e0f367e752f40a6b3693f1f658f7df1ddfea70",
   "derived_from": null,
-  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "pipeline": "Milo shared PBR/rig, original body and facial shapes, clean short fur, soft ear/trunk controls, compact morph normals",
   "facial": {
     "separate_eyes": true,
     "eye_bones": 2,
@@ -28,5 +28,18 @@
   "limitations": [
     "Automatic cloth weights require further pose polish",
     "Physical mobile GPU and camera testing pending"
-  ]
+  ],
+  "version": 9,
+  "secondary_controls": {
+    "ear_L": 274,
+    "ear_R": 270,
+    "trunk_base": 682,
+    "trunk_tip": 172
+  },
+  "optimization": {
+    "normal_epsilon": 1e-06,
+    "removed_noise_vectors": 6075,
+    "saved_bytes": 85056
+  },
+  "previous_asset": "elephant-milo-family-ca9e69c609ae.glb"
 }

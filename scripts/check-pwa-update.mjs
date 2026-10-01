@@ -26,6 +26,7 @@ let current = false, blockModels = false, modelRequests = 0;
 const modelOrder = [];
 let htmlOverride;
 const root = resolve('dist');
+const catURL = '/models/' + JSON.parse(await readFile('public/models/cat-master-info.json', 'utf8')).asset;
 const mime = { '.js': 'text/javascript', '.html': 'text/html', '.css': 'text/css', '.wasm': 'application/wasm', '.json': 'application/json', '.png': 'image/png' };
 const server = createServer(async (request, response) => {
   try {
@@ -88,13 +89,13 @@ try {
   await page.getByRole('button', { name: 'Try again', exact: true }).click();
   await page.locator('.model-loading').waitFor({ state: 'detached', timeout: 60000 });
   console.log('PASS failed model retries without reloading the page');
-  await page.evaluate(async () => {
+  await page.evaluate(async (url) => {
     const cache = await caches.open('animals-models-v1');
-    await cache.put('/models/cat-milo-56d1f528f55c.glb', new Response('invalid cached model', { status: 200 }));
-  });
+    await cache.put(url, new Response('invalid cached model', { status: 200 }));
+  }, catURL);
   await page.getByRole('button', { name: /CAT/, exact: false }).click();
   await page.getByRole('button', { name: 'Try again', exact: true }).waitFor();
-  const corruptCached = await page.evaluate(async () => Boolean(await (await caches.open('animals-models-v1')).match('/models/cat-milo-56d1f528f55c.glb')));
+  const corruptCached = await page.evaluate(async (url) => Boolean(await (await caches.open('animals-models-v1')).match(url)), catURL);
   if (corruptCached) throw Error('Invalid GLB remained cached after a decode failure');
   await page.getByRole('button', { name: 'Try again', exact: true }).click();
   await page.locator('.model-loading').waitFor({ state: 'detached', timeout: 60000 });

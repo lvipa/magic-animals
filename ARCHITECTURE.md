@@ -10,7 +10,7 @@ flowchart TD
   Engine --> Audio[Howler: локальные MP3 / WAV]
   Engine --> AR[MindAR: камера и image tracking]
   AR --> Render[Three.js / React Three Fiber]
-  Asset[Blender Milo: PBR, short fur, 21-joint rig, 7 clips + morphs] --> GLB[GLB + Draco]
+  Asset[Blender Milo: PBR, short fur, 23/25-joint rig, 7 clips + morphs] --> GLB[GLB + Draco]
   GLB --> Render
   UI --> TV[TVBridge]
   TV --> WS[Локально: Node / WebSocket]
@@ -76,7 +76,7 @@ warmup; подтверждение той же цели не повторяет 
 
 - Все восемь героев загружаются по immutable URL из `catAsset.ts` / `castAssets.ts` через общий GLTFLoader/DRACOLoader (до двух одновременных загрузок),
   клонируется с собственным скелетом через SkeletonUtils и анимируется AnimationMixer.
-  GLB новой основы Milo содержит 21 сустав, семь skeletal clips, лицевые morphs,
+  GLB Milo v9 содержит 23 сустава (25 у Ellie), семь skeletal clips, лицевые morphs,
   два взаимно исключающих слоя короткой шерсти и PBR-карты до 1024². Reveal shader
   работает с rest positions и наследует extras при разбиении меша по материалам.
   Источник текущей поставки — локальный `.deployment/incoming-milo/milo-game-short-fur.blend`.

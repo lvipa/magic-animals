@@ -24,6 +24,14 @@ def build_fur(body, rig, spec):
      paws=z<spec['hip']-.05 or abs(x)>spec['paw_x']-.02 and z<spec['paw_z']+.025
      # Spatial exclusion keeps fabric, iris, nose and trunk free of hair.
      fur=head or tail or paws
+     species=spec.get('species','')
+     if species=='cat':
+      fur=((z>.34 and (abs(x)>.27 or y>-.25 or z>.73)) or (z<-.35 and y>.13 and abs(x)>.18) or z<-.79 or (abs(x)>.50 and z<-.16) or (.17<z<.29 and abs(x)<.10 and y<-.16)) and color[0]-color[2]>.035 and color[0]<color[1]*1.25
+     # Dark atlas borders become black confetti when sampled by a strand.
+     # Keep the panda's naturally dark ears/paws, excluding dark crown seams.
+     brightness=float(color[:3].mean())
+     if species and species!='panda' and brightness<.20:fur=False
+     if species=='panda' and abs(x)<.18 and z>.76 and brightness<.60:fur=False
      if fur and vertex.normal.length>.9:
       candidates.append(vertex.index)
     assert len(candidates)>1500, 'Fur mask must select actual animal surfaces'
@@ -65,7 +73,8 @@ def build_fur(body, rig, spec):
       tangent=normal.cross(Vector((0,0,1)))
       if tangent.length<.1:tangent=normal.cross(Vector((1,0,0)))
       tangent.normalize()
-      length=randomizer.uniform(.014,.028);width=randomizer.uniform(.0025,.0045)
+      length=randomizer.uniform(.009,.018);width=randomizer.uniform(.0020,.0035)
+      if spec.get('species')=='elephant':length*=.45
       base=len(verts)
       source_weights=[(groups[g.group],g.weight) for g in vertex.groups]
       for step in range(4):

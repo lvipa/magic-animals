@@ -67,6 +67,14 @@ try {
       await page.screenshot({ path: `${dir}/${id}-${action}.png` });
     }
   }
+  await page.evaluate(() => {
+    const button=document.createElement('button');button.id='voice-check';button.textContent='Voice check';
+    button.onclick=()=>{window.voiceCheckPromise=window.startVoiceCheck()};document.body.append(button);
+  });
+  await page.locator('#voice-check').click();
+  const voice=await page.evaluate(()=>window.voiceCheckPromise);
+  if(voice.catMouth<.025 || voice.dogMouth>.001)throw Error(`Wrong voice/mouth routing: ${JSON.stringify(voice)}`);
+  console.log('PASS actual recorded CAT audio drives its mouth, not DOG',voice);
   await writeFile(`${dir}/results.json`, JSON.stringify({ report, errors }, null, 2));
   await page.evaluate(() => window.disposeCast());
 } finally {

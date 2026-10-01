@@ -8,12 +8,12 @@ assert struct.unpack_from('<III',data)==(0x46546C67,2,len(data))
 chunk_len,chunk_type=struct.unpack_from('<II',data,12)
 assert chunk_type==0x4E4F534A
 gltf=json.loads(data[20:20+chunk_len]);binary_start=20+chunk_len+8
-assert info['version']==8
+assert info['version']==9
 assert hashlib.sha256(data).hexdigest()==info['sha256']
 assert len(data)==info['bytes'] and len(data)<8_000_000
 assert (root/'dist/models'/info['asset']).read_bytes()==data
 assert {c['name'] for c in gltf['animations']}=={'idle','happy','wave','jump','run','sleep','roar'}
-assert len(gltf['skins'][0]['joints'])==21
+assert len(gltf['skins'][0]['joints'])==23
 primitives=[p for m in gltf['meshes'] for p in m['primitives']]
 assert len(primitives)==11
 assert all({'JOINTS_0','WEIGHTS_0'}<=p['attributes'].keys() for p in primitives)
@@ -22,10 +22,10 @@ triangles=sum(gltf['accessors'][p['indices']]['count']//3 for p in primitives)
 # but only one is rendered. Geometry simplification is a separate art step.
 assert triangles==info['triangles'] and triangles<130_000
 assert {'KHR_draco_mesh_compression','KHR_materials_sheen'}<=set(gltf['extensionsUsed'])
-groom=next(m for m in gltf['materials'] if m['name']=='Milo / matte short fur')
+groom=next(m for m in gltf['materials'] if 'matte short fur' in m['name'])
 assert groom['alphaMode']=='MASK' and groom['doubleSided']
 assert all('COLOR_0' in p['attributes'] for m in gltf['meshes'] if 'Groom' in m['name'] for p in m['primitives'])
-assert {'Milo_Groom_HIGH','Milo_Groom_LOW'}<={n.get('name') for n in gltf['nodes']}
+assert {'Cast_Groom_HIGH','Cast_Groom_LOW'}<={n.get('name') for n in gltf['nodes']}
 nodes={n.get('name'):i for i,n in enumerate(gltf['nodes'])}
 def values(i):
     a=gltf['accessors'][i];v=gltf['bufferViews'][a['bufferView']]
@@ -70,4 +70,4 @@ for image in gltf['images']:
                 dimensions=struct.unpack_from('>HH',data,pos+5);break
             pos+=2+length
     assert max(dimensions)<=1024, (image.get('name'),dimensions)
-print(f'PASS Milo v8: {len(data):,} bytes, 21 joints, 7 distinct motions, facial tracks, MASK fur with two LODs, {triangles:,} asset triangles')
+print(f'PASS Milo v9: {len(data):,} bytes, 23 joints, 7 distinct motions, facial tracks, MASK fur with two LODs, {triangles:,} asset triangles')

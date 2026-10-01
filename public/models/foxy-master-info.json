@@ -1,14 +1,14 @@
 {
   "id": "foxy",
-  "asset": "foxy-milo-family-e853dbc5b018.glb",
-  "sha256": "e853dbc5b0182332258f4c520de3edf31876303e50ef3e63ad8e2b210ef5e151",
-  "bytes": 7105124,
+  "asset": "foxy-milo-polished-1a261c53a789.glb",
+  "sha256": "1a261c53a7892c727191bcbb8d481d0a99f72e8973f29e48161e0566f5901ee5",
+  "bytes": 7114700,
   "height": 1.15,
-  "bones": 21,
+  "bones": 23,
   "source_file": "Meshy_AI_Hoodie_Fox_0930215011_texture.glb",
   "source_sha256": "6ba905367641b43c897182ef1da9a7e49bc2a1de6f8692e2f1e9eb606b92f8db",
   "derived_from": null,
-  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "pipeline": "Milo shared PBR/rig, original body and facial shapes, clean short fur, soft ear/trunk controls, compact morph normals",
   "facial": {
     "separate_eyes": true,
     "eye_bones": 2,
@@ -28,5 +28,16 @@
   "limitations": [
     "Automatic cloth weights require further pose polish",
     "Physical mobile GPU and camera testing pending"
-  ]
+  ],
+  "version": 9,
+  "secondary_controls": {
+    "ear_L": 1300,
+    "ear_R": 1720
+  },
+  "optimization": {
+    "normal_epsilon": 1e-06,
+    "removed_noise_vectors": 1060,
+    "saved_bytes": 14720
+  },
+  "previous_asset": "foxy-milo-family-e853dbc5b018.glb"
 }

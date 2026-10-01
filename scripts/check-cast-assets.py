@@ -10,7 +10,10 @@ for id in ['cat','foxy','dog','lion','bunny','bear','panda','elephant']:
  assert len(data)==info['bytes'] and len(data)<8_000_000
  n=struct.unpack_from('<I',data,12)[0];doc=json.loads(data[20:20+n]);binary=20+n+8
  assert {c['name'] for c in doc['animations']}==expected
- assert len(doc['skins'][0]['joints'])==21
+ assert len(doc['skins'][0]['joints'])==(25 if id=='elephant' else 23)
+ names={doc['nodes'][j]['name'] for j in doc['skins'][0]['joints']}
+ assert {'ear_L','ear_R'}<=names
+ if id=='elephant':assert {'trunk_base','trunk_tip'}<=names
  assert all({'JOINTS_0','WEIGHTS_0'}<=p['attributes'].keys() for m in doc['meshes'] for p in m['primitives'])
  assert any('Groom_HIGH' in node.get('name','') for node in doc['nodes'])
  assert any('Groom_LOW' in node.get('name','') for node in doc['nodes'])
@@ -40,6 +43,6 @@ for id in ['cat','foxy','dog','lion','bunny','bear','panda','elephant']:
   assert weights and all(math.isfinite(v[0]) for row in weights for v in row)
   if c['name']=='sleep':assert max(v[0] for row in weights for v in row)>.95
  assert len(set(fingerprints))==7
- print(f'PASS {id}: 21 bones, 7 distinct body/facial motions, skinned MASK fur, {len(data):,} bytes')
+ print(f'PASS {id}: {len(names)} bones, 7 distinct body/facial motions, skinned MASK fur, {len(data):,} bytes')
 assert hashlib.sha256((ROOT/'public/models/cat-milo-56d1f528f55c.glb').read_bytes()).hexdigest()=='56d1f528f55cdf5693a39063cb68e0072fd9aa466168d396c6c85cb30d92a58e'
 print('PASS approved CAT binary preserved')
