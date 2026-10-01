@@ -1,29 +1,26 @@
 {
   "format": "glTF 2.0",
-  "source": "src/characters/models.ts",
-  "note": "CAT is the connected Blender production candidate. The other seven are unchanged legacy prototypes pending CAT approval.",
+  "source": "Blender Milo-family production pipeline",
+  "note": "All eight use authored skinned meshes. CAT v8 is preserved unchanged. Sunny uses the supplied Cozy Cub lion; Maple is derived from the supplied panda geometry with a fur-only atlas repaint.",
   "models": [
     {
       "id": "foxy",
-      "bytes": 1451940,
-      "meshes": 50,
-      "triangles": 29228,
-      "animations": [
-        "idle",
-        "happy",
-        "wave",
-        "jump",
-        "run",
-        "sleep",
-        "roar"
-      ]
-    },
-    {
-      "id": "cat",
-      "bytes": 6934716,
-      "meshes": 9,
-      "triangles": 128076,
-      "animations": [
+      "asset": "foxy-milo-family-e853dbc5b018.glb",
+      "sha256": "e853dbc5b0182332258f4c520de3edf31876303e50ef3e63ad8e2b210ef5e151",
+      "bytes": 7105124,
+      "height": 1.15,
+      "bones": 21,
+      "source_file": "Meshy_AI_Hoodie_Fox_0930215011_texture.glb",
+      "source_sha256": "6ba905367641b43c897182ef1da9a7e49bc2a1de6f8692e2f1e9eb606b92f8db",
+      "derived_from": null,
+      "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+      "facial": {
+        "separate_eyes": true,
+        "eye_bones": 2,
+        "eyelid_inbetweens": true,
+        "connected_mouth": true
+      },
+      "clips": [
         "idle",
         "happy",
         "wave",
@@ -32,17 +29,24 @@
         "sleep",
         "roar"
       ],
-      "source": "User-supplied Meshy Milo; original SHA256 de0e348c7eece526c4a7464ab876a73a72287f0cd0313d056b8e803afb1a9e90",
-      "approval": "user requested game integration; further art polish pending",
-      "pipeline": "Blender shared skeleton, PBR atlas, eyelid in-betweens, connected mouth, skinned short-fur ribbons",
-      "asset": "cat-milo-56d1f528f55c.glb"
+      "triangles": 133452,
+      "limitations": [
+        "Automatic cloth weights require further pose polish",
+        "Physical mobile GPU and camera testing pending"
+      ]
     },
     {
-      "id": "dog",
-      "bytes": 1368720,
-      "meshes": 48,
-      "triangles": 27228,
-      "animations": [
+      "id": "cat",
+      "version": 8,
+      "approval": "user requested game integration; further art polish pending",
+      "source": "User-supplied Meshy Milo; original SHA256 de0e348c7eece526c4a7464ab876a73a72287f0cd0313d056b8e803afb1a9e90",
+      "pipeline": "Blender shared skeleton, PBR atlas, eyelid in-betweens, connected mouth, skinned short-fur ribbons",
+      "asset": "cat-milo-56d1f528f55c.glb",
+      "sha256": "56d1f528f55cdf5693a39063cb68e0072fd9aa466168d396c6c85cb30d92a58e",
+      "bytes": 6934716,
+      "height": 1.15,
+      "bones": 21,
+      "clips": [
         "idle",
         "happy",
         "wave",
@@ -50,14 +54,70 @@
         "run",
         "sleep",
         "roar"
+      ],
+      "triangles": 128076,
+      "draw_calls": 11,
+      "groom": {
+        "high_ribbons": 1200,
+        "low_ribbons": 420,
+        "technique": "alpha-masked, skinned, original atlas colors; no dynamic hair simulation"
+      },
+      "limitations": [
+        "Remaining crown/cheek reconstruction artifacts",
+        "Cloth weights and facial corners still need polish",
+        "Physical iPhone AR performance must be measured"
+      ]
+    },
+    {
+      "id": "dog",
+      "asset": "dog-milo-family-e14d17c69d0d.glb",
+      "sha256": "e14d17c69d0db5e0140f439e0cbb0515056a6080d7b6ba01f4d2f6c3d1903add",
+      "bytes": 6217432,
+      "height": 1.15,
+      "bones": 21,
+      "source_file": "Meshy_AI_Hoodie_Pup_0930214951_texture.glb",
+      "source_sha256": "62ab5c53fea7d6589d33ffba78d736fb7354f06eb8520ae2475653745daf8a60",
+      "derived_from": null,
+      "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+      "facial": {
+        "separate_eyes": true,
+        "eye_bones": 2,
+        "eyelid_inbetweens": true,
+        "connected_mouth": true
+      },
+      "clips": [
+        "idle",
+        "happy",
+        "wave",
+        "jump",
+        "run",
+        "sleep",
+        "roar"
+      ],
+      "triangles": 103390,
+      "limitations": [
+        "Automatic cloth weights require further pose polish",
+        "Physical mobile GPU and camera testing pending"
       ]
     },
     {
       "id": "lion",
-      "bytes": 1700948,
-      "meshes": 50,
-      "triangles": 31400,
-      "animations": [
+      "asset": "lion-milo-family-743b159a1993.glb",
+      "sha256": "743b159a1993c183487854582c8543e1222483800a727ff2acd5f46cc006fd21",
+      "bytes": 7701788,
+      "height": 1.15,
+      "bones": 21,
+      "source_file": "Meshy_AI_Cozy_Cub_0930215316_texture.glb",
+      "source_sha256": "7a76deeea38cdbd1178f0a0b885873a36f3afdcef4348433aa28787d51cca8c0",
+      "derived_from": null,
+      "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+      "facial": {
+        "separate_eyes": true,
+        "eye_bones": 2,
+        "eyelid_inbetweens": true,
+        "connected_mouth": true
+      },
+      "clips": [
         "idle",
         "happy",
         "wave",
@@ -65,14 +125,31 @@
         "run",
         "sleep",
         "roar"
+      ],
+      "triangles": 143472,
+      "limitations": [
+        "Automatic cloth weights require further pose polish",
+        "Physical mobile GPU and camera testing pending"
       ]
     },
     {
       "id": "bunny",
-      "bytes": 1348852,
-      "meshes": 50,
-      "triangles": 28380,
-      "animations": [
+      "asset": "bunny-milo-family-caa8acc56d27.glb",
+      "sha256": "caa8acc56d27f1273a9f170d3b2c2d77c1e3e52d3dda15ffa7bbd514cea90a20",
+      "bytes": 5644232,
+      "height": 1.15,
+      "bones": 21,
+      "source_file": "Meshy_AI_Bunny_in_a_Pink_Hoodi_0930215127_texture.glb",
+      "source_sha256": "40733a0a2d82148e8e8d9e0d1e408ca748deac67f3fbb899c7427a2afea8efc5",
+      "derived_from": null,
+      "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+      "facial": {
+        "separate_eyes": true,
+        "eye_bones": 2,
+        "eyelid_inbetweens": true,
+        "connected_mouth": true
+      },
+      "clips": [
         "idle",
         "happy",
         "wave",
@@ -80,14 +157,31 @@
         "run",
         "sleep",
         "roar"
+      ],
+      "triangles": 82622,
+      "limitations": [
+        "Automatic cloth weights require further pose polish",
+        "Physical mobile GPU and camera testing pending"
       ]
     },
     {
       "id": "bear",
-      "bytes": 1348284,
-      "meshes": 50,
-      "triangles": 28380,
-      "animations": [
+      "asset": "bear-milo-family-8bef817e507e.glb",
+      "sha256": "8bef817e507e6c831a14e60d46876e2b0bc2057c2730d4347b0a6d8145efbe46",
+      "bytes": 5910476,
+      "height": 1.15,
+      "bones": 21,
+      "source_file": "Meshy_AI_Hoodie_Panda_0930215421_texture.glb",
+      "source_sha256": "e88f6f334903ab55974a48ecab2ea515ef61c907bba28da026f3a5d070697875",
+      "derived_from": "panda",
+      "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+      "facial": {
+        "separate_eyes": true,
+        "eye_bones": 2,
+        "eyelid_inbetweens": true,
+        "connected_mouth": true
+      },
+      "clips": [
         "idle",
         "happy",
         "wave",
@@ -95,14 +189,31 @@
         "run",
         "sleep",
         "roar"
+      ],
+      "triangles": 99754,
+      "limitations": [
+        "Automatic cloth weights require further pose polish",
+        "Physical mobile GPU and camera testing pending"
       ]
     },
     {
       "id": "panda",
-      "bytes": 1348004,
-      "meshes": 50,
-      "triangles": 28380,
-      "animations": [
+      "asset": "panda-milo-family-6c543bd2aff1.glb",
+      "sha256": "6c543bd2aff167fc8d30ac32a36f2a7a86252a5c7236138743cec3f4c78d6ce7",
+      "bytes": 6194268,
+      "height": 1.15,
+      "bones": 21,
+      "source_file": "Meshy_AI_Hoodie_Panda_0930215421_texture.glb",
+      "source_sha256": "e88f6f334903ab55974a48ecab2ea515ef61c907bba28da026f3a5d070697875",
+      "derived_from": null,
+      "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+      "facial": {
+        "separate_eyes": true,
+        "eye_bones": 2,
+        "eyelid_inbetweens": true,
+        "connected_mouth": true
+      },
+      "clips": [
         "idle",
         "happy",
         "wave",
@@ -110,14 +221,31 @@
         "run",
         "sleep",
         "roar"
+      ],
+      "triangles": 99754,
+      "limitations": [
+        "Automatic cloth weights require further pose polish",
+        "Physical mobile GPU and camera testing pending"
       ]
     },
     {
       "id": "elephant",
-      "bytes": 1375552,
-      "meshes": 51,
-      "triangles": 27756,
-      "animations": [
+      "asset": "elephant-milo-family-ca9e69c609ae.glb",
+      "sha256": "ca9e69c609ae6ac92b11997849be0613203dc541e3538d3f84c7d69b282d2093",
+      "bytes": 7377140,
+      "height": 1.15,
+      "bones": 21,
+      "source_file": "Meshy_AI_Blue_Hoodie_Elephant_0930215525_texture.glb",
+      "source_sha256": "a66b7c83d9232aca5846259050e0f367e752f40a6b3693f1f658f7df1ddfea70",
+      "derived_from": null,
+      "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+      "facial": {
+        "separate_eyes": true,
+        "eye_bones": 2,
+        "eyelid_inbetweens": true,
+        "connected_mouth": false
+      },
+      "clips": [
         "idle",
         "happy",
         "wave",
@@ -125,6 +253,11 @@
         "run",
         "sleep",
         "roar"
+      ],
+      "triangles": 131422,
+      "limitations": [
+        "Automatic cloth weights require further pose polish",
+        "Physical mobile GPU and camera testing pending"
       ]
     }
   ]

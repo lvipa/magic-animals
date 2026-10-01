@@ -8,14 +8,14 @@ import { audio } from '../audio/AudioManager';
 import { getTVBridge } from '../tv/WebSocketTVBridge';
 import { characterActionCue, learningActions } from '../audio/characterVoices';
 import { cueTexts } from '../audio/generated';
-import { catAssetStatus } from '../characters/authoredCat';
-import { CAT_MODEL_URL } from '../characters/catAsset';
 import {
-  animateCharacter,
-  disposeCharacter,
-  makeCharacter,
-  type Character,
-} from '../characters/models';
+  characterAssetErrors,
+  characterModelUrl,
+  characterAssetRevision,
+  subscribeCharacterAssets,
+} from '../characters/authoredCat';
+import { useCharacterModel } from '../characters/useCharacterModel';
+import { animateCharacter, type Character } from '../characters/models';
 
 const characters = [...characterIds];
 function GalleryActors({ selected, action }: { selected: Character | 'all'; action: string }) {
@@ -54,7 +54,7 @@ function Model({
   scale: number;
   lowDetail: boolean;
 }) {
-  const model = useMemo(() => makeCharacter(kind), [kind]);
+  const model = useCharacterModel(kind);
   useEffect(() => {
     if (model.userData.authored) {
       model.userData.lowDetail = lowDetail;
@@ -65,7 +65,6 @@ function Model({
       });
     }
   }, [model, lowDetail]);
-  useEffect(() => () => disposeCharacter(model), [model]);
   useFrame(({ clock }) => animateCharacter(model, clock.elapsedTime, action));
   return (
     <group position={[x, y, 0]} scale={scale}>
@@ -80,6 +79,9 @@ function Model({
 export default function CharacterGallery({ playground = false }: { playground?: boolean }) {
   const [selected, setSelected] = useState<Character | 'all'>(playground ? 'bunny' : 'all');
   const [action, setAction] = useState('idle');
+  useSyncExternalStore(subscribeCharacterAssets, () =>
+    characters.map(characterAssetRevision).join(','),
+  );
   const [lesson, setLesson] = useState<{ kind: 'animal' | 'action'; target: string } | null>(null);
   const [feedback, setFeedback] = useState('');
   const bridge = useMemo(() => getTVBridge(), []);
@@ -174,7 +176,9 @@ export default function CharacterGallery({ playground = false }: { playground?: 
         ))}
       </div>
       <div className="gallery-stage">
-        {selected === 'cat' && catAssetStatus.error && <p role="alert">{catAssetStatus.error}</p>}
+        {selected !== 'all' && characterAssetErrors.get(selected) && (
+          <p role="alert">{characterAssetErrors.get(selected)}</p>
+        )}
         <Canvas
           camera={{ position: [0, 1.1, selected === 'all' ? 6.8 : 4.6], fov: 33 }}
           dpr={[1, 1.5]}
@@ -217,7 +221,7 @@ export default function CharacterGallery({ playground = false }: { playground?: 
                 {characterDetails[id].name} · {characterDetails[id].word}
               </span>
             ) : (
-              <a key={id} href={id === 'cat' ? CAT_MODEL_URL : `/models/${id}.glb`} download>
+              <a key={id} href={characterModelUrl(id)} download>
                 {characterDetails[id].name} · {characterDetails[id].word}
                 <small>Download GLB ↓</small>
               </a>

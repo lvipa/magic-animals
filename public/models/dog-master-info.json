@@ -1,0 +1,32 @@
+{
+  "id": "dog",
+  "asset": "dog-milo-family-e14d17c69d0d.glb",
+  "sha256": "e14d17c69d0db5e0140f439e0cbb0515056a6080d7b6ba01f4d2f6c3d1903add",
+  "bytes": 6217432,
+  "height": 1.15,
+  "bones": 21,
+  "source_file": "Meshy_AI_Hoodie_Pup_0930214951_texture.glb",
+  "source_sha256": "62ab5c53fea7d6589d33ffba78d736fb7354f06eb8520ae2475653745daf8a60",
+  "derived_from": null,
+  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "facial": {
+    "separate_eyes": true,
+    "eye_bones": 2,
+    "eyelid_inbetweens": true,
+    "connected_mouth": true
+  },
+  "clips": [
+    "idle",
+    "happy",
+    "wave",
+    "jump",
+    "run",
+    "sleep",
+    "roar"
+  ],
+  "triangles": 103390,
+  "limitations": [
+    "Automatic cloth weights require further pose polish",
+    "Physical mobile GPU and camera testing pending"
+  ]
+}

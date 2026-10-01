@@ -12,6 +12,7 @@ import type { ARProvider, TrackingInfo } from './ARProvider';
 import { useRuntime } from '../tracking/runtime';
 import { disposeTrackingTensors } from './disposeTracking';
 import { imageTargetsUrl } from '../config/arCards';
+import { loadAuthoredCharacter } from '../characters/authoredCat';
 interface Target {
   root: THREE.Group;
   model: THREE.Group;
@@ -23,6 +24,7 @@ interface Target {
   lastPose: number;
   progress: number;
   action: string;
+  loading?: boolean;
 }
 export class MindARProvider implements ARProvider {
   private container: HTMLElement | null = null;
@@ -257,15 +259,23 @@ export class MindARProvider implements ARProvider {
     const target = this.targets.get(id);
     if (!target) return;
     if (data.worldMatrix) {
-      if (!target.model.userData.kind) {
-        target.root.remove(target.model);
-        target.model = makeCharacter(id);
-        if (id === 'cat') target.model.userData.lowDetail = this.pixelRatio <= 1;
-        target.model.scale.setScalar(0.34);
-        target.model.rotation.x = Math.PI / 2;
-        target.model.position.set(0, -0.1, 0.02);
-        revealCharacter(target.model, target.progress);
-        target.root.add(target.model);
+      if (!target.model.userData.kind && !target.loading) {
+        target.loading = true;
+        void loadAuthoredCharacter(id).then(() => {
+          // A decode may finish after the camera has been closed. Do not
+          // allocate a skeleton or attach anything to a retired anchor.
+          if (this.stopped || this.targets.get(id) !== target) return;
+          const model = makeCharacter(id);
+          model.userData.lowDetail = this.pixelRatio <= 1;
+          model.userData.standing = target.model.userData.standing;
+          model.scale.setScalar(0.34);
+          model.rotation.x = Math.PI / 2;
+          model.position.set(0, -0.1, 0.02);
+          revealCharacter(model, target.progress);
+          target.root.remove(target.model);
+          target.model = model;
+          target.root.add(model);
+        });
       }
       this.targets.forEach((other, otherId) => {
         if (otherId !== id && other.visible) this.markLost(otherId, other);

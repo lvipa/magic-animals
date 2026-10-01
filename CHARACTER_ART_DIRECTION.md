@@ -2,14 +2,12 @@
 
 Source: user-provided ChatGPT template.
 
-## Approval gate
+## Current rollout authorization
 
-Stage 1 is the authored CAT model (`public/models/cat-studio.glb`, editable source
-`assets/characters/cat/milo-master.blend`). Present CAT in the game and obtain the
-user's approval of this visual benchmark. Only then adapt FOX, DOG, LION,
-RABBIT, BEAR, PANDA and ELEPHANT with the same rig, materials, eyes, groom,
-clothing and lighting system. Existing procedural assets remain an interim
-fallback; they are not accepted as the final cast.
+On 01.10.2026 the user explicitly requested: «Продолжай, можно обновить и других персонажей заодно».
+The seven friends may now use the shared Milo pipeline. Keep the delivered CAT v8 binary
+unchanged as the benchmark. See MILO_CAST_RELEASE.md for actual sources, asset versions,
+shared controls and remaining polish. The earlier CAT-only gate is superseded by this request.
 
 ## CAT pipeline replacement — 2026-09-29
 

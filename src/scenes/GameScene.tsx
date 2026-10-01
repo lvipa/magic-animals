@@ -4,10 +4,10 @@ import { Float } from '@react-three/drei';
 import {
   animateCharacter,
   disposeCharacter,
-  makeCharacter,
   revealCharacter,
   type Character,
 } from '../characters/models';
+import { useCharacterModel } from '../characters/useCharacterModel';
 import { animateMagic, makeMagic } from './magic';
 import { storyAnimals, type AnimalId } from '../config/animals';
 import type { SceneState } from '../game/GameEngine';
@@ -31,11 +31,10 @@ export function Actor({
   scale?: number;
   onTap?: () => void;
 }) {
-  const model = useMemo(() => makeCharacter(kind), [kind]);
+  const model = useCharacterModel(kind);
   useEffect(() => {
     revealCharacter(model, reveal);
   }, [model, reveal]);
-  useEffect(() => () => disposeCharacter(model), [model]);
   useFrame(({ clock }) => animateCharacter(model, clock.elapsedTime, action));
   return (
     <primitive

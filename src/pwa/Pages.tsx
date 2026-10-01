@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { audioFiles } from '../audio/AudioManager';
 import { characterIds } from '../characters/catalog';
 import { imageTargetsUrl, markerBase } from '../config/arCards';
-import { CAT_MODEL_URL } from '../characters/catAsset';
+import { characterModelUrl } from '../characters/authoredCat';
 export function Install() {
   const ios =
     /iPad|iPhone|iPod/.test(navigator.userAgent) ||
@@ -50,7 +50,7 @@ export function Offline() {
       if (!('serviceWorker' in navigator) || !('caches' in window)) {
         setChecks({
           'GAME ENGINE': 'NO SERVICE WORKER',
-          MODELS: 'PROCEDURAL',
+          MODELS: 'UNVERIFIED',
           AUDIO: 'UNVERIFIED',
           MARKERS: 'UNVERIFIED',
         });
@@ -69,8 +69,7 @@ export function Offline() {
       const groups: Record<string, string[]> = {
         'GAME ENGINE': ['/index.html'],
         MODELS: [
-          ...characterIds.filter((id) => id !== 'cat').map((id) => `/models/${id}.glb`),
-          CAT_MODEL_URL,
+          ...characterIds.map(characterModelUrl),
           '/draco/draco_wasm_wrapper.js',
           '/draco/draco_decoder.wasm',
         ],
@@ -103,7 +102,7 @@ export function Offline() {
           </div>
         ))}
       </div>
-      <p>CAT uses the new Milo GLB with its skeleton, facial controls and short fur.</p>
+      <p>All friends use Milo-family GLBs with skeletons, facial controls and short fur.</p>
       <p>
         READY means assets are present in this build's precache. To verify a relaunch, disconnect
         Wi-Fi and reopen the Home Screen icon. Safari can evict storage under pressure.

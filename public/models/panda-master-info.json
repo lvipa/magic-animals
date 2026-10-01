@@ -1,0 +1,32 @@
+{
+  "id": "panda",
+  "asset": "panda-milo-family-6c543bd2aff1.glb",
+  "sha256": "6c543bd2aff167fc8d30ac32a36f2a7a86252a5c7236138743cec3f4c78d6ce7",
+  "bytes": 6194268,
+  "height": 1.15,
+  "bones": 21,
+  "source_file": "Meshy_AI_Hoodie_Panda_0930215421_texture.glb",
+  "source_sha256": "e88f6f334903ab55974a48ecab2ea515ef61c907bba28da026f3a5d070697875",
+  "derived_from": null,
+  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "facial": {
+    "separate_eyes": true,
+    "eye_bones": 2,
+    "eyelid_inbetweens": true,
+    "connected_mouth": true
+  },
+  "clips": [
+    "idle",
+    "happy",
+    "wave",
+    "jump",
+    "run",
+    "sleep",
+    "roar"
+  ],
+  "triangles": 99754,
+  "limitations": [
+    "Automatic cloth weights require further pose polish",
+    "Physical mobile GPU and camera testing pending"
+  ]
+}

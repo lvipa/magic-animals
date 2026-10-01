@@ -66,7 +66,7 @@ try {
       .locator('.speech > div:not(.foxy-chip)')
       .filter({ hasText: word + '!' })
       .waitFor({ timeout: 30000 });
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(1500);
     await page.screenshot({ path: `${output}/${id}-phone.png` });
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth))
       throw Error('Phone horizontal overflow');

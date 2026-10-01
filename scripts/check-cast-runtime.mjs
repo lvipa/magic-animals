@@ -1,0 +1,77 @@
+import { build } from 'esbuild';
+import { chromium } from 'playwright';
+import { writeFile, mkdir, rm } from 'node:fs/promises';
+import { resolve, dirname } from 'node:path';
+import { browserExecutable, isolateTestContext } from './browser-runtime.mjs';
+const dir = '.test-artifacts/cast';
+await mkdir(dir, { recursive: true });
+await build({
+  entryPoints: ['scripts/cast-runtime-review.ts'],
+  bundle: true,
+  format: 'esm',
+  outfile: `${dir}/runtime.js`,
+});
+await writeFile(
+  `${dir}/index.html`,
+  '<!doctype html><body style="margin:0"><script type="module" src="runtime.js"></script>',
+);
+// Serve the fixture via Vite preview, so the same immutable production URLs,
+// Draco decoder and browser skinning are exercised as in the deployed game.
+await mkdir('dist/test-cast', { recursive: true });
+await writeFile(
+  'dist/test-cast/index.html',
+  await (await import('node:fs/promises')).readFile(`${dir}/index.html`),
+);
+await writeFile(
+  'dist/test-cast/runtime.js',
+  await (await import('node:fs/promises')).readFile(`${dir}/runtime.js`),
+);
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: browserExecutable(),
+  args: ['--enable-webgl'],
+});
+try {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+  await isolateTestContext(context);
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', (e) => {
+    errors.push(e.message);
+    console.error('PAGE ERROR', e.message);
+  });
+  page.on('console', (message) => {
+    if (message.type() === 'log' || message.type() === 'error') console.log(message.text());
+  });
+  await page.goto('http://127.0.0.1:4173/test-cast/index.html');
+  await page
+    .waitForFunction(() => window.castReport || false, {}, { timeout: 30000 })
+    .catch((error) => {
+      throw Error(errors.join('\n') || error.message);
+    });
+  if (errors.length) throw Error(errors.join('\n'));
+  const report = await page.evaluate(() => window.castReport);
+  console.log(JSON.stringify(report, null, 2));
+  await page.screenshot({ path: `${dir}/lineup.png` });
+  for (const { id } of report) {
+    for (const [action, time] of [
+      ['idle', 0],
+      ['wave', 0.7],
+      ['roar', 0.7],
+      ['sleep', 2.2],
+    ]) {
+      await page.evaluate(
+        ([id, action, time]) => window.showCharacter(id, action, time),
+        [id, action, time],
+      );
+      await page.screenshot({ path: `${dir}/${id}-${action}.png` });
+    }
+  }
+  await writeFile(`${dir}/results.json`, JSON.stringify({ report, errors }, null, 2));
+  await page.evaluate(() => window.disposeCast());
+} finally {
+  await browser.close();
+  const fixture = resolve('dist/test-cast');
+  if (dirname(fixture) !== resolve('dist')) throw Error('Invalid test fixture cleanup path');
+  await rm(fixture, { recursive: true, force: true });
+}

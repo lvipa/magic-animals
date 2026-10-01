@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { useMemo } from 'react';
-import { makeCharacter, type Character } from '../characters/models';
+import { type Character } from '../characters/models';
+import { useCharacterModel } from '../characters/useCharacterModel';
 export function CharacterView({
   kind = 'foxy',
   interactive = false,
@@ -9,7 +9,7 @@ export function CharacterView({
   kind?: Character;
   interactive?: boolean;
 }) {
-  const model = useMemo(() => makeCharacter(kind), [kind]);
+  const model = useCharacterModel(kind);
   return (
     <Canvas
       camera={{ position: [0, 1.1, 2.6], fov: 42 }}

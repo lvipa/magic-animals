@@ -1,0 +1,32 @@
+{
+  "id": "elephant",
+  "asset": "elephant-milo-family-ca9e69c609ae.glb",
+  "sha256": "ca9e69c609ae6ac92b11997849be0613203dc541e3538d3f84c7d69b282d2093",
+  "bytes": 7377140,
+  "height": 1.15,
+  "bones": 21,
+  "source_file": "Meshy_AI_Blue_Hoodie_Elephant_0930215525_texture.glb",
+  "source_sha256": "a66b7c83d9232aca5846259050e0f367e752f40a6b3693f1f658f7df1ddfea70",
+  "derived_from": null,
+  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "facial": {
+    "separate_eyes": true,
+    "eye_bones": 2,
+    "eyelid_inbetweens": true,
+    "connected_mouth": false
+  },
+  "clips": [
+    "idle",
+    "happy",
+    "wave",
+    "jump",
+    "run",
+    "sleep",
+    "roar"
+  ],
+  "triangles": 131422,
+  "limitations": [
+    "Automatic cloth weights require further pose polish",
+    "Physical mobile GPU and camera testing pending"
+  ]
+}

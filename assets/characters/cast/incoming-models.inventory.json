@@ -4,41 +4,66 @@
     "filename": "Meshy_AI_Hoodie_Fox_0930215011_texture.glb",
     "bytes": 9425676,
     "sha256": "6ba905367641b43c897182ef1da9a7e49bc2a1de6f8692e2f1e9eb606b92f8db",
-    "status": "saved; artistic and rig review pending"
+    "status": "Imported, rigged and exported through the shared Milo pipeline",
+    "species_visual_review": "FOX",
+    "game_ids": [
+      "foxy"
+    ]
   },
   {
     "species_by_filename": "DOG",
     "filename": "Meshy_AI_Hoodie_Pup_0930214951_texture.glb",
     "bytes": 8780152,
     "sha256": "62ab5c53fea7d6589d33ffba78d736fb7354f06eb8520ae2475653745daf8a60",
-    "status": "saved; artistic and rig review pending"
+    "status": "Imported, rigged and exported through the shared Milo pipeline",
+    "species_visual_review": "DOG",
+    "game_ids": [
+      "dog"
+    ]
   },
   {
     "species_by_filename": "PANDA",
     "filename": "Meshy_AI_Hoodie_Panda_0930215421_texture.glb",
     "bytes": 8524940,
     "sha256": "e88f6f334903ab55974a48ecab2ea515ef61c907bba28da026f3a5d070697875",
-    "status": "saved; artistic and rig review pending"
+    "status": "Imported, rigged and exported through the shared Milo pipeline",
+    "species_visual_review": "PANDA",
+    "game_ids": [
+      "bear",
+      "panda"
+    ]
   },
   {
     "species_by_filename": "RABBIT",
     "filename": "Meshy_AI_Bunny_in_a_Pink_Hoodi_0930215127_texture.glb",
     "bytes": 8032720,
     "sha256": "40733a0a2d82148e8e8d9e0d1e408ca748deac67f3fbb899c7427a2afea8efc5",
-    "status": "saved; artistic and rig review pending"
+    "status": "Imported, rigged and exported through the shared Milo pipeline",
+    "species_visual_review": "RABBIT",
+    "game_ids": [
+      "bunny"
+    ]
   },
   {
     "species_by_filename": "BEAR",
     "filename": "Meshy_AI_Cozy_Cub_0930215316_texture.glb",
     "bytes": 12630732,
     "sha256": "7a76deeea38cdbd1178f0a0b885873a36f3afdcef4348433aa28787d51cca8c0",
-    "status": "saved; artistic and rig review pending"
+    "status": "Imported, rigged and exported through the shared Milo pipeline",
+    "species_visual_review": "LION",
+    "game_ids": [
+      "lion"
+    ]
   },
   {
     "species_by_filename": "ELEPHANT",
     "filename": "Meshy_AI_Blue_Hoodie_Elephant_0930215525_texture.glb",
     "bytes": 9807028,
     "sha256": "a66b7c83d9232aca5846259050e0f367e752f40a6b3693f1f658f7df1ddfea70",
-    "status": "saved; artistic and rig review pending"
+    "status": "Imported, rigged and exported through the shared Milo pipeline",
+    "species_visual_review": "ELEPHANT",
+    "game_ids": [
+      "elephant"
+    ]
   }
 ]

@@ -23,7 +23,7 @@ def material(name, color, roughness):
     return mat
 
 
-def build_mouth(body, front):
+def build_mouth(body, front, cut_height=.011):
     assert body.data.shape_keys is None, 'Mouth surgery must precede shape keys'
     mesh = body.data
     mesh.materials.append(material('Milo / warm mouth interior', (.008, .0015, .0025), .94))
@@ -34,7 +34,7 @@ def build_mouth(body, front):
     bm.faces.ensure_lookup_table()
     chosen = {f for f in bm.faces if f.calc_center_median().y < -.38
               and (f.calc_center_median().x / .105) ** 2
-              + ((f.calc_center_median().z - mouth_line(f.calc_center_median().x)) / .011) ** 2 < 1}
+              + ((f.calc_center_median().z - mouth_line(f.calc_center_median().x)) / cut_height) ** 2 < 1}
     assert chosen, 'No mouth surface found'
     # Require a single connected cut; never silently build over a fragmented hole.
     unseen = set(chosen); components = []

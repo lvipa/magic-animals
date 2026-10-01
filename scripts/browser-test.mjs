@@ -28,9 +28,18 @@ async function hold(page, locator, duration) {
   await page.mouse.up();
 }
 async function parentGate(page) {
-  await hold(page, page.locator('.parent-corner'), 3100);
-  await hold(page, page.getByRole('button', { name: 'Hold PARENT' }), 2100);
-  await page.waitForURL('**/parent');
+  const corner = await page.locator('.parent-corner').boundingBox();
+  if (!corner) throw Error('Parent corner missing');
+  await page.mouse.move(corner.x + corner.width / 2, corner.y + corner.height / 2);
+  await page.mouse.down();
+  await page.getByRole('button', { name: 'Hold PARENT' }).waitFor({ timeout: 12000 });
+  await page.mouse.up();
+  const confirm = await page.getByRole('button', { name: 'Hold PARENT' }).boundingBox();
+  if (!confirm) throw Error('Parent confirmation missing');
+  await page.mouse.move(confirm.x + confirm.width / 2, confirm.y + confirm.height / 2);
+  await page.mouse.down();
+  await page.waitForURL('**/parent', { timeout: 12000 });
+  await page.mouse.up();
 }
 const browser = await chromium.launch({ headless: true, executablePath, args: browserArgs });
 try {
@@ -232,7 +241,7 @@ try {
     await arPage.locator('.offline-checks').filter({ hasText: 'READY' }).waitFor();
     const status = await arPage.locator('.offline-checks').innerText();
     if (status.includes('NOT CACHED')) throw new Error(status);
-    pass('Engine, procedural models, shipped audio and image targets cached');
+    pass('Engine, authored models, shipped audio and image targets cached');
     await arContext.setOffline(true);
     await arPage.reload();
     await arPage.getByRole('heading', { name: 'Offline status' }).waitFor();

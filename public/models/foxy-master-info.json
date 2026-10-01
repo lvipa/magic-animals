@@ -1,0 +1,32 @@
+{
+  "id": "foxy",
+  "asset": "foxy-milo-family-e853dbc5b018.glb",
+  "sha256": "e853dbc5b0182332258f4c520de3edf31876303e50ef3e63ad8e2b210ef5e151",
+  "bytes": 7105124,
+  "height": 1.15,
+  "bones": 21,
+  "source_file": "Meshy_AI_Hoodie_Fox_0930215011_texture.glb",
+  "source_sha256": "6ba905367641b43c897182ef1da9a7e49bc2a1de6f8692e2f1e9eb606b92f8db",
+  "derived_from": null,
+  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "facial": {
+    "separate_eyes": true,
+    "eye_bones": 2,
+    "eyelid_inbetweens": true,
+    "connected_mouth": true
+  },
+  "clips": [
+    "idle",
+    "happy",
+    "wave",
+    "jump",
+    "run",
+    "sleep",
+    "roar"
+  ],
+  "triangles": 133452,
+  "limitations": [
+    "Automatic cloth weights require further pose polish",
+    "Physical mobile GPU and camera testing pending"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "lion",
+  "asset": "lion-milo-family-743b159a1993.glb",
+  "sha256": "743b159a1993c183487854582c8543e1222483800a727ff2acd5f46cc006fd21",
+  "bytes": 7701788,
+  "height": 1.15,
+  "bones": 21,
+  "source_file": "Meshy_AI_Cozy_Cub_0930215316_texture.glb",
+  "source_sha256": "7a76deeea38cdbd1178f0a0b885873a36f3afdcef4348433aa28787d51cca8c0",
+  "derived_from": null,
+  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "facial": {
+    "separate_eyes": true,
+    "eye_bones": 2,
+    "eyelid_inbetweens": true,
+    "connected_mouth": true
+  },
+  "clips": [
+    "idle",
+    "happy",
+    "wave",
+    "jump",
+    "run",
+    "sleep",
+    "roar"
+  ],
+  "triangles": 143472,
+  "limitations": [
+    "Automatic cloth weights require further pose polish",
+    "Physical mobile GPU and camera testing pending"
+  ]
+}

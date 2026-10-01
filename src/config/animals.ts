@@ -1,6 +1,6 @@
 import { characterDetails, type Character } from '../characters/catalog';
 import { markerBase } from './arCards';
-import { CAT_MODEL_URL } from '../characters/catAsset';
+import { characterModelUrl } from '../characters/authoredCat';
 export type AnimalId = Character;
 export type FoxyMood =
   'idle' | 'lookAround' | 'point' | 'happy' | 'surprised' | 'scared' | 'laugh' | 'dance' | 'fall';
@@ -38,7 +38,7 @@ export const animals: AnimalConfig[] = [
     targetIndex: 0,
     image: `${markerBase}/cat.png`,
     thumbnail: `${markerBase}/cat.png`,
-    model: CAT_MODEL_URL,
+    model: characterModelUrl('cat'),
     color: '#f8b460',
     call: 'Meow!',
     sounds: { word: 'cat', article: 'a-cat', call: 'meow' },
@@ -64,7 +64,7 @@ export const animals: AnimalConfig[] = [
     targetIndex: 1,
     image: `${markerBase}/dog.png`,
     thumbnail: `${markerBase}/dog.png`,
-    model: '/models/dog.glb',
+    model: characterModelUrl('dog'),
     color: '#89c9dc',
     call: 'Woof!',
     sounds: { word: 'dog', article: 'a-dog', call: 'woof' },
@@ -94,7 +94,7 @@ export const animals: AnimalConfig[] = [
     targetIndex: 2,
     image: `${markerBase}/lion.png`,
     thumbnail: `${markerBase}/lion.png`,
-    model: '/models/lion.glb',
+    model: characterModelUrl('lion'),
     color: '#f5cf61',
     call: 'Tiny roar!',
     sounds: { word: 'lion', article: 'a-lion', call: 'roar' },
@@ -122,7 +122,7 @@ export const animals: AnimalConfig[] = [
       targetIndex: index + 3,
       image: `${markerBase}/${id}.png`,
       thumbnail: `${markerBase}/${id}.png`,
-      model: `/models/${id}.glb`,
+      model: characterModelUrl(id),
       color: details.color,
       call: 'Hello!',
       sounds: { word, article: `character-${id}-idle`, call: `character-${id}-roar` },

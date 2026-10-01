@@ -1,0 +1,32 @@
+{
+  "id": "bunny",
+  "asset": "bunny-milo-family-caa8acc56d27.glb",
+  "sha256": "caa8acc56d27f1273a9f170d3b2c2d77c1e3e52d3dda15ffa7bbd514cea90a20",
+  "bytes": 5644232,
+  "height": 1.15,
+  "bones": 21,
+  "source_file": "Meshy_AI_Bunny_in_a_Pink_Hoodi_0930215127_texture.glb",
+  "source_sha256": "40733a0a2d82148e8e8d9e0d1e408ca748deac67f3fbb899c7427a2afea8efc5",
+  "derived_from": null,
+  "pipeline": "Milo family: Blender skin, original PBR atlas, separate eyes, conforming eyelids, masked skinned short fur, seven NLA clips",
+  "facial": {
+    "separate_eyes": true,
+    "eye_bones": 2,
+    "eyelid_inbetweens": true,
+    "connected_mouth": true
+  },
+  "clips": [
+    "idle",
+    "happy",
+    "wave",
+    "jump",
+    "run",
+    "sleep",
+    "roar"
+  ],
+  "triangles": 82622,
+  "limitations": [
+    "Automatic cloth weights require further pose polish",
+    "Physical mobile GPU and camera testing pending"
+  ]
+}
