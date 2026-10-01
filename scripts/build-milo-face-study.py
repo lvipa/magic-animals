@@ -7,10 +7,13 @@ from mathutils.geometry import barycentric_transform
 root=Path(__file__).resolve().parent.parent/'.deployment/incoming-milo'
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from milo_mouth import build_mouth
+from milo_surface import refine_neck
+from milo_lids import fur_material
 bpy.ops.wm.open_mainfile(filepath=str(root/'milo-cleaned-rig-WIP.blend'))
 body=next(o for o in bpy.context.scene.objects if o.type=='MESH')
 rig=next(o for o in bpy.context.scene.objects if o.type=='ARMATURE')
 bpy.context.scene.frame_set(1)
+surface_report=refine_neck(body)
 mesh=body.data;mat=mesh.materials[0]
 verts=[v.co.copy() for v in mesh.vertices];faces=[list(p.vertices) for p in mesh.polygons]
 uvs=mesh.uv_layers.active.data
@@ -45,7 +48,6 @@ def fur_color(x,z):
  _,uv=front(x,z);ix=min(w-1,max(0,int(uv[0]*w)));iy=min(h-1,max(0,int(uv[1]*h)))
  return pixels[max(0,iy-4):min(h,iy+5),max(0,ix-4):min(w,ix+5)].mean(axis=(0,1))
 for link in list(lid_shader.inputs['Base Color'].links):lid_mat.node_tree.links.remove(link)
-color_node=lid_mat.node_tree.nodes.new('ShaderNodeVertexColor');color_node.layer_name='Milo_LidColor';lid_mat.node_tree.links.new(color_node.outputs['Color'],lid_shader.inputs['Base Color'])
 for name,value in [('Normal',None),('Roughness',.9),('Metallic',0)]:
  for link in list(lid_shader.inputs[name].links):lid_mat.node_tree.links.remove(link)
  if value is not None:lid_shader.inputs[name].default_value=value
@@ -64,14 +66,26 @@ for side,cx,cz in eye_specs:
  eye=make('Milo / eye '+side,coordinates,polygons,values,eye_mat)
  patch=bmesh.new();patch.from_mesh(eye.data);bmesh.ops.remove_doubles(patch,verts=list(patch.verts),dist=.000002);patch.to_mesh(eye.data);patch.free();eye.data.update()
  deform(eye);eyes.append(eye)
- eye.shape_key_add(name='Basis');key=eye.shape_key_add(name='blink_'+side)
- for v in key.data:v.co.y+=.045
+ eye.shape_key_add(name='Basis');key=eye.shape_key_add(name='eyeClose_'+side)
+ for v in key.data:v.co.y+=.09
  # A curved lid slides over the original orbital surface, following its shape.
- coordinates=[];closed=[];values=[];polygons=[];nx=48;ny=12;rx=.094;rz=.092
+ coordinates=[];closed=[];values=[];polygons=[];nx=64;ny=24;rx=.094;rz=.092
+ # Match the color to fur outside the orbital rim. The closed lid itself
+ # conforms to the existing surface rather than floating as a convex cap.
+ samples=[];sample_colors=[]
+ for step in range(80):
+  angle=math.tau*step/80;u=math.cos(angle);v=math.sin(angle)
+  co,_=front(cx+.132*u,cz+.128*v)
+  # On a circle u²+v²=1; fitting both squared terms and a constant is
+  # singular and invents an invalid center color. Use a full-rank basis.
+  samples.append([1,u,v,u*v,u*u-v*v])
+  sample_colors.append(fur_color(co.x,co.z))
+ field=np.array(samples)
+ coefficients=np.linalg.lstsq(field,np.array(sample_colors),rcond=None)[0]
  def closed_point(u,t):
-  arc=math.sqrt(max(0,1-u*u));x=cx+.115*u
-  top,_=front(x,cz+.111*arc);bottom,_=front(x,cz-.111*arc)
-  return Vector((x,top.y*(1-t)+bottom.y*t-.004-.015*4*t*(1-t)*(1-u*u),cz+.111*arc*(1-2*t)))
+  arc=math.sqrt(max(0,1-u*u));x=cx+.125*u;z=cz+.120*arc*(1-2*t)
+  co,_=front(x,z);co.y-=.0015
+  return co
  for row in range(ny+1):
   t=row/ny
   for col in range(nx+1):
@@ -79,36 +93,37 @@ for side,cx,cz in eye_specs:
    z=cz+rz*arc*(1-.035*t);zc=cz+.111*arc*(1-1.99*t)
    co,_=front(x,z);co.y-=.003;coordinates.append(co)
    closed.append(closed_point(u,t))
-   _,uv=front(cx+rx*u*.6,cz+.135+.016*t);values.append(uv)
+   values.append(((u+1)/2,t))
  for row in range(ny):
   for col in range(nx):
    a=row*(nx+1)+col;polygons.append([a,a+nx+1,a+nx+2,a+1])
- lid=make('Milo / eyelid '+side,coordinates,polygons,values,lid_mat);deform(lid)
- colors=lid.data.color_attributes.new(name='Milo_LidColor',type='FLOAT_COLOR',domain='POINT')
- # Fit a smooth fur-color field from the surrounding face, so isolated atlas
- # texels and UV seams cannot become vertical bands on a closed eyelid.
- samples=[];sample_colors=[]
- for step in range(64):
-  angle=math.tau*step/64;u=math.cos(angle);v=math.sin(angle)
-  samples.append([1,u,v,u*u,u*v,v*v])
-  sample_colors.append(fur_color(cx+.128*u,cz+.125*v))
- coefficients=np.linalg.lstsq(np.array(samples),np.array(sample_colors),rcond=None)[0]
- for row in range(ny+1):
-  t=row/ny
-  for col in range(nx+1):
-   u=-.999+1.998*col/nx;arc=math.sqrt(max(0,1-u*u));x=cx+.115*u
-   v=arc*(1-2*t);color=np.clip(np.array([1,u,v,u*u,u*v,v*v])@coefficients,0,1)
-   color[3]=1;colors.data[row*(nx+1)+col].color_srgb=tuple(color)
+ material=fur_material(lid_mat,side,cx,cz,coefficients,front,pixels)
+ lid=make('Milo / eyelid '+side,coordinates,polygons,values,material);deform(lid)
+ # Closed lids must sit ahead of the retracted iris, including the center.
+ for co in closed:
+  if ((co.x-cx)/.085)**2+((co.z-cz)/.08)**2<1:
+   original,_=front(co.x,co.z)
+   assert original.y+.09-co.y>.003, 'Closed eyelid intersects the iris'
  lid.shape_key_add(name='Basis');key=lid.shape_key_add(name='blink_'+side)
  for v,co in zip(key.data,closed):v.co=co
+ # A real intermediate target, blended piecewise with the full lid, retains
+ # valid exported morph normals. An additive correction produces bad normals
+ # because its isolated mesh is not the actual halfway surface.
+ correction=lid.shape_key_add(name='blinkHalf_'+side)
+ for vertex,opened,shut in zip(correction.data,coordinates,closed):
+  halfway=Vector(opened).lerp(shut,.5)
+  halfway.x=shut.x
+  surface,_=front(halfway.x,halfway.z);surface.y-=.008
+  vertex.co=surface
  lids.append(lid)
  # A soft curved crease makes a closed eye readable as a relaxed expression.
  coordinates=[];closed=[];values=[];polygons=[];segments=40;sides=8
  for step in range(segments+1):
   u=-.90+1.80*step/segments;x=cx+.094*u
   opened,_=front(x,cz+.092*math.sqrt(1-u*u));opened.y-=.005
-  v=-.010+.018*(1-u*u);tu=(1-v/(.111*math.sqrt(1-u*u)))/2
-  shut=closed_point((x-cx)/.115,tu);shut.x=x;shut.y-=.002
+  v=-.010+.018*(1-u*u);closed_u=(x-cx)/.125
+  tu=(1-v/(.120*math.sqrt(1-closed_u*closed_u)))/2
+  shut=closed_point(closed_u,tu);shut.y-=.002
   radius=.0025*math.sin(math.pi*step/segments)**.5+.0001
   for ring in range(sides):
    angle=ring/sides*math.tau
@@ -118,7 +133,7 @@ for side,cx,cz in eye_specs:
   for ring in range(sides):
    a=step*sides+ring;b=step*sides+(ring+1)%sides;polygons.append([a,b,b+sides,a+sides])
  crease=make('Milo / eyelid crease '+side,coordinates,polygons,values,crease_mat);deform(crease)
- crease.shape_key_add(name='Basis');key=crease.shape_key_add(name='blink_'+side)
+ crease.shape_key_add(name='Basis');key=crease.shape_key_add(name='lidCrease_'+side)
  for v,co in zip(key.data,closed):v.co=co
 # Remove duplicated eye patches from the base surface, preserving its UVs.
 bm=bmesh.new();bm.from_mesh(mesh);bm.faces.ensure_lookup_table()
@@ -150,4 +165,4 @@ for im in bpy.data.images:
  if im.has_data and not im.packed_file:im.pack()
 bpy.ops.wm.save_as_mainfile(filepath=str(root/'milo-face-controls-WIP.blend'))
 bpy.ops.export_scene.gltf(filepath=str(root/'milo-face-controls-WIP.glb'),export_format='GLB',export_animations=True,export_animation_mode='ACTIONS',export_skins=True,export_yup=True,export_morph=True)
-print(json.dumps({'eye_patches':[len(e.data.polygons) for e in eyes],'bones':len(rig.data.bones),'morphs':['blink_L','blink_R','mouthOpen','smile'],'mouth':mouth_report}))
+print(json.dumps({'eye_patches':[len(e.data.polygons) for e in eyes],'bones':len(rig.data.bones),'morphs':['blink_L','blink_R','blinkHalf_L','blinkHalf_R','eyeClose_L','eyeClose_R','lidCrease_L','lidCrease_R','mouthOpen','smile'],'mouth':mouth_report,'surface':surface_report}))

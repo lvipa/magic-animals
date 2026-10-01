@@ -54,6 +54,15 @@ try{
  await page.getByRole('button',{name:'Взгляд влево',exact:true}).click();await page.waitForTimeout(100);
  const gaze=await page.evaluate(()=>window.__incomingMilo.sample());
  if(JSON.stringify(neutral.bones.filter(b=>b.name.startsWith('eye_')))===JSON.stringify(gaze.bones.filter(b=>b.name.startsWith('eye_'))))throw Error('Eye controls did not change gaze');
+ // Facial surface edits need close views: whole-body morph values alone do
+ // not catch an iris protruding through a lid or a visible orbital seam.
+ for(const blink of [0,.25,.5,.75,1]){
+  await page.evaluate(b=>window.__incomingMilo.setFace(b,0,0,0),blink);
+  for(const angle of [0,45,90]){
+   await page.evaluate(a=>{window.__incomingMilo.setAngle(a);window.__incomingMilo.focusFace();},angle);await page.waitForTimeout(100);
+   await page.locator('canvas').screenshot({path:`${output}/blink-${blink}-${angle}.png`});
+  }
+ }
  await page.setViewportSize({width:390,height:844});
  await page.waitForFunction(()=>document.documentElement.scrollWidth<=innerWidth,null,{timeout:5000});
  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth))throw Error('Mobile horizontal overflow');

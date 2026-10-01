@@ -43,7 +43,9 @@ def pose(frame, rotations=(), height=0, sideways=0, blink=0, smile=0, mouth=0):
         for key in keys.key_blocks:
             if key.name == 'Basis':
                 continue
-            key.value = blink if key.name.startswith('blink_') else smile if key.name == 'smile' else mouth if key.name == 'mouthOpen' else 0
+            retreat = max(0, min(1, (blink-.6)/.4))
+            retreat = retreat*retreat*(3-2*retreat)
+            key.value = max(0,2*blink-1) if key.name.startswith('blink_') else 1-abs(2*blink-1) if key.name.startswith('blinkHalf_') else retreat if key.name.startswith(('eyeClose_', 'lidCrease_')) else smile if key.name == 'smile' else mouth if key.name == 'mouthOpen' else 0
             key.keyframe_insert('value', frame=frame)
 
 
@@ -72,7 +74,7 @@ Y, X, Z = (0, 1, 0), (1, 0, 0), (0, 0, 1)
 clips = []
 
 name = 'Idle_WIP'; begin(name)
-for f, head, blink in [(1, 0, 0), (25, 3, 0), (43, 1, 0), (46, 1, 1), (49, 1, 0), (73, -3, 0), (97, 0, 0)]:
+for f, head, blink in [(1, 0, 0), (25, 3, 0), (43, 1, 0), (45, 1, .6), (46, 1, 1), (47, 1, .6), (49, 1, 0), (73, -3, 0), (97, 0, 0)]:
     pose(f, [('head', Y, head), ('tail_base', Z, head * 1.5), ('chest', X, -abs(head) * .25)], height=.006 * abs(head), blink=blink)
 end(name, 97); clips.append(name)
 
@@ -107,7 +109,7 @@ for f in range(1, 26, 3):
 end(name, 25); clips.append(name)
 
 name = 'Sleep_WIP'; begin(name)
-for f, lean, blink in [(1, 0, 0), (20, 22, .3), (40, 76, 1), (65, 77, 1), (90, 76, 1), (115, 77, 1), (140, 76, 1), (170, 0, 0)]:
+for f, lean, blink in [(1, 0, 0), (20, 22, .3), (30, 49, .6), (40, 76, 1), (65, 77, 1), (90, 76, 1), (115, 77, 1), (140, 76, 1), (150, 49, .6), (170, 0, 0)]:
     amount = lean / 76
     rotations = [('root', Y, lean), ('head', Y, -8 * amount), ('upper_arm_R', Y, -22 * amount), ('upper_arm_L', Y, 22 * amount)]
     for side in ['L', 'R']:

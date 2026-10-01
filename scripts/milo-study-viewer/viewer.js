@@ -77,10 +77,11 @@ if(jawMesh){const deltas=jawMesh.geometry.morphAttributes.position[jawMesh.morph
 const jawPosition=()=>{if(!jawMesh)return null;root.updateMatrixWorld(true);return jawMesh.getVertexPosition(jawVertex,new THREE.Vector3()).applyMatrix4(jawMesh.matrixWorld).toArray();};
 const eyeRest=new Map();gltf.scene.traverse(o=>{if(o.isBone&&o.name.startsWith('eye_'))eyeRest.set(o,o.quaternion.clone());});
 const setFace=(blink=0,smile=0,gaze=0,mouth=0)=>{
- for(const {mesh} of facialMeshes)for(const [name,index]of Object.entries(mesh.morphTargetDictionary))mesh.morphTargetInfluences[index]=name.startsWith('blink_')?blink:name==='smile'?smile:name==='mouthOpen'?mouth:0;
+ const retreat=THREE.MathUtils.smoothstep(blink,.6,1);
+ for(const {mesh} of facialMeshes)for(const [name,index]of Object.entries(mesh.morphTargetDictionary))mesh.morphTargetInfluences[index]=name.startsWith('blink_')?Math.max(0,2*blink-1):name.startsWith('blinkHalf_')?1-Math.abs(2*blink-1):(name.startsWith('eyeClose_')||name.startsWith('lidCrease_'))?retreat:name==='smile'?smile:name==='mouthOpen'?mouth:0;
  for(const [bone,rest]of eyeRest)bone.quaternion.copy(rest).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),gaze*.08));
 };
-document.querySelectorAll('[data-face]').forEach(b=>{b.disabled=!['face','motion'].includes(version);b.onclick=()=>{setPose('');const name=b.dataset.face;setFace(name==='closed'?1:0,name==='smile'?1:0,name==='left'?-1:name==='right'?1:0,name==='mouth'?1:name==='mouth-half'?.5:0);};});
+document.querySelectorAll('[data-face]').forEach(b=>{b.disabled=!['face','motion'].includes(version);b.onclick=()=>{setPose('');const name=b.dataset.face;setFace(name==='closed'?1:name==='half'?.5:0,name==='smile'?1:0,name==='left'?-1:name==='right'?1:0,name==='mouth'?1:name==='mouth-half'?.5:0);};});
 const focusFace=()=>{orbit.target.copy(root.localToWorld(new THREE.Vector3(0,.52,.44)));viewDistance=2;setAngle(viewAngle);};
 document.querySelector('#face-detail')?.addEventListener('click',focusFace);
 document.querySelectorAll('[data-clip]').forEach(b=>{b.disabled=!gltf.animations.some(a=>a.name===b.dataset.clip);b.onclick=()=>{setPose(b.dataset.clip,0,true);playSpeech(b.dataset.clip);};});
