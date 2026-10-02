@@ -8,6 +8,7 @@ import type { Character } from './catalog';
 import { collectSecondaryControls, animateSecondaryControls } from './secondaryMotion';
 import { audio } from '../audio/AudioManager';
 import { collectExpressiveControls, animateExpression } from './expressiveMotion';
+import { PoseLayer } from './poseLayer';
 
 const assets = new Map<Character, GLTF>();
 const pending = new Map<Character, Promise<void>>();
@@ -225,6 +226,7 @@ export function makeAuthoredCharacter(kind: Character): THREE.Group | null {
     ownedMaterials,
     secondaryControls: collectSecondaryControls(content),
     expressiveControls: collectExpressiveControls(content),
+    poseLayer: new PoseLayer(content),
     mouths: [] as Array<{ mesh: THREE.Mesh; index: number }>,
     tiredLids: [] as Array<{ mesh: THREE.Mesh; index: number }>,
   };
@@ -255,6 +257,8 @@ export function revealAuthoredCat(root: THREE.Group, progress: number) {
 export function animateAuthoredCat(root: THREE.Group, time: number, action: string) {
   const data = root.userData;
   const mixer = data.mixer as THREE.AnimationMixer;
+  const poseLayer = data.poseLayer as PoseLayer;
+  poseLayer.begin(action);
   const clipName = ['happy', 'wave', 'jump', 'run', 'sleep', 'roar'].includes(action)
     ? action
     : action === 'point'
@@ -280,6 +284,7 @@ export function animateAuthoredCat(root: THREE.Group, time: number, action: stri
   }
   const dt = data.previousTime === null ? 0 : Math.max(0, Math.min(0.1, time - data.previousTime));
   mixer.update(dt);
+  poseLayer.captureBase();
   animateSecondaryControls(data.secondaryControls, data.kind, time, action);
   animateExpression(data.expressiveControls, data.kind, time, action);
   if (action === 'tired') {
@@ -308,6 +313,7 @@ export function animateAuthoredCat(root: THREE.Group, time: number, action: stri
           : 0;
   content.position.y = ['fall', 'roll'].includes(action) ? 0.22 : 0;
   content.scale.y = action === 'sit' ? 0.92 : 1;
+  poseLayer.finish(dt);
 }
 export function disposeAuthoredCat(root: THREE.Group) {
   const mixer = root.userData.mixer as THREE.AnimationMixer;

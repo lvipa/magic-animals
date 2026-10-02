@@ -91,18 +91,17 @@ export function HuntPanel({
         {next && (
           <button onClick={() => speak(`find-${next.word.toLowerCase()}`)}>🔊 Подсказка</button>
         )}
-        {found.length === 8 && (
-          <button
-            onClick={() => {
-              restart();
-              resetScene();
-              setFeedback('Новый поиск!');
-              speak('hunt-start');
-            }}
-          >
-            🔄 Новый поиск
-          </button>
-        )}
+        <button
+          className="hunt-restart"
+          onClick={() => {
+            restart();
+            resetScene();
+            setFeedback('Новый поиск! Убери прежнюю карточку и покажи любую снова.');
+            speak('hunt-start');
+          }}
+        >
+          🔄 Начать поиск заново
+        </button>
         <Link to="/friends">🐾 Поиграть</Link>
       </div>
     </section>

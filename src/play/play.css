@@ -1,17 +1,23 @@
+html {
+  scroll-padding-bottom: calc(95px + env(safe-area-inset-bottom));
+}
 .kid-nav {
   position: fixed;
-  z-index: 25;
+  z-index: 50;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
   width: min(100%, 660px);
   display: flex;
   justify-content: space-around;
   padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
   border: 1px solid #8ac2bd70;
   border-radius: 24px 24px 0 0;
-  background: #153749f5;
+  background: #153749;
   box-shadow: 0 -5px 25px #071d3040;
+  pointer-events: auto;
+  isolation: isolate;
 }
 .kid-nav a {
   display: flex;
@@ -26,9 +32,13 @@
   color: #f7ead2;
   text-decoration: none;
   border-radius: 16px;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .kid-nav a span {
   font-size: 23px;
+  pointer-events: none;
 }
 .kid-nav a.active {
   background: #ffe0a6;
@@ -53,6 +63,42 @@
 }
 .welcome-bottom {
   bottom: 95px;
+}
+/* Welcome buttons stay in the document flow on short Safari viewports. */
+.welcome-game .game-ui {
+  height: auto;
+  min-height: 100dvh;
+}
+.welcome-game .welcome {
+  position: relative;
+  inset: auto;
+  padding: clamp(130px, 25dvh, 260px) 6% calc(110px + env(safe-area-inset-bottom));
+  min-height: 100dvh;
+}
+.welcome-game .welcome-copy {
+  position: relative;
+  top: auto;
+  left: auto;
+}
+.welcome-game .welcome-bottom {
+  position: static;
+  transform: none;
+  margin-top: 28px;
+}
+@media (orientation: portrait) {
+  .welcome-game .welcome {
+    padding-top: clamp(230px, 34dvh, 350px);
+  }
+  .welcome-game .welcome-copy {
+    width: 100%;
+  }
+  .welcome-game .scene-welcome {
+    top: 45px;
+    height: clamp(175px, 27dvh, 280px);
+  }
+  .welcome-game .welcome-bottom {
+    justify-content: center;
+  }
 }
 .kid-hunt-start {
   background: #ffe0a6 !important;
@@ -273,6 +319,12 @@
 }
 .hunt-tools a {
   padding: 14px;
+}
+.hunt-tools .hunt-restart {
+  flex-basis: 100%;
+  background: #2e596b;
+  color: #fff0d8;
+  border: 1px solid #8cb7bd;
 }
 .hunt-panel p:empty {
   display: none;

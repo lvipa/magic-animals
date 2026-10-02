@@ -11,7 +11,11 @@ const browser = await chromium.launch({
   executablePath: browserExecutable(),
   args: ['--enable-webgl'],
 });
-const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+const context = await browser.newContext({
+  viewport: { width: 390, height: 664 },
+  hasTouch: true,
+  isMobile: true,
+});
 await isolateTestContext(context);
 // Controlled synthetic MediaStream; real shipped Controller, camera video,
 // GPU renderer, models, timelines and state. No physical-device claim.
@@ -43,7 +47,9 @@ await context.addInitScript(() => {
       requestAnimationFrame(draw);
     }
     draw();
-    return canvas.captureStream(20);
+    const stream = canvas.captureStream(20);
+    window.__lastARStream = stream;
+    return stream;
   };
 });
 const errors = [],
@@ -75,10 +81,47 @@ try {
       throw Error('Phone horizontal overflow');
     results.push({ id, word });
     console.log('PASS unordered AR', word);
+    if (hunt && id === 'cat') {
+      await page.getByRole('button', { name: '🔄 Начать поиск заново' }).tap();
+      await page.waitForTimeout(1400);
+      if (
+        !(await page.locator('.hunt-panel header').innerText()).includes('0 / 8 друзей') ||
+        !(await page.locator('.stars').innerText()).includes('0 / 8')
+      )
+        throw Error('Restart re-counted the still-visible card or left unequal counters');
+      if (
+        !(await page.evaluate(
+          () => window.__lastARStream.getVideoTracks()[0].readyState === 'live',
+        ))
+      )
+        throw Error('Restart closed the camera');
+      for (const again of ['elephant', 'panda', 'cat']) {
+        await page.evaluate(() => window.__showARCard(null));
+        await page.waitForTimeout(2000);
+        await page.evaluate((id) => window.__showARCard(id), again);
+        await page
+          .locator('.speech > div:not(.foxy-chip)')
+          .filter({ hasText: catalog.images.find((card) => card.id === again).word + '!' })
+          .waitFor({ timeout: 30000 });
+      }
+      console.log(
+        'PASS touch restart at 3/8 keeps camera live, waits for a new scan and resets both counters',
+      );
+    }
   }
   if (!(await page.locator(hunt ? '.hunt-panel header' : '.stars').innerText()).includes('8 / 8'))
     throw Error('Eight discovered friends not counted');
   if (errors.length) throw Error(errors.join('\n'));
+  if (hunt) {
+    await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+    await page.locator('.kid-nav').getByRole('link', { name: /Миры/ }).tap();
+    await page.waitForURL(base + '/worlds');
+    if (
+      !(await page.evaluate(() => window.__lastARStream.getVideoTracks()[0].readyState === 'ended'))
+    )
+      throw Error('Bottom menu failed to close camera on navigation');
+    console.log('PASS touch bottom menu above active AR, camera released on navigation');
+  }
   await writeFile(
     `${output}/results.json`,
     JSON.stringify(

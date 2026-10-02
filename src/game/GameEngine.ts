@@ -270,6 +270,12 @@ export class GameEngine {
       this.after(3000, () => this.update({ action: 'idle' }));
     }
   }
+  restartSearch() {
+    this.cancel();
+    this.provider?.setFocus?.(null);
+    animals.forEach((a) => this.provider?.setAppearance(a.id, 0));
+    this.update({ ...initialScene, caption: 'Show any friend!', foxy: 'lookAround' });
+  }
   interact(id: AnimalId) {
     if (this.scene.reveal < 1 || this.scene.animal !== id) return;
     const choices = animalById[id].interactions,

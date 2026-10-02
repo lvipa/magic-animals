@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { audio } from '../audio/AudioManager';
 import { animals, animalById } from '../config/animals';
@@ -19,6 +19,8 @@ import { useAdventure } from '../play/adventure';
 import { learningActions } from '../play/lessons';
 export default function Game({ hunt = false }: { hunt?: boolean }) {
   const world = useAdventure((s) => s.world);
+  const roundFound = useAdventure((s) => s.found);
+  const blockedCard = useRef<import('../config/animals').AnimalId | null>(null);
   const state = useGame((s) => s.state),
     mode = useGame((s) => s.mode),
     send = useGame((s) => s.send),
@@ -89,6 +91,17 @@ export default function Game({ hunt = false }: { hunt?: boolean }) {
     setCameraChoice(useGame.getState().state === 'CAMERA_PERMISSION');
   }, [setMode]);
   const visible = useRuntime((s) => s.visible);
+  useEffect(() => {
+    if (mode !== 'AR_MODE') blockedCard.current = null;
+    if (!visible) {
+      // Ignore brief tracking dropouts while the same card is still held up.
+      const timer = window.setTimeout(() => {
+        blockedCard.current = null;
+      }, 600);
+      return () => window.clearTimeout(timer);
+    }
+  }, [visible, mode]);
+  const foundCount = hunt ? roundFound.length : available.length;
   const step = requestedAnimal(state),
     welcome = state === 'WELCOME',
     active = !welcome;
@@ -109,6 +122,8 @@ export default function Game({ hunt = false }: { hunt?: boolean }) {
     send({ type: 'FREE_PLAY' });
   };
   const foundCard = (id: import('../config/animals').AnimalId) => {
+    if (hunt && mode === 'AR_MODE' && blockedCard.current === id) return;
+    blockedCard.current = null;
     if (hunt) {
       const adventure = useAdventure.getState();
       if (!adventure.found.includes(id)) adventure.collect(id);
@@ -132,7 +147,9 @@ export default function Game({ hunt = false }: { hunt?: boolean }) {
       send({ type: 'CAMERA_READY' });
   }, [active, mode, state, send]);
   return (
-    <main className={`game mode-${mode} ${hunt ? 'hunt-game' : ''}`}>
+    <main
+      className={`game mode-${mode} ${hunt ? 'hunt-game' : ''} ${welcome ? 'welcome-game' : ''}`}
+    >
       {mode === '3D_MODE' && <WorldBackdrop world={world} />}
       <div className="sky-glow" />
       {active && mode === 'AR_MODE' && (
@@ -222,12 +239,12 @@ export default function Game({ hunt = false }: { hunt?: boolean }) {
                 className="stars"
                 aria-label={
                   state === 'FREE_PLAY'
-                    ? `${available.length} of 8 friends found`
+                    ? `${foundCount} of 8 friends found`
                     : `${starCount(state)} of 3 friends found`
                 }
               >
                 {state === 'FREE_PLAY'
-                  ? `${available.length} / 8`
+                  ? `${foundCount} / 8`
                   : [0, 1, 2].map((i) => <span key={i}>{i < starCount(state) ? '★' : '☆'}</span>)}
               </div>
               {step && <img className="animal-badge" src={animalById[step].thumbnail} alt={step} />}
@@ -329,10 +346,9 @@ export default function Game({ hunt = false }: { hunt?: boolean }) {
             active={scene.animal}
             demonstrate={(action) => engine.demonstrate(action)}
             resetScene={() => {
-              engine.enter('FREE_PLAY');
               const tracking = useRuntime.getState();
-              if (mode === 'AR_MODE' && tracking.visible && tracking.target)
-                foundCard(tracking.target);
+              blockedCard.current = mode === 'AR_MODE' && tracking.visible ? tracking.target : null;
+              engine.restartSearch();
             }}
           />
         </>

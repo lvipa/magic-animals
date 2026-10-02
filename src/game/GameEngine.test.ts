@@ -71,6 +71,23 @@ describe('timeline and recognition boundary', () => {
     expect(show.mock.lastCall?.[0].animal).toBe('lion');
     engine.dispose();
   });
+  it('restarts a hunt without immediately reusing the still-visible card or closing its camera', () => {
+    const { engine, show, send } = setup('FREE_PLAY');
+    const setAppearance = vi.fn();
+    engine.attachAR({
+      setAppearance,
+      setFocus: vi.fn(),
+      getTracking: () => ({ target: 'cat', visible: true }),
+    } as unknown as import('../ar/ARProvider').ARProvider);
+    engine.targetFound('cat');
+    send.mockClear();
+    engine.restartSearch();
+    expect(show.mock.lastCall?.[0].animal).toBeNull();
+    expect(show.mock.lastCall?.[0].reveal).toBe(0);
+    expect(send).not.toHaveBeenCalled();
+    expect(setAppearance).toHaveBeenCalledWith('cat', 0);
+    engine.dispose();
+  });
   it('switches all eight cards in any order and cancels the previous sound timeline', () => {
     vi.useFakeTimers();
     const { engine, show, say, send } = setup('FREE_PLAY');

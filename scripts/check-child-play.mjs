@@ -84,7 +84,7 @@ try {
   assert.match(await page.locator('.hunt-panel header').innerText(), /8 \/ 8 друзей/);
   assert.match(await page.locator('.hunt-panel header').innerText(), /8 \/ 8 заданий/);
   pass('Album and eight completed tasks persist through page reload');
-  await page.getByRole('button', { name: '🔄 Новый поиск' }).click();
+  await page.getByRole('button', { name: '🔄 Начать поиск заново' }).click();
   assert.match(await page.locator('.hunt-panel header').innerText(), /0 \/ 8 друзей/);
   assert.match(await page.locator('.hunt-panel header').innerText(), /0 \/ 8 заданий/);
   await page.locator('.hunt-task').waitFor({ state: 'hidden' });
@@ -126,7 +126,17 @@ try {
   await page.locator('.kid-nav').getByRole('link', { name: /Домой/ }).click();
   await page.getByRole('button', { name: 'PLAY', exact: true }).waitFor();
   const box = await page.getByRole('button', { name: 'SCAN ANY CARD · 8 friends' }).boundingBox();
-  assert.ok(box && box.y + box.height < 770, 'Home scan button covered by child menu');
+  await page
+    .getByRole('button', { name: 'SCAN ANY CARD · 8 friends' })
+    .evaluate((el) => el.scrollIntoView({ block: 'center' }));
+  const visibleBox = await page
+    .getByRole('button', { name: 'SCAN ANY CARD · 8 friends' })
+    .boundingBox();
+  const nav = await page.locator('.kid-nav').boundingBox();
+  assert.ok(
+    box && visibleBox && nav && visibleBox.y + visibleBox.height < nav.y,
+    'Home scan button covered by child menu',
+  );
   pass('Home returns to welcome; scan button remains above child menu');
   assert.equal(errors.length, 0, errors.join('\n'));
   assert.ok([...audioRequests].some((url) => url.includes('character-dog-learn-jump.mp3')));
