@@ -1,10 +1,13 @@
 export type SingMode = 'together' | 'echo' | 'concert';
 export const echoPhraseDuration = 12;
+export const phraseStarts = [1, 5.5, 10.1, 14.6, 19.2, 23.6];
+export const phraseEnds = [5.5, 10.1, 14.6, 19.2, 23.6, 28.1];
+export const phraseDuration = (line: number) => phraseEnds[line] - phraseStarts[line];
 export const song = {
-  id: 'twinkle-v1',
+  id: 'twinkle-v2-natural',
   title: 'Twinkle, Twinkle, Little Star',
-  vocal: '/music/twinkle-v1/vocal.mp3',
-  instrumental: '/music/twinkle-v1/instrumental.mp3',
+  vocal: '/music/twinkle-v2-natural/vocal.mp3',
+  instrumental: '/music/twinkle-v2-natural/instrumental.mp3',
   lines: [
     {
       words: ['Twinkle,', 'twinkle,', 'little', 'star,'],
@@ -57,7 +60,7 @@ export const song = {
   ],
 } as const;
 export function songDuration(mode: SingMode) {
-  return mode === 'echo' ? echoPhraseDuration * 6 : 26;
+  return mode === 'echo' ? echoPhraseDuration * 6 : 28.1;
 }
 export function songPhase(time: number, mode: SingMode) {
   const t = Math.max(0, Math.min(songDuration(mode), time));
@@ -65,11 +68,12 @@ export function songPhase(time: number, mode: SingMode) {
   const line =
     mode === 'echo'
       ? Math.min(5, Math.floor(t / echoPhraseDuration))
-      : Math.min(5, Math.max(0, Math.floor((t - 1) / 4)));
-  const local = mode === 'echo' ? t % echoPhraseDuration : Math.max(0, t - (1 + line * 4));
-  const turn = mode === 'echo' && local >= 4 && local < 11.5;
+      : phraseStarts.reduce((result, start, i) => (t >= start ? i : result), 0);
+  const local = mode === 'echo' ? t % echoPhraseDuration : Math.max(0, t - phraseStarts[line]);
+  const duration = phraseDuration(line);
+  const turn = mode === 'echo' && local >= duration && local < 11.5;
   const celebrating = mode === 'echo' && local >= 11.5;
-  const phraseTime = turn ? Math.min(4, local - 4) : local;
+  const phraseTime = ((turn ? Math.min(duration, local - duration) : local) * 4) / duration;
   const word = song.lines[line].beats.reduce(
     (result, beat, i) => (phraseTime >= beat ? i : result),
     -1,
@@ -78,18 +82,23 @@ export function songPhase(time: number, mode: SingMode) {
 }
 export function phraseBeginning(time: number, mode: SingMode) {
   const { line } = songPhase(time, mode);
-  return mode === 'echo' ? line * echoPhraseDuration : 1 + line * 4;
+  return mode === 'echo' ? line * echoPhraseDuration : phraseStarts[line];
 }
 export function songSegments(mode: SingMode) {
-  if (mode !== 'echo') return [{ at: 0, offset: 0, duration: 26, vocal: true }];
+  if (mode !== 'echo') return [{ at: 0, offset: 0, duration: songDuration(mode), vocal: true }];
   // Child response is deliberately silent: the microphone must not reward
   // the accompaniment or a TV speaker as though it were the child's voice.
   return song.lines.flatMap((_, line) => [
-    { at: line * echoPhraseDuration, offset: 1 + line * 4, duration: 4, vocal: true },
+    {
+      at: line * echoPhraseDuration,
+      offset: phraseStarts[line],
+      duration: phraseDuration(line),
+      vocal: true,
+    },
   ]);
 }
 export interface SingSnapshot {
-  song: 'twinkle-v1';
+  song: 'twinkle-v2-natural';
   mode: SingMode;
   time: number;
   playing: boolean;

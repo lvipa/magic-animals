@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+const musicSite = process.env.VITE_GAME_ENTRY === 'sing';
 
 export default defineConfig({
   // Review HTML templates contain build placeholders; scan the app entry only.
@@ -8,6 +9,15 @@ export default defineConfig({
   server: { proxy: { '/tv-socket': { target: 'http://127.0.0.1:8080', ws: true } } },
   plugins: [
     react(),
+    ...(musicSite
+      ? [
+          {
+            name: 'sing-page-title',
+            transformIndexHtml: (html: string) =>
+              html.replace('<title>Magic Animals</title>', '<title>Sing with Milo</title>'),
+          },
+        ]
+      : []),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: [
@@ -16,9 +26,11 @@ export default defineConfig({
         'markers/milo-v2/targets.mind',
       ],
       manifest: {
-        name: 'Magic Animals',
-        short_name: 'Animals',
-        description: 'A little paper card becomes a friend.',
+        name: musicSite ? 'Sing with Milo' : 'Magic Animals',
+        short_name: musicSite ? 'Milo Music' : 'Animals',
+        description: musicSite
+          ? 'Sing English songs with Milo.'
+          : 'A little paper card becomes a friend.',
         start_url: '/',
         scope: '/',
         display: 'standalone',
@@ -33,9 +45,7 @@ export default defineConfig({
       workbox: {
         // The current CAT and tracking targets have immutable/versioned URLs.
         ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/],
-        globPatterns: [
-          '**/*.{js,wasm,css,html,png,svg,mind,mp3,aac,ogg,wav,txt,json,pdf}',
-        ],
+        globPatterns: ['**/*.{js,wasm,css,html,png,svg,mind,mp3,aac,ogg,wav,txt,json,pdf}'],
         // Production review renders are optional online documentation.
         globIgnores: [
           '**/review/**',
@@ -71,7 +81,9 @@ export default defineConfig({
             },
           },
           {
-            urlPattern: ({ url }) => url.origin === self.location.origin && /^\/models\/.*-milo.*\.glb$/.test(url.pathname),
+            urlPattern: ({ url }) =>
+              url.origin === self.location.origin &&
+              /^\/models\/.*-milo.*\.glb$/.test(url.pathname),
             handler: 'CacheFirst',
             options: {
               cacheName: 'animals-models-v1',

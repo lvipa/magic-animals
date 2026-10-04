@@ -110,8 +110,8 @@ function validEvent(string $event, $payload): ?array {
     if (!is_array($payload)) $payload=[];
     if ($event === 'SING_SCENE') {
         $p=$payload;
-        if (($p['song'] ?? null)!=='twinkle-v1' || !in_array($p['mode'] ?? null,['together','echo','concert'],true) ||
-            (!is_int($p['time'] ?? null) && !is_float($p['time'] ?? null)) || !is_finite((float)$p['time']) || $p['time']<0 || $p['time']>(($p['mode']==='echo')?72:26) ||
+        if (!in_array($p['song'] ?? null,['twinkle-v1','twinkle-v2-natural'],true) || !in_array($p['mode'] ?? null,['together','echo','concert'],true) ||
+            (!is_int($p['time'] ?? null) && !is_float($p['time'] ?? null)) || !is_finite((float)$p['time']) || $p['time']<0 || $p['time']>(($p['mode']==='echo')?72:(($p['song']==='twinkle-v1')?26:28.1)) ||
             !is_bool($p['playing'] ?? null) || !is_bool($p['guide'] ?? null) || !is_bool($p['active'] ?? null) ||
             (!is_int($p['sentAt'] ?? null) && !is_float($p['sentAt'] ?? null)) || !is_finite((float)$p['sentAt']) ||
             !is_array($p['stars'] ?? null) || count($p['stars'])>6) return null;

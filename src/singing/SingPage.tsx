@@ -8,6 +8,7 @@ import { SongPlayer } from './SongPlayer';
 import { Microphone } from './Microphone';
 import {
   phraseBeginning,
+  phraseStarts,
   song,
   songDuration,
   songPhase,
@@ -300,7 +301,7 @@ export default function SingPage() {
                 key={i}
                 onClick={() => {
                   changeMode('together');
-                  void play(1 + i * 4, 'together', true);
+                  void play(phraseStarts[i], 'together', true);
                 }}
               >
                 {line.icon} {line.key}
@@ -366,8 +367,8 @@ export default function SingPage() {
           <details>
             <summary>Запись и авторы песни</summary>
             <p>
-              Пока используется обработанная демозапись пения Derrick Coetzee (CC0), а не финальный
-              голос Milo. Jane Taylor — слова; традиционная французская мелодия; новое сопровождение
+              Используется живое пение Derrick Coetzee (CC0) с сохранёнными тембром, дыханием и
+              интонацией. Jane Taylor — слова; традиционная французская мелодия; новое сопровождение
               — Magic Animals.
             </p>
             <a
@@ -386,7 +387,7 @@ export default function SingPage() {
               CC0 1.0
             </a>
             <p>
-              <a href="/music/twinkle-v1/credits.json">Подробные сведения об обработке</a>
+              <a href="/music/twinkle-v2-natural/credits.json">Подробные сведения об обработке</a>
             </p>
           </details>
         </section>

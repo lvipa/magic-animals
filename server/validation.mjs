@@ -113,11 +113,11 @@ export function sceneSnapshot(value) {
 export function gameEvent(event, payload) {
   if (event === 'SING_SCENE') {
     const s = payload;
-    return s?.song === 'twinkle-v1' &&
+    return ['twinkle-v1', 'twinkle-v2-natural'].includes(s?.song) &&
       ['together', 'echo', 'concert'].includes(s.mode) &&
       Number.isFinite(s.time) &&
       s.time >= 0 &&
-      s.time <= (s.mode === 'echo' ? 72 : 26) &&
+      s.time <= (s.mode === 'echo' ? 72 : s.song === 'twinkle-v1' ? 26 : 28.1) &&
       typeof s.playing === 'boolean' &&
       typeof s.guide === 'boolean' &&
       typeof s.active === 'boolean' &&

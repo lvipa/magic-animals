@@ -149,7 +149,7 @@ try {
   assert.equal((await controller.next((m) => m.kind === 'error')).code, 'BAD_EVENT');
   pass('All eight bonus friends and their actions synchronize; unknown characters rejected');
   const singing = {
-    song: 'twinkle-v1',
+    song: 'twinkle-v2-natural',
     mode: 'echo',
     time: 4.5,
     playing: true,

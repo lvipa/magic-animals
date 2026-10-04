@@ -4,7 +4,7 @@ import { chromium } from 'playwright';
 import { createTVServer } from '../server/tv-server.mjs';
 import { isolateTestContext } from './browser-runtime.mjs';
 
-const app = await createTVServer({ port: 0, host: '127.0.0.1' });
+const app = await createTVServer({ port: 0, host: '127.0.0.1', ...(process.env.SING_TEST_ROOT ? {root:process.env.SING_TEST_ROOT} : {}) });
 const base = `http://127.0.0.1:${app.port}`,
   checks = [],
   errors = [];
