@@ -1,0 +1,111 @@
+{
+  "project": "Magic Animals",
+  "saved_on": "2026-10-04",
+  "tag": "magic-animals-snapshot-2026-10-04",
+  "game_code_commit": "35dc86b361468b5f236e20029459e91c51a823b6",
+  "repository": "https://github.com/lvipa/magic-animals",
+  "branch": "codex/milo-blender-handoff",
+  "website": "https://animals.flowlabli.online/",
+  "hosting_checked_on": "2026-10-04",
+  "hosting_status": {
+    "http": 403,
+    "paths": [
+      "/",
+      "/friends",
+      "/tv"
+    ],
+    "page": "Работа сайта приостановлена",
+    "cause": "unknown"
+  },
+  "last_functional_checks_on": "2026-10-02",
+  "checks": [
+    "26 unit tests passed",
+    "TypeScript and ESLint passed",
+    "production build passed",
+    "mobile controls passed in desktop Chromium/WebKit with touch emulation",
+    "real MindAR with synthetic MediaStream recognized eight cards and reset partial hunt without closing camera",
+    "all eight GLB rigs passed long emotions and interrupted sleep transitions"
+  ],
+  "physical_devices_tested": false,
+  "build_fingerprints": [
+    {
+      "path": "index.html",
+      "sha256": "122712cef4d3adbb4d753a0ce91f841af83daf5e991d99fa183a7f0c0b246a09",
+      "bytes": 731
+    },
+    {
+      "path": "sw.js",
+      "sha256": "3eba2047f3883e7a83429672e29fe84d9023622541b3b70dc53b11f4022df592",
+      "bytes": 41984
+    },
+    {
+      "path": "manifest.webmanifest",
+      "sha256": "3a301a7188efb0bc9d60255c77345a9a31ac2830b6fbafda66ed2d6be83904e6",
+      "bytes": 382
+    },
+    {
+      "path": "assets/index-fhZsK30w.js",
+      "sha256": "ccec3d994e62debabfb944258af6217b48fd790ebbd11e2d809e14957d2cabea",
+      "bytes": 1218887
+    },
+    {
+      "path": "assets/index-DwQEGQI2.css",
+      "sha256": "052af62f7741cb8e04ebbbb4114f051d96f99a924821f096375776790527068c",
+      "bytes": 23347
+    }
+  ],
+  "models": [
+    {
+      "id": "foxy",
+      "asset": "foxy-milo-polished-0ae45d1adf57.glb",
+      "sha256": "0ae45d1adf575d93ba75dd63ed8760b0d867cd3f31aa89d44b2dd1a029c5e8fb",
+      "bytes": 7118972
+    },
+    {
+      "id": "cat",
+      "asset": "cat-milo-polished-2be5c4101481.glb",
+      "sha256": "2be5c41014815627c7a355e7125a1107b0fa9dc14d73a8cc8ff7461540185f2e",
+      "bytes": 5531668
+    },
+    {
+      "id": "dog",
+      "asset": "dog-milo-polished-f29b546329c1.glb",
+      "sha256": "f29b546329c11eeb90c8ac1c2a7b5c531e26c569afc98233add9635b3701d106",
+      "bytes": 5090600
+    },
+    {
+      "id": "lion",
+      "asset": "lion-milo-polished-2e580b7a0f2b.glb",
+      "sha256": "2e580b7a0f2be140e6e602d8ce8f374832d5920975eabe9a53c748d91a1b0171",
+      "bytes": 7701964
+    },
+    {
+      "id": "bunny",
+      "asset": "bunny-milo-polished-c336e1a2acc9.glb",
+      "sha256": "c336e1a2acc9405e9bc9ac7999618a98b2b46f4ad93f668b985f2c8a72b4df78",
+      "bytes": 4772880
+    },
+    {
+      "id": "bear",
+      "asset": "bear-milo-polished-4cccc6689e82.glb",
+      "sha256": "4cccc6689e82d47c66c59100bb1c04c4a0bad535008a69019eb281671ae6d067",
+      "bytes": 4755228
+    },
+    {
+      "id": "panda",
+      "asset": "panda-milo-polished-10143b74513e.glb",
+      "sha256": "10143b74513e5610c58d44f00ca948dfe784714e508bd059056e071c1c729ca7",
+      "bytes": 5039100
+    },
+    {
+      "id": "elephant",
+      "asset": "elephant-milo-polished-dcbb7fd942e8.glb",
+      "sha256": "dcbb7fd942e8bf70d43cd22310ae997fd375bd66364eac0db8091fb4d1ef27d8",
+      "bytes": 7311672
+    }
+  ],
+  "marker_catalog_sha256": "cc715b918a68aed5dfbe1b5e13d6667d184201522ac073cfff31d0e29d6d891f",
+  "image_targets_sha256": "d739a4e72b2d167e3af961e8b92da692b8d2ec39fdc9228d2a6613b32c8d474e",
+  "print_pdf_sha256": "1285e7de264be3f988054a216cc4dfa98622c36be8918fea228698a2ca6cf55a",
+  "source_archive": "artifacts/checkpoints/2026-10-04/magic-animals-source.zip"
+}
