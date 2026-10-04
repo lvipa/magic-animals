@@ -1,0 +1,337 @@
+[
+  {
+    "id": "twinkle-studio-v3",
+    "title": "Twinkle, Twinkle, Little Star",
+    "label": "Зажигаем звёзды",
+    "icon": "⭐",
+    "theme": "space",
+    "duration": 45,
+    "mix": "/music/studio-v3/twinkle/mix.mp3",
+    "instrumental": "/music/studio-v3/twinkle/instrumental.mp3",
+    "lines": [
+      {
+        "words": ["Twinkle,", "twinkle,", "little", "star"],
+        "times": [4.24, 6.6, 7.3, 9.1],
+        "start": 4.24,
+        "end": 10.58,
+        "meaning": "Мерцай, мерцай, маленькая звезда",
+        "icon": "⭐",
+        "key": "star",
+        "translation": "звезда"
+      },
+      {
+        "words": ["How", "I", "wonder", "what", "you", "are"],
+        "times": [10.58, 11.82, 12.8, 14.16, 15.08, 16.12],
+        "start": 10.58,
+        "end": 18.28,
+        "meaning": "Как мне интересно, что ты такое!",
+        "icon": "🤔",
+        "key": "wonder",
+        "translation": "удивляться"
+      },
+      {
+        "words": ["Up", "above", "the", "world", "so", "high"],
+        "times": [18.28, 18.74, 20.32, 21.28, 22.04, 22.82],
+        "start": 18.28,
+        "end": 24.22,
+        "meaning": "Так высоко над всем миром",
+        "icon": "🌍",
+        "key": "high",
+        "translation": "высоко"
+      },
+      {
+        "words": ["Like", "a", "diamond", "in", "the", "sky"],
+        "times": [24.22, 25.34, 26.38, 27.76, 28.76, 29.62],
+        "start": 24.22,
+        "end": 31.08,
+        "meaning": "Как бриллиант в небе",
+        "icon": "💎",
+        "key": "sky",
+        "translation": "небо"
+      },
+      {
+        "words": ["Twinkle,", "twinkle,", "little", "star"],
+        "times": [31.08, 32.92, 34.24, 36.06],
+        "start": 31.08,
+        "end": 37.36,
+        "meaning": "Мерцай, мерцай, маленькая звезда",
+        "icon": "⭐",
+        "key": "little",
+        "translation": "маленький"
+      },
+      {
+        "words": ["How", "I", "wonder", "what", "you", "are"],
+        "times": [37.36, 38.8, 39.78, 41.24, 42.12, 43.24],
+        "start": 37.36,
+        "end": 44.9,
+        "meaning": "Как мне интересно, что ты такое!",
+        "icon": "✨",
+        "key": "twinkle",
+        "translation": "мерцать"
+      }
+    ],
+    "concert": {
+      "duration": 29,
+      "phrases": [
+        {
+          "start": 1.0,
+          "end": 5.67,
+          "times": [1.0, 2.74, 3.25, 4.58]
+        },
+        {
+          "start": 5.67,
+          "end": 10.33,
+          "times": [5.67, 6.42, 7.02, 7.84, 8.4, 9.03]
+        },
+        {
+          "start": 10.33,
+          "end": 15.0,
+          "times": [10.33, 10.69, 11.93, 12.69, 13.28, 13.9]
+        },
+        {
+          "start": 15.0,
+          "end": 19.67,
+          "times": [15.0, 15.76, 16.47, 17.41, 18.09, 18.67]
+        },
+        {
+          "start": 19.67,
+          "end": 24.33,
+          "times": [19.67, 21.04, 22.02, 23.37]
+        },
+        {
+          "start": 24.33,
+          "end": 29.0,
+          "times": [24.33, 25.22, 25.83, 26.73, 27.28, 27.97]
+        }
+      ]
+    },
+    "recording": {
+      "author": "Mike Cole / matthewmikemusic",
+      "license": "Pixabay Content License",
+      "licenseURL": "https://pixabay.com/service/license-summary/",
+      "sourcePage": "https://pixabay.com/music/happy-childrens-tunes-twinkle-twinkle-213-233453/",
+      "backingPage": "https://pixabay.com/music/acoustic-group-twinkle-twinkle-instrumental-60seconds-371376/",
+      "sourceURL": "https://cdn.pixabay.com/download/audio/2024/08/18/audio_68e962a021.mp3?filename=matthewmikemusic-twinkle-twinkle__213-233453.mp3",
+      "backingURL": "https://cdn.pixabay.com/download/audio/2025/07/07/audio_cbac3e3e5b.mp3?filename=matthewmikemusic-twinkle-twinkle-instrumental__60seconds-371376.mp3",
+      "clip": 44,
+      "backingClip": 28
+    }
+  },
+  {
+    "id": "abc-studio-v3",
+    "title": "ABC Song",
+    "label": "Поём английский алфавит",
+    "icon": "🔤",
+    "theme": "letters",
+    "duration": 25.12,
+    "mix": "/music/studio-v3/abc/mix.mp3",
+    "instrumental": "/music/studio-v3/abc/instrumental.mp3",
+    "lines": [
+      {
+        "words": ["A", "B", "C", "D", "E", "F", "G"],
+        "times": [1.0, 2.14, 2.54, 3.0, 3.14, 3.84, 3.96],
+        "start": 1.0,
+        "end": 5.24,
+        "meaning": "Буквы от A до G",
+        "icon": "🔤",
+        "key": "A",
+        "translation": "эй"
+      },
+      {
+        "words": ["H", "I", "J", "K", "L", "M", "N", "O", "P"],
+        "times": [5.24, 5.78, 5.9, 6.2, 6.72, 7.24, 7.52, 7.66, 7.78],
+        "start": 5.24,
+        "end": 8.48,
+        "meaning": "Буквы от H до P",
+        "icon": "🔠",
+        "key": "H",
+        "translation": "эйч"
+      },
+      {
+        "words": ["Q", "R", "S", "T", "U", "V"],
+        "times": [8.48, 9.48, 10.08, 10.74, 10.86, 11.6],
+        "start": 8.48,
+        "end": 12.16,
+        "meaning": "Буквы от Q до V",
+        "icon": "📚",
+        "key": "Q",
+        "translation": "кью"
+      },
+      {
+        "words": ["W", "X", "Y", "and", "Z"],
+        "times": [12.16, 12.82, 14.02, 14.66, 14.96],
+        "start": 12.16,
+        "end": 15.8,
+        "meaning": "Буквы W, X, Y и Z",
+        "icon": "🧩",
+        "key": "Z",
+        "translation": "зи"
+      },
+      {
+        "words": ["Now", "I", "know", "my", "ABCs"],
+        "times": [15.8, 16.26, 16.72, 17.18, 17.58],
+        "start": 15.8,
+        "end": 19.5,
+        "meaning": "Теперь я знаю алфавит",
+        "icon": "💡",
+        "key": "know",
+        "translation": "знать"
+      },
+      {
+        "words": ["next", "time", "won't", "you", "sing", "with", "me"],
+        "times": [19.5, 19.8, 20.42, 20.88, 21.2, 21.6, 22.02],
+        "start": 19.5,
+        "end": 25.12,
+        "meaning": "В следующий раз спой со мной",
+        "icon": "🎤",
+        "key": "sing",
+        "translation": "петь"
+      }
+    ],
+    "concert": {
+      "duration": 24,
+      "phrases": [
+        {
+          "start": 1.0,
+          "end": 4.83,
+          "times": [1.0, 2.03, 2.39, 2.81, 2.93, 3.57, 3.68]
+        },
+        {
+          "start": 4.83,
+          "end": 8.67,
+          "times": [4.83, 5.47, 5.61, 5.97, 6.58, 7.2, 7.53, 7.69, 7.84]
+        },
+        {
+          "start": 8.67,
+          "end": 12.5,
+          "times": [8.67, 9.71, 10.34, 11.02, 11.15, 11.92]
+        },
+        {
+          "start": 12.5,
+          "end": 16.33,
+          "times": [12.5, 13.2, 14.46, 15.13, 15.45]
+        },
+        {
+          "start": 16.33,
+          "end": 20.17,
+          "times": [16.33, 16.81, 17.28, 17.76, 18.17]
+        },
+        {
+          "start": 20.17,
+          "end": 24.0,
+          "times": [20.17, 20.37, 20.8, 21.11, 21.33, 21.6, 21.89]
+        }
+      ]
+    },
+    "recording": {
+      "author": "Mike Cole / matthewmikemusic",
+      "license": "Pixabay Content License",
+      "licenseURL": "https://pixabay.com/service/license-summary/",
+      "sourcePage": "https://pixabay.com/music/happy-childrens-tunes-abc-song-male-vocals-30-seconds-373543/",
+      "backingPage": "https://pixabay.com/music/happy-childrens-tunes-abc-song-instrumental-201649/",
+      "sourceURL": "https://cdn.pixabay.com/download/audio/2025/07/12/audio_4207ecaf74.mp3?filename=matthewmikemusic-abc-song-male-vocals__30-seconds-373543.mp3",
+      "backingURL": "https://cdn.pixabay.com/download/audio/2024/04/11/audio_322144122f.mp3?filename=matthewmikemusic-abc-song-instrumental-201649.mp3",
+      "clip": 24.12,
+      "backingClip": 23
+    }
+  },
+  {
+    "id": "spider-studio-v3",
+    "title": "Itsy Bitsy Spider",
+    "label": "Паучок, дождик и солнце",
+    "icon": "🕷️",
+    "theme": "garden",
+    "duration": 35.22,
+    "mix": "/music/studio-v3/spider/mix.mp3",
+    "instrumental": "/music/studio-v3/spider/instrumental.mp3",
+    "lines": [
+      {
+        "words": ["The", "itsy", "bitsy", "spider", "climbed", "up", "the", "water", "spout."],
+        "times": [1.0, 1.76, 2.6, 3.44, 4.46, 5.36, 5.92, 6.54, 7.28],
+        "start": 1.0,
+        "end": 9.14,
+        "meaning": "Маленький паучок забрался вверх по трубе",
+        "icon": "🕷️",
+        "key": "up",
+        "translation": "вверх"
+      },
+      {
+        "words": ["Down", "came", "the", "rain", "and", "it", "washed", "the", "spider", "out."],
+        "times": [9.14, 9.96, 10.72, 11.24, 12.4, 13.14, 13.3, 13.64, 14.18, 15.0],
+        "start": 9.14,
+        "end": 17.06,
+        "meaning": "Пошёл дождь и смыл паучка вниз",
+        "icon": "🌧️",
+        "key": "rain",
+        "translation": "дождь"
+      },
+      {
+        "words": ["Out", "came", "the", "sun", "and", "it", "dried", "up", "all", "the", "rain."],
+        "times": [17.06, 17.64, 18.48, 19.12, 19.76, 20.92, 21.08, 21.6, 22.02, 22.56, 23.02],
+        "start": 17.06,
+        "end": 23.72,
+        "meaning": "Вышло солнце и высушило дождь",
+        "icon": "☀️",
+        "key": "sun",
+        "translation": "солнце"
+      },
+      {
+        "words": [
+          "And",
+          "the",
+          "itsy",
+          "bitsy",
+          "spider",
+          "climbed",
+          "up",
+          "the",
+          "spout",
+          "again."
+        ],
+        "times": [23.72, 24.9, 25.18, 25.96, 26.72, 27.9, 28.72, 29.1, 29.7, 30.3],
+        "start": 23.72,
+        "end": 35.22,
+        "meaning": "Паучок снова забрался вверх",
+        "icon": "🕸️",
+        "key": "again",
+        "translation": "снова"
+      }
+    ],
+    "concert": {
+      "duration": 28.84,
+      "phrases": [
+        {
+          "start": 1.0,
+          "end": 7.96,
+          "times": [1.0, 1.65, 2.37, 3.09, 3.96, 4.73, 5.21, 5.74, 6.37]
+        },
+        {
+          "start": 7.96,
+          "end": 14.92,
+          "times": [7.96, 8.68, 9.35, 9.81, 10.82, 11.48, 11.62, 11.91, 12.39, 13.11]
+        },
+        {
+          "start": 14.92,
+          "end": 21.88,
+          "times": [14.92, 15.53, 16.4, 17.07, 17.74, 18.95, 19.12, 19.66, 20.1, 20.67, 21.15]
+        },
+        {
+          "start": 21.88,
+          "end": 28.84,
+          "times": [21.88, 22.59, 22.76, 23.24, 23.7, 24.41, 24.91, 25.14, 25.5, 25.86]
+        }
+      ]
+    },
+    "recording": {
+      "author": "Mike Cole / matthewmikemusic",
+      "license": "Pixabay Content License",
+      "licenseURL": "https://pixabay.com/service/license-summary/",
+      "sourcePage": "https://pixabay.com/music/happy-childrens-tunes-itsy-bitsy-spider-male-vocals-30-seconds-593278/",
+      "backingPage": "https://pixabay.com/music/happy-childrens-tunes-itsy-bitsy-spider-instrumental-fast-30seconds-593272/",
+      "sourceURL": "https://cdn.pixabay.com/download/audio/2026/08/28/audio_ed64a87432.mp3?filename=matthewmikemusic-itsy-bitsy-spider-male-vocals__30-seconds-593278.mp3",
+      "backingURL": "https://cdn.pixabay.com/download/audio/2026/08/28/audio_f70faffd53.mp3?filename=matthewmikemusic-itsy-bitsy-spider-instrumental-fast__30seconds-593272.mp3",
+      "clip": 34.22,
+      "backingClip": 27.84
+    }
+  }
+]

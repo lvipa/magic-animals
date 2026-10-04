@@ -1,0 +1,20 @@
+{
+  "author": "Mike Cole / matthewmikemusic",
+  "license": "Pixabay Content License",
+  "licenseURL": "https://pixabay.com/service/license-summary/",
+  "sourcePage": "https://pixabay.com/music/happy-childrens-tunes-twinkle-twinkle-213-233453/",
+  "backingPage": "https://pixabay.com/music/acoustic-group-twinkle-twinkle-instrumental-60seconds-371376/",
+  "sourceURL": "https://cdn.pixabay.com/download/audio/2024/08/18/audio_68e962a021.mp3?filename=matthewmikemusic-twinkle-twinkle__213-233453.mp3",
+  "backingURL": "https://cdn.pixabay.com/download/audio/2025/07/07/audio_cbac3e3e5b.mp3?filename=matthewmikemusic-twinkle-twinkle-instrumental__60seconds-371376.mp3",
+  "clip": 44,
+  "backingClip": 28,
+  "song": "Twinkle, Twinkle, Little Star",
+  "sourceSHA256": {
+    "mix": "1fa2bbcdbf33259c6bd6fe1e8d66e900f06553f5362993d395af648732c7b437",
+    "instrumental": "737a873f6de7dad67eb8dfe8dd2a17dfbb272edc25a54ae322ad86b9eec9f33c"
+  },
+  "changes": "Short lesson excerpt; one-second lead-in, short tail fade, loudness normalization, MP3 encoding. Sung performance and its original accompaniment preserved together. Instrumental concert is a separate recording by the same musician.",
+  "usage": "Embedded in interactive animated English lessons. Do not distribute these recordings as a standalone audio pack.",
+  "reference": "https://kolibelnie-pesni.com/media/twinkle-twinkle-little-star",
+  "referenceIncluded": false
+}

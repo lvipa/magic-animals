@@ -1,0 +1,30 @@
+{
+  "twinkle-v1": {
+    "duration": 26,
+    "echo": 72,
+    "lines": 6
+  },
+  "twinkle-v2-natural": {
+    "duration": 28.1,
+    "echo": 72,
+    "lines": 6
+  },
+  "twinkle-studio-v3": {
+    "duration": 45,
+    "concert": 29,
+    "echo": 87.32,
+    "lines": 6
+  },
+  "abc-studio-v3": {
+    "duration": 25.12,
+    "concert": 24,
+    "echo": 54.24,
+    "lines": 6
+  },
+  "spider-studio-v3": {
+    "duration": 35.22,
+    "concert": 28.84,
+    "echo": 72.44,
+    "lines": 4
+  }
+}

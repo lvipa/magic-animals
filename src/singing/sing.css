@@ -54,6 +54,48 @@
   justify-content: space-between;
   gap: 12px;
 }
+.sing-song-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.sing-song-picker button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 6px;
+}
+.sing-song-picker button > span {
+  font-size: 34px;
+}
+.sing-song-picker strong {
+  font-size: 15px;
+}
+.sing-song-picker small {
+  font-size: 11px;
+  font-weight: 400;
+}
+.sing-song-picker button[aria-pressed='true'] {
+  background: #ffe2a8;
+  color: #503c52;
+  border-color: #ffdf99;
+}
+.sing-vocal-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 16px;
+  color: #ffe4ad;
+  font-size: 14px;
+  text-align: center;
+}
+.sing-vocal-status button {
+  padding: 8px 14px;
+}
 .sing-heading h2 {
   font-size: clamp(20px, 3vw, 28px);
   margin: 6px 0 20px;

@@ -391,8 +391,11 @@ export default function TVPage() {
       <div className="tv-hill tv-hill-back" />
       <div className="tv-hill" />
       <div className="brand">
-        {musicSite ? 'SING ' : 'MAGIC '}<strong>{musicSite ? 'WITH MILO' : 'ANIMALS'}</strong>
-        <small>{musicSite ? 'YOUR LITTLE CONCERT, ON THE BIG SCREEN' : 'YOUR FRIENDS, ON THE BIG SCREEN'}</small>
+        {musicSite ? 'SING ' : 'MAGIC '}
+        <strong>{musicSite ? 'WITH MILO' : 'ANIMALS'}</strong>
+        <small>
+          {musicSite ? 'YOUR LITTLE CONCERT, ON THE BIG SCREEN' : 'YOUR FRIENDS, ON THE BIG SCREEN'}
+        </small>
       </div>
       {!sing && (
         <TVScene
@@ -415,7 +418,11 @@ export default function TVPage() {
           <button autoFocus className="large-button" onClick={start}>
             START TV
           </button>
-          <p>{musicSite ? 'Connect your phone, choose a song and sing together.' : 'Use your iPad to find the paper animals.'}</p>
+          <p>
+            {musicSite
+              ? 'Connect your phone, choose a song and sing together.'
+              : 'Use your iPad to find the paper animals.'}
+          </p>
         </section>
       ) : waiting ? (
         <section className="tv-code-panel">

@@ -1,54 +1,79 @@
 import { describe, expect, it } from 'vitest';
+import limits from '../../public/music/song-limits.json';
 import {
+  songs,
   isSingSnapshot,
   phraseBeginning,
-  phraseDuration,
   songDuration,
   songPhase,
   songSegments,
 } from './song';
-describe('Singing rounds', () => {
-  it('leaves every child response silent, including the last one', () => {
-    const segments = songSegments('echo');
-    expect(segments).toHaveLength(6);
-    for (let line = 0; line < 6; line++) {
-      const end = line * 12 + phraseDuration(line);
-      expect(songPhase(end, 'echo')).toMatchObject({ line, turn: true });
-      expect(segments.every((s) => s.at + s.duration <= end || s.at >= line * 12 + 11.5)).toBe(
-        true,
+
+describe('Recorded singing library', () => {
+  for (const song of songs) {
+    it(`${song.title}: recorded phrases leave enough silence for every child answer`, () => {
+      const segments = songSegments('echo', song);
+      expect(segments).toHaveLength(song.lines.length);
+      for (let i = 0; i < segments.length; i++) {
+        const s = segments[i],
+          end = s.at + s.duration;
+        expect(songPhase(end, 'echo', song)).toMatchObject({ line: i, turn: true });
+        const next = segments[i + 1]?.at ?? songDuration('echo', song);
+        expect(next - end).toBeGreaterThanOrEqual(s.duration + 0.99);
+        expect(songPhase(next - 0.25, 'echo', song).celebrating).toBe(true);
+        expect(phraseBeginning(end + 0.1, 'echo', song)).toBe(s.at);
+      }
+      expect(songPhase(songDuration('echo', song), 'echo', song).done).toBe(true);
+    });
+    it(`${song.title}: words match line bounds and TV limits agree with the player`, () => {
+      const limit = limits[song.id as keyof typeof limits];
+      expect(songDuration('together', song)).toBe(limit.duration);
+      expect(songDuration('echo', song)).toBeCloseTo(limit.echo, 3);
+      expect(songDuration('concert', song)).toBeCloseTo(
+        'concert' in limit ? limit.concert! : limit.duration,
+        3,
       );
-      expect(songPhase(line * 12 + 11.7, 'echo')).toMatchObject({ line, celebrating: true });
-    }
-    expect(songPhase(72, 'echo').done).toBe(true);
-  });
-  it('repeats the current phrase rather than resetting the entire song', () => {
-    expect(phraseBeginning(16, 'echo')).toBe(12);
-    expect(phraseBeginning(16, 'together')).toBe(14.6);
-    expect(songPhase(25.9, 'concert').line).toBe(5);
-    expect(songDuration('concert')).toBe(28.1);
-  });
-  it('rejects invalid remote commands and non-finite clock values', () => {
-    const state = {
-      song: 'twinkle-v2-natural',
-      mode: 'echo',
-      time: 5,
-      playing: true,
-      guide: true,
-      stars: [0],
-      sentAt: 123,
-      active: true,
-    };
-    expect(isSingSnapshot(state)).toBe(true);
-    for (const patch of [
-      { time: NaN },
-      { time: 73 },
-      { stars: [6] },
-      { stars: ['0'] },
-      { mode: 'invalid' },
-      { song: 'https://elsewhere/audio.mp3' },
-      { sentAt: Infinity },
-      { active: 1 },
-    ])
-      expect(isSingSnapshot({ ...state, ...patch })).toBe(false);
+      for (const line of song.lines) {
+        expect(line.times.length).toBe(line.words.length);
+        expect(line.times.every((t) => t >= line.start && t < line.end)).toBe(true);
+        expect(line.times).toEqual([...line.times].sort((a, b) => a - b));
+      }
+      const state = {
+        song: song.id,
+        mode: 'together',
+        time: 0,
+        playing: true,
+        guide: true,
+        stars: [0],
+        sentAt: 123,
+        active: true,
+      };
+      expect(isSingSnapshot(state)).toBe(true);
+      for (const patch of [
+        { song: 'https://elsewhere/audio.mp3' },
+        { song: '__proto__' },
+        { time: NaN },
+        { time: song.duration + 1 },
+        { stars: [song.lines.length] },
+        { stars: ['0'] },
+        { sentAt: Infinity },
+        { active: 1 },
+      ])
+        expect(isSingSnapshot({ ...state, ...patch })).toBe(false);
+    });
+  }
+  it('keeps an already connected previous-release TV compatible', () => {
+    expect(
+      isSingSnapshot({
+        song: 'twinkle-v2-natural',
+        mode: 'echo',
+        time: 72,
+        playing: false,
+        guide: true,
+        stars: [],
+        sentAt: 123,
+        active: true,
+      }),
+    ).toBe(true);
   });
 });

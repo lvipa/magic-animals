@@ -1,5 +1,8 @@
 import { readFileSync } from 'node:fs';
 export const animalIds = ['cat', 'dog', 'lion', 'foxy', 'bunny', 'bear', 'panda', 'elephant'];
+const songLimits = JSON.parse(
+  readFileSync(new URL('../public/music/song-limits.json', import.meta.url), 'utf8'),
+);
 const states = [
   'BOOT',
   'WELCOME',
@@ -113,18 +116,25 @@ export function sceneSnapshot(value) {
 export function gameEvent(event, payload) {
   if (event === 'SING_SCENE') {
     const s = payload;
-    return ['twinkle-v1', 'twinkle-v2-natural'].includes(s?.song) &&
+    const limit = s && Object.hasOwn(songLimits, s.song) ? songLimits[s.song] : null;
+    return !!limit &&
       ['together', 'echo', 'concert'].includes(s.mode) &&
       Number.isFinite(s.time) &&
       s.time >= 0 &&
-      s.time <= (s.mode === 'echo' ? 72 : s.song === 'twinkle-v1' ? 26 : 28.1) &&
+      s.time <=
+        (s.mode === 'echo'
+          ? limit.echo
+          : s.mode === 'concert'
+            ? (limit.concert ?? limit.duration)
+            : limit.duration) +
+          0.001 &&
       typeof s.playing === 'boolean' &&
       typeof s.guide === 'boolean' &&
       typeof s.active === 'boolean' &&
       Number.isFinite(s.sentAt) &&
       Array.isArray(s.stars) &&
-      s.stars.length <= 6 &&
-      s.stars.every((n) => Number.isInteger(n) && n >= 0 && n < 6)
+      s.stars.length <= limit.lines &&
+      s.stars.every((n) => Number.isInteger(n) && n >= 0 && n < limit.lines)
       ? {
           song: s.song,
           mode: s.mode,

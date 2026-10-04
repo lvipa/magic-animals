@@ -1,0 +1,20 @@
+{
+  "author": "Mike Cole / matthewmikemusic",
+  "license": "Pixabay Content License",
+  "licenseURL": "https://pixabay.com/service/license-summary/",
+  "sourcePage": "https://pixabay.com/music/happy-childrens-tunes-itsy-bitsy-spider-male-vocals-30-seconds-593278/",
+  "backingPage": "https://pixabay.com/music/happy-childrens-tunes-itsy-bitsy-spider-instrumental-fast-30seconds-593272/",
+  "sourceURL": "https://cdn.pixabay.com/download/audio/2026/08/28/audio_ed64a87432.mp3?filename=matthewmikemusic-itsy-bitsy-spider-male-vocals__30-seconds-593278.mp3",
+  "backingURL": "https://cdn.pixabay.com/download/audio/2026/08/28/audio_f70faffd53.mp3?filename=matthewmikemusic-itsy-bitsy-spider-instrumental-fast__30seconds-593272.mp3",
+  "clip": 34.22,
+  "backingClip": 27.84,
+  "song": "Itsy Bitsy Spider",
+  "sourceSHA256": {
+    "mix": "2b378873386eef58c91677ebef9fb01b92d7189d85b57d56e67f2f0c448ec3ba",
+    "instrumental": "994199e9d056dca198600c8aeda124e7c802ffa273f848acfdd1d056ed630a4c"
+  },
+  "changes": "Short lesson excerpt; one-second lead-in, short tail fade, loudness normalization, MP3 encoding. Sung performance and its original accompaniment preserved together. Instrumental concert is a separate recording by the same musician.",
+  "usage": "Embedded in interactive animated English lessons. Do not distribute these recordings as a standalone audio pack.",
+  "reference": null,
+  "referenceIncluded": false
+}

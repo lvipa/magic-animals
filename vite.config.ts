@@ -49,6 +49,7 @@ export default defineConfig({
         // Production review renders are optional online documentation.
         globIgnores: [
           '**/review/**',
+          'music/twinkle-v*/*.mp3',
           'markers/milo-v2/*.svg',
           'models/cat.glb',
           'models/cat-studio.glb',

@@ -18,6 +18,7 @@ srv-it-ai-gpu.txt
 *.blend2
 artifacts/
 public/review/milo-incoming/
+public/music/studio-v3/**/*.mp3
 *_TEST_RESULTS.json
 TEST_REPORT.md
 scripts/hosting*.py

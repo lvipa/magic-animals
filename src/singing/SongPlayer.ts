@@ -1,12 +1,20 @@
-import { song, songDuration, songSegments, type SingMode } from './song';
+import {
+  song as defaultSong,
+  songDuration,
+  songSegments,
+  type SingMode,
+  type SongDefinition,
+} from './song';
 
 /** Both stems and karaoke use one AudioContext clock, including pause/seek. */
 export class SongPlayer {
   private context: AudioContext | null = null;
   private buffers: AudioBuffer[] = [];
   private loading: Promise<void> | null = null;
+  private download: AbortController | null = null;
   private sources: AudioBufferSourceNode[] = [];
   private vocalGain: GainNode | null = null;
+  private backingGain: GainNode | null = null;
   private master: GainNode | null = null;
   private analyser: AnalyserNode | null = null;
   private samples = new Uint8Array(256);
@@ -18,6 +26,7 @@ export class SongPlayer {
   mode: SingMode = 'together';
   guide = true;
   muted = false;
+  constructor(readonly song: SongDefinition = defaultSong) {}
   unlock() {
     this.disposed = false;
     if (!this.context) {
@@ -26,6 +35,8 @@ export class SongPlayer {
       this.master.gain.value = 0.8;
       this.master.connect(this.context.destination);
       this.vocalGain = this.context.createGain();
+      this.backingGain = this.context.createGain();
+      this.backingGain.connect(this.master);
       this.analyser = this.context.createAnalyser();
       this.analyser.fftSize = 256;
       this.vocalGain.connect(this.analyser);
@@ -36,11 +47,14 @@ export class SongPlayer {
   async load() {
     if (this.buffers.length === 2) return;
     if (!this.loading) {
+      const context = this.context!;
+      this.download = new AbortController();
+      const signal = this.download.signal;
       this.loading = Promise.all(
-        [song.vocal, song.instrumental].map(async (url) => {
-          const response = await fetch(url);
+        [this.song.mix, this.song.instrumental].map(async (url) => {
+          const response = await fetch(url, { signal });
           if (!response.ok) throw new Error('Не удалось загрузить музыку. Проверь подключение.');
-          return this.context!.decodeAudioData(await response.arrayBuffer());
+          return context.decodeAudioData(await response.arrayBuffer());
         }),
       )
         .then((buffers) => {
@@ -54,13 +68,15 @@ export class SongPlayer {
   }
   get time() {
     return Math.min(
-      songDuration(this.mode),
+      songDuration(this.mode, this.song),
       this.offset + (this.running ? Math.max(0, this.context!.currentTime - this.anchor) : 0),
     );
   }
   setGuide(value: boolean) {
     this.guide = value;
     if (this.vocalGain) this.vocalGain.gain.value = value ? 0.85 : 0;
+    // The sung mix already has accompaniment. Never play two backing tracks.
+    if (this.backingGain) this.backingGain.gain.value = this.song.legacyStems || !value ? 0.85 : 0;
   }
   setMuted(value: boolean) {
     this.muted = value;
@@ -73,19 +89,19 @@ export class SongPlayer {
     await this.load();
     if (this.disposed || generation !== this.generation) return false;
     this.mode = mode;
-    this.offset = Math.max(0, Math.min(songDuration(mode), position));
+    this.offset = Math.max(0, Math.min(songDuration(mode, this.song), position));
     this.anchor = this.context!.currentTime + 0.04;
     this.running = true;
     this.setGuide(this.guide);
     this.setMuted(this.muted);
-    for (const segment of songSegments(mode)) {
+    for (const segment of songSegments(mode, this.song)) {
       const skipped = Math.max(0, this.offset - segment.at);
       if (skipped >= segment.duration) continue;
       for (const stem of [0, 1]) {
         if (stem === 0 && !segment.vocal) continue;
         const source = this.context!.createBufferSource();
         source.buffer = this.buffers[stem];
-        source.connect(stem === 0 ? this.vocalGain! : this.master!);
+        source.connect(stem === 0 ? this.vocalGain! : this.backingGain!);
         const available = Math.min(
           segment.duration - skipped,
           source.buffer.duration - segment.offset - skipped,
@@ -114,7 +130,7 @@ export class SongPlayer {
   seek(position: number, mode = this.mode) {
     this.pause();
     this.mode = mode;
-    this.offset = Math.max(0, Math.min(songDuration(mode), position));
+    this.offset = Math.max(0, Math.min(songDuration(mode, this.song), position));
   }
   mouthLevel = () => {
     if (!this.running || !this.guide || !this.analyser) return 0;
@@ -124,11 +140,13 @@ export class SongPlayer {
   };
   dispose() {
     this.disposed = true;
+    this.download?.abort();
     this.pause();
     void this.context?.close();
     this.context = null;
     this.master = null;
     this.vocalGain = null;
+    this.backingGain = null;
     this.analyser = null;
   }
 }

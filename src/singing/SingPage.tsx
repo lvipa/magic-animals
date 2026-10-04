@@ -8,8 +8,8 @@ import { SongPlayer } from './SongPlayer';
 import { Microphone } from './Microphone';
 import {
   phraseBeginning,
-  phraseStarts,
-  song,
+  song as defaultSong,
+  songs,
   songDuration,
   songPhase,
   type SingMode,
@@ -21,10 +21,11 @@ import './sing.css';
 const modes = [
   { id: 'together', icon: '🎶', label: 'Пой вместе', detail: 'Milo поёт, а ты подпеваешь' },
   { id: 'echo', icon: '🎤', label: 'Повтори', detail: 'Послушай строку и спой сам' },
-  { id: 'concert', icon: '🌟', label: 'Мой концерт', detail: 'Твой голос и музыка' },
+  { id: 'concert', icon: '🌟', label: 'Без вокала', detail: 'Поёшь сам под музыку' },
 ] as const;
 export default function SingPage() {
-  const player = useMemo(() => new SongPlayer(), []),
+  const [song, setSong] = useState(defaultSong);
+  const player = useMemo(() => new SongPlayer(song), [song]),
     mic = useMemo(() => new Microphone(), []);
   const bridge = useMemo(() => getTVBridge(), []);
   const connection = useSyncExternalStore(bridge.subscribe, bridge.getStatus);
@@ -62,7 +63,7 @@ export default function SingPage() {
       sentAt: bridge.serverTime(),
       active: true,
     } satisfies SingSnapshot);
-  }, [bridge, player]);
+  }, [bridge, player, song]);
   const pause = useCallback(() => {
     request.current++;
     player.pause();
@@ -77,7 +78,7 @@ export default function SingPage() {
   const play = async (position = time, nextMode = mode, withGuide = guide) => {
     if (position === 0) {
       completed.current = false;
-      if (songPhase(time, mode).done) setStars([]);
+      if (songPhase(time, mode, song).done) setStars([]);
     }
     const id = ++request.current;
     audio.stop();
@@ -122,7 +123,7 @@ export default function SingPage() {
         active: false,
       });
     };
-  }, [player, mic, pause, bridge]);
+  }, [player, mic, pause, bridge, song]);
   useEffect(() => {
     publish();
     const timer = setInterval(publish, 2000);
@@ -134,7 +135,7 @@ export default function SingPage() {
       last = 0;
     const tick = (now: number) => {
       const t = player.time,
-        phase = songPhase(t, mode);
+        phase = songPhase(t, mode, song);
       if (now - last > 70) {
         setTime(t);
         setLevel(micOn && phase.turn ? mic.level() : 0);
@@ -146,7 +147,7 @@ export default function SingPage() {
       } else voiced.current = 0;
       if (phase.done) {
         pause();
-        setTime(songDuration(mode));
+        setTime(songDuration(mode, song));
         if (!completed.current) {
           completed.current = true;
           setConcerts((n) => {
@@ -164,8 +165,8 @@ export default function SingPage() {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [playing, mode, player, mic, micOn, addStar, pause]);
-  const phase = songPhase(time, mode);
+  }, [playing, mode, player, mic, micOn, addStar, pause, song]);
+  const phase = songPhase(time, mode, song);
   const changeMode = (next: SingMode) => {
     pause();
     player.seek(0, next);
@@ -205,13 +206,41 @@ export default function SingPage() {
         </div>
         <FullscreenButton />
       </header>
+      <div className="sing-song-picker" role="group" aria-label="Выбери песенку">
+        {songs.map((s) => (
+          <button
+            key={s.id}
+            aria-pressed={song.id === s.id}
+            onClick={() => {
+              if (song.id === s.id) return;
+              pause();
+              setSong(s);
+              setTime(0);
+              setMode('together');
+              setGuide(true);
+              setStars([]);
+              setMicOn(false);
+              setError('');
+              completed.current = false;
+            }}
+          >
+            <span>{s.icon}</span>
+            <strong>
+              {s.title === 'Twinkle, Twinkle, Little Star' ? 'Twinkle Star' : s.title}
+            </strong>
+            <small>{s.label}</small>
+          </button>
+        ))}
+      </div>
       <div className="sing-heading">
         <div>
-          <span>⭐ Песня о маленькой звезде</span>
+          <span>
+            {song.icon} {song.label}
+          </span>
           <h2>{song.title}</h2>
         </div>
         <span className="sing-earned" aria-label={`${stars.length} звёзд`}>
-          ★ {stars.length}/6
+          ★ {stars.length}/{song.lines.length}
         </span>
       </div>
       <div className="sing-mode-picker" role="group" aria-label="Режим пения">
@@ -223,7 +252,14 @@ export default function SingPage() {
           </button>
         ))}
       </div>
+      <div className="sing-vocal-status">
+        {guide
+          ? '🎙️ Песня с вокалом — слушай и подпевай'
+          : '🎼 Сейчас музыка без вокала — поёшь ты'}
+        {!guide && <button onClick={() => changeMode('together')}>🎙️ Вернуть пение</button>}
+      </div>
       <SingStage
+        song={song}
         time={time}
         mode={mode}
         playing={playing}
@@ -231,7 +267,7 @@ export default function SingPage() {
         mouthLevel={player.mouthLevel}
         level={level}
         onStar={(line) => {
-          if (playing && line === phase.line) addStar(line);
+          if (playing && !phase.intro && !phase.done && line === phase.line) addStar(line);
         }}
       />
       <div className="sing-status" role="status">
@@ -251,12 +287,12 @@ export default function SingPage() {
                     ? '✨ Молодец, что попробовал!'
                     : '🎶 Подпевай Milo!'}
       </div>
-      <SingLyrics time={time} mode={mode} />
+      <SingLyrics song={song} time={time} mode={mode} />
       <progress
         className="sing-progress"
         aria-label="Ход песни"
         value={time}
-        max={songDuration(mode)}
+        max={songDuration(mode, song)}
       />
       <div className="sing-controls">
         <button
@@ -278,13 +314,13 @@ export default function SingPage() {
           disabled={loading}
           onClick={() => {
             completed.current = false;
-            void play(phraseBeginning(time, mode));
+            void play(phraseBeginning(time, mode, song));
           }}
         >
           ↻ Ещё строку
         </button>
         <button
-          disabled={!playing || (!phase.turn && mode === 'echo')}
+          disabled={!playing || phase.intro || phase.done || (!phase.turn && mode === 'echo')}
           onClick={() => addStar(phase.line)}
         >
           ⭐ Спел!
@@ -294,14 +330,14 @@ export default function SingPage() {
         <section className="sing-finish">
           <span>🌟</span>
           <h2>Твоя звёздная сцена!</h2>
-          <p>Мы спели песню о звезде. Тапни звёздочку — вспомни слово.</p>
+          <p>Мы спели {song.title}! Выбери картинку — повтори строку.</p>
           <div>
             {song.lines.map((line, i) => (
               <button
                 key={i}
                 onClick={() => {
                   changeMode('together');
-                  void play(phraseStarts[i], 'together', true);
+                  void play(song.lines[i].start, 'together', true);
                 }}
               >
                 {line.icon} {line.key}
@@ -341,11 +377,10 @@ export default function SingPage() {
               type="checkbox"
               checked={guide}
               onChange={(e) => {
-                setGuide(e.target.checked);
-                player.setGuide(e.target.checked);
+                changeMode(e.target.checked ? 'together' : 'concert');
               }}
             />{' '}
-            Голос подсказки
+            Певческий вокал (смена режима начинает песню сначала)
           </label>
           <button disabled={micPending} onClick={() => void toggleMic()}>
             {micPending
@@ -367,27 +402,26 @@ export default function SingPage() {
           <details>
             <summary>Запись и авторы песни</summary>
             <p>
-              Используется живое пение Derrick Coetzee (CC0) с сохранёнными тембром, дыханием и
-              интонацией. Jane Taylor — слова; традиционная французская мелодия; новое сопровождение
-              — Magic Animals.
+              Запись: {song.recording.author}. Поём под оригинальный аккомпанемент этой записи.
+              Режим «Без вокала» использует отдельное инструментальное исполнение того же музыканта.
             </p>
-            <a
-              href="https://commons.wikimedia.org/wiki/File:Twinkle_Twinkle_Little_Star_-_sung_with_full_lyrics.ogg"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a href={song.recording.sourcePage} target="_blank" rel="noreferrer">
               Источник вокала
             </a>{' '}
             ·{' '}
-            <a
-              href="https://creativecommons.org/publicdomain/zero/1.0/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              CC0 1.0
+            <a href={song.recording.licenseURL} target="_blank" rel="noreferrer">
+              {song.recording.license}
             </a>
             <p>
-              <a href="/music/twinkle-v2-natural/credits.json">Подробные сведения об обработке</a>
+              <a href={song.mix.replace('mix.mp3', 'credits.json')}>Запись и источники</a>
+              {' · '}
+              <a
+                href="https://kolibelnie-pesni.com/media/twinkle-twinkle-little-star"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Пример, выбранный родителем
+              </a>
             </p>
           </details>
         </section>
