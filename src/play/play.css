@@ -19,6 +19,13 @@ html {
   pointer-events: auto;
   isolation: isolate;
 }
+.kid-nav.kid-nav-flow {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  margin-top: 30px;
+  border-radius: 24px;
+}
 .kid-nav a {
   display: flex;
   flex: 1;

@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { VideoSongPlayer } from './VideoSongPlayer';
-export function OfficialSongVideo({ player }: { player: VideoSongPlayer }) {
+export function OfficialSongVideo({
+  player,
+  onAudio,
+}: {
+  player: VideoSongPlayer;
+  onAudio: () => void;
+}) {
   const frame = useRef<HTMLIFrameElement>(null);
   const [error, setError] = useState('');
   useEffect(() => {
@@ -28,7 +34,8 @@ export function OfficialSongVideo({ player }: { player: VideoSongPlayer }) {
           {error}{' '}
           <a href={player.song.recording.sourcePage} target="_blank" rel="noreferrer">
             Открыть источник
-          </a>
+          </a>{' '}
+          <button onClick={onAudio}>⭐ Петь Twinkle</button>
         </p>
       )}
     </section>

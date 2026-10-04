@@ -65,6 +65,7 @@ export class VideoSongPlayer {
   private operation = 0;
   private readyTimeout?: number;
   private cancelReady?: () => void;
+  private polling?: number;
   private position = 0;
   private finished = false;
   private disposed = false;
@@ -109,10 +110,15 @@ export class VideoSongPlayer {
                 this.cancelReady = undefined;
                 resolve();
                 this.changed();
+                // Native iframe controls also seek while paused. Keep the app clock
+                // current even when React's playing animation loop is stopped.
+                this.polling = window.setInterval(() => {
+                  if (current()) this.changed();
+                }, 150);
               },
               onStateChange: ({ data }) => {
                 if (!current()) return;
-                if (data === 0) this.finished = true;
+                this.finished = data === 0;
                 if (data === 1) this.error = '';
                 this.changed();
               },
@@ -189,6 +195,7 @@ export class VideoSongPlayer {
     this.generation++;
     this.operation++;
     window.clearTimeout(this.readyTimeout);
+    window.clearInterval(this.polling);
     this.cancelReady?.();
     this.cancelReady = undefined;
     this.embedded?.destroy();

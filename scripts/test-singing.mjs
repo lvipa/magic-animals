@@ -206,12 +206,11 @@ try {
   await page.getByRole('button', { name: 'Двери', exact: false }).click();
   await tv.locator('.sing-tv').waitFor();
   await tv.getByText('open and shut', { exact: false }).first().waitFor();
-  await writeFile('artifacts/singing/iframe-debug.html', await page.content());
   const frame = page.locator('.sing-official-video iframe');
   assert.match(await frame.getAttribute('src'), /9UasekNr8KI/);
   const frameBox = await frame.boundingBox();
   assert.ok(frameBox.width >= 200 && frameBox.height >= 200);
-  await page.getByRole('button', { name: '▶ Петь!', exact: true }).click();
+  await page.getByRole('button', { name: /▶ (Петь!|Продолжить)/ }).click();
   await page.getByRole('button', { name: '⏸ Пауза', exact: true }).waitFor();
   await page.waitForFunction(() => document.querySelector('.sing-progress').max === 195);
   await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
@@ -220,6 +219,124 @@ try {
   pass(
     'TV pairing/reload preserve bus action and actual duration; official embed is visible and >=200px (mock API)',
   );
+  await page.setViewportSize({ width: 844, height: 390 });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  const unobscured = await page.evaluate(() => {
+    const video = document.querySelector('.sing-official-video iframe').getBoundingClientRect();
+    return ['.sing-controls', '.kid-nav'].every((selector) => {
+      const other = document.querySelector(selector).getBoundingClientRect();
+      return !(
+        other.left < video.right &&
+        other.right > video.left &&
+        other.top < video.bottom &&
+        other.bottom > video.top
+      );
+    });
+  });
+  assert.equal(unobscured, true);
+  await page.screenshot({ path: 'artifacts/singing/video-landscape-fixed.png', fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.evaluate(() => {
+    const video = window.__videos.at(-1);
+    video.position = 195;
+    video.state = 0;
+    video.events.onStateChange({ data: 0 });
+  });
+  await page.getByRole('button', { name: '🎶 Ещё концерт!', exact: true }).waitFor();
+  await page.evaluate(() => {
+    const video = window.__videos.at(-1);
+    video.seekTo(0);
+    video.playVideo();
+  });
+  await page.waitForFunction(() => document.querySelector('.sing-progress').value < 2);
+  await page.getByRole('button', { name: '⏸ Пауза', exact: true }).waitFor();
+  await page.evaluate(() => {
+    const video = window.__videos.at(-1);
+    video.pauseVideo();
+    video.seekTo(70);
+  });
+  await page.waitForFunction(
+    () => Math.abs(document.querySelector('.sing-progress').value - 70) < 0.1,
+  );
+  await page.getByText('beep beep beep', { exact: false }).first().waitFor();
+  await page.evaluate(() => {
+    const video = window.__videos.at(-1);
+    video.seekTo(92);
+    video.playVideo();
+  });
+  await page.waitForFunction(() =>
+    document
+      .querySelector('.music-activity button[aria-pressed="true"]')
+      ?.textContent.includes('Прыгаем'),
+  );
+  await page.getByRole('button', { name: 'Прыгаем', exact: false }).evaluate((button) => {
+    if (button.getAttribute('aria-pressed') !== 'true')
+      throw new Error('Manual interaction froze automatic timing');
+  });
+  await page.getByLabel('Сначала', { exact: true }).click();
+  await page.waitForFunction(() => document.querySelector('.sing-progress').value < 2);
+  await page.getByRole('button', { name: '⏸ Пауза', exact: true }).waitFor();
+  await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
+  pass(
+    'Landscape video is unobscured; iframe replay after ending, paused seek and verse changes restore the same app clock; restart plays immediately',
+  );
+  await page.getByRole('button', { name: '⚙ Для взрослых', exact: true }).click();
+  await page.getByText('Подстроить движения под это исполнение', { exact: true }).click();
+  await page.getByRole('button', { name: 'Начать разметку', exact: true }).click();
+  for (const [at, label] of [
+    [12, 'Двери'],
+    [45, 'Дворники'],
+    [80, 'Двери'],
+  ]) {
+    await page.evaluate((at) => window.__videos.at(-1).seekTo(at), at);
+    await page.waitForFunction(
+      (at) => Math.abs(document.querySelector('.sing-progress').value - at) < 0.1,
+      at,
+    );
+    await page.getByRole('button', { name: label, exact: false }).click();
+    assert.equal(await page.evaluate(() => window.__videos.at(-1).position), at);
+  }
+  await page.getByRole('button', { name: 'Сохранить метки (3)', exact: true }).click();
+  for (const [at, label] of [
+    [46, 'Дворники'],
+    [81, 'Двери'],
+    [13, 'Двери'],
+  ]) {
+    await page.evaluate((at) => window.__videos.at(-1).seekTo(at), at);
+    await page.waitForFunction(
+      (label) =>
+        document
+          .querySelector('.music-activity button[aria-pressed="true"]')
+          ?.textContent.includes(label),
+      label,
+    );
+    await tv
+      .getByText(label === 'Дворники' ? 'swish swish swish' : 'open and shut', { exact: false })
+      .first()
+      .waitFor();
+  }
+  assert.deepEqual(
+    await page.evaluate(() => JSON.parse(localStorage.getItem('milo-video-cues-v1:9UasekNr8KI'))),
+    [
+      { time: 12, choice: 1 },
+      { time: 45, choice: 2 },
+      { time: 80, choice: 1 },
+    ],
+  );
+  pass(
+    'Gesture marks save actual iframe times without seeking, follow repeated actions/rewinds and reach TV',
+  );
+  await page
+    .getByRole('button', { name: '⬇ Сохранить Twinkle и ABC заранее', exact: true })
+    .click();
+  await page.getByText('Twinkle и ABC сохранены.', { exact: false }).waitFor();
+  assert.equal(
+    await page.evaluate(
+      async () => (await (await caches.open('milo-music-full-v4')).keys()).length,
+    ),
+    4,
+  );
+  pass('Offline-save downloads the four authorized full audio stems into the PWA music cache');
   for (const [title, action, expected] of [
     ['Old MacDonald', 'Лошадка', 'horse'],
     ['If You’re Happy', 'Хлопай', 'clap your hands'],

@@ -292,13 +292,14 @@
   gap: 12px;
   justify-content: center;
   margin-top: 12px;
-  position: sticky;
-  bottom: calc(92px + env(safe-area-inset-bottom));
-  z-index: 3;
+  position: static;
   padding: 8px;
   border-radius: 22px;
   background: #173449ef;
   box-shadow: 0 5px 20px #071a2a40;
+}
+.sing-video-page .sing-official-video {
+  scroll-margin-bottom: 12px;
 }
 .sing-controls button {
   flex: 0;

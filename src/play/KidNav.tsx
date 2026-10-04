@@ -3,14 +3,13 @@ import { createPortal } from 'react-dom';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useGame } from '../storage/store';
 import './play.css';
-export function KidNav() {
+export function KidNav({ inFlow = false }: { inFlow?: boolean }) {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [pathname]);
-  // Keep touch navigation outside the clipped, composited camera/WebGL scene.
-  return createPortal(
-    <nav className="kid-nav" aria-label="Детское меню">
+  const navigation = (
+    <nav className={`kid-nav${inFlow ? ' kid-nav-flow' : ''}`} aria-label="Детское меню">
       <NavLink to="/" end onClick={() => useGame.getState().send({ type: 'HOME' })}>
         <span>🏠</span>Домой
       </NavLink>
@@ -29,7 +28,9 @@ export function KidNav() {
       <NavLink to="/connect-tv">
         <span>📺</span>TV
       </NavLink>
-    </nav>,
-    document.body,
+    </nav>
   );
+  // Camera scenes need an external portal. Video lessons use normal document flow
+  // so the menu cannot cover any part of the official player in landscape.
+  return inFlow ? navigation : createPortal(navigation, document.body);
 }

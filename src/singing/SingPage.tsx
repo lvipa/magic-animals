@@ -10,6 +10,7 @@ import { VideoSongPlayer } from './VideoSongPlayer';
 import { OfficialSongVideo } from './OfficialSongVideo';
 import { MusicActivity } from './MusicActivity';
 import { activityOptions, automaticActivityChoice, farmFriends } from './activities';
+import { loadCues, markedChoice, saveCues, type ActivityCue } from './VideoTiming';
 import {
   phraseBeginning,
   song as defaultSong,
@@ -57,6 +58,11 @@ export default function SingPage() {
         return 0;
       }
     });
+  const [offlineSaving, setOfflineSaving] = useState(false);
+  const [offlineInfo, setOfflineInfo] = useState('');
+  const [cues, setCues] = useState<ActivityCue[]>(() => loadCues(defaultSong));
+  const [marking, setMarking] = useState(false);
+  const [timingInfo, setTimingInfo] = useState('');
   const alive = useRef(true),
     request = useRef(0),
     voiced = useRef(0),
@@ -98,7 +104,7 @@ export default function SingPage() {
       player.setGuide(withGuide);
       if ((await player.play(nextMode, position)) && alive.current && id === request.current) {
         setTime(position);
-        setPlaying(true);
+        if (!(player instanceof VideoSongPlayer)) setPlaying(true);
       }
     } catch {
       if (alive.current && id === request.current)
@@ -139,7 +145,8 @@ export default function SingPage() {
     return player.subscribe(() => {
       setPlaying(player.isPlaying);
       setTime(player.time);
-      if (player.error) setError(player.error);
+      setError(player.error);
+      if (!player.ended && player.time < player.duration - 1) completed.current = false;
       if (player.ended && !completed.current) {
         completed.current = true;
         setConcerts((n) => {
@@ -237,6 +244,9 @@ export default function SingPage() {
     setBeat(0);
     setError('');
     setPicker(false);
+    setCues(loadCues(s));
+    setMarking(false);
+    setTimingInfo('');
     completed.current = false;
     window.scrollTo({ top: 0 });
   };
@@ -244,8 +254,19 @@ export default function SingPage() {
     setChoice(index);
     setBeat((n) => Math.min(100000, n + 1));
     addStar(Math.min(index, song.lines.length - 1));
-    if (song.activity === 'farm') {
-      const at = farmFriends[index].at;
+    if (marking) {
+      const at = Math.round(player.time * 100) / 100;
+      setCues((previous) =>
+        [...previous.filter((cue) => Math.abs(cue.time - at) > 0.15), { time: at, choice: index }]
+          .sort((a, b) => a.time - b.time)
+          .slice(0, 1000),
+      );
+      return;
+    }
+    if (song.video) {
+      const at =
+        cues.find((cue) => cue.choice === index)?.time ??
+        (song.activity === 'farm' ? farmFriends[index].at : song.lines[index].start);
       completed.current = false;
       if (playing) void play(at);
       else {
@@ -255,12 +276,45 @@ export default function SingPage() {
     }
   };
   useEffect(() => {
-    if (!song.video || !playing || beat > 0) return;
+    if (!song.video || marking) return;
     const options = activityOptions(song);
-    if (options.length) setChoice(automaticActivityChoice(song, time, phase.line));
-  }, [song, playing, phase.line, beat, time]);
+    if (options.length)
+      setChoice(
+        cues.length ? markedChoice(cues, time, 0) : automaticActivityChoice(song, time, phase.line),
+      );
+  }, [song, playing, phase.line, time, cues, marking]);
+  const restart = () => {
+    pause();
+    player.seek(0, mode);
+    setTime(0);
+    setStars([]);
+    setChoice(0);
+    setBeat(0);
+    completed.current = false;
+    void play(0);
+  };
+  const saveAudio = async () => {
+    setOfflineSaving(true);
+    setOfflineInfo('Сохраняем Twinkle и ABC…');
+    try {
+      const cache = await caches.open('milo-music-full-v4');
+      for (const s of songs.filter((s) => !s.video))
+        for (const url of [s.mix, s.instrumental]) {
+          if (await cache.match(url)) continue;
+          const response = await fetch(url);
+          if (!response.ok || !response.headers.get('content-type')?.startsWith('audio/'))
+            throw new Error('Download failed');
+          await cache.put(url, response);
+        }
+      setOfflineInfo('Twinkle и ABC сохранены. Они работают без YouTube после установки PWA.');
+    } catch {
+      setOfflineInfo('Не удалось сохранить всё. Проверь интернет и свободное место.');
+    } finally {
+      setOfflineSaving(false);
+    }
+  };
   return (
-    <main className="sing-page">
+    <main className={`sing-page ${song.video && !picker ? 'sing-video-page' : ''}`}>
       <header className="sing-header">
         {picker ? (
           <Link to="/" aria-label="На главную">
@@ -319,7 +373,11 @@ export default function SingPage() {
             </div>
           )}
           {player instanceof VideoSongPlayer && (
-            <OfficialSongVideo key={`video-${song.id}`} player={player} />
+            <OfficialSongVideo
+              key={`video-${song.id}`}
+              player={player}
+              onAudio={() => chooseSong(defaultSong)}
+            />
           )}
           <SingStage
             key={`stage-${song.id}`}
@@ -352,17 +410,7 @@ export default function SingPage() {
                       ? '▶ Продолжить'
                       : '▶ Петь!'}
             </button>
-            <button
-              aria-label="Сначала"
-              onClick={() => {
-                pause();
-                player.seek(0, mode);
-                setTime(0);
-                setStars([]);
-                setBeat(0);
-                completed.current = false;
-              }}
-            >
+            <button aria-label="Сначала" onClick={restart}>
               ↺
             </button>
             {!song.video && (
@@ -458,6 +506,10 @@ export default function SingPage() {
           {adult && (
             <section className="sing-adult">
               <h2>Звук и микрофон</h2>
+              <button disabled={offlineSaving} onClick={() => void saveAudio()}>
+                {offlineSaving ? 'Сохраняем…' : '⬇ Сохранить Twinkle и ABC заранее'}
+              </button>
+              {offlineInfo && <p role="status">{offlineInfo}</p>}
               {!song.video && (
                 <div className="sing-mode-picker" role="group" aria-label="Режим пения">
                   {modes.map((m) => (
@@ -474,11 +526,66 @@ export default function SingPage() {
                 </div>
               )}
               {song.video ? (
-                <p>
-                  Полное официальное видео Super Simple Songs. Требуется YouTube; его реклама и
-                  доступность управляются платформой. Игровые подсказки приблизительные. Режимы
-                  «Повтори» и «Без вокала» доступны у аудиопесен.
-                </p>
+                <>
+                  <p>
+                    Полное официальное видео Super Simple Songs. Требуется YouTube; его реклама и
+                    доступность управляются платформой. Игровые подсказки приблизительные. Режимы
+                    «Повтори» и «Без вокала» доступны у аудиопесен.
+                  </p>
+                  <details className="sing-timing-tools">
+                    <summary>Подстроить движения под это исполнение</summary>
+                    <p>
+                      Для точной разметки нажми «Начать разметку», запусти видео и нажимай картинки
+                      в момент нужных слов. Можно отметить повторяющиеся движения по всей песне.
+                      Затем сохрани: метки останутся на этом устройстве и будут работать при
+                      повторах и перемотке.
+                    </p>
+                    <button
+                      onClick={() => {
+                        pause();
+                        player.seek(0);
+                        setTime(0);
+                        setCues([]);
+                        setMarking(true);
+                        setTimingInfo('Разметка включена. Запусти видео и отмечай движения.');
+                      }}
+                    >
+                      Начать разметку
+                    </button>
+                    {marking && (
+                      <button
+                        disabled={!cues.length}
+                        onClick={() => {
+                          try {
+                            saveCues(song, cues);
+                            setMarking(false);
+                            setTimingInfo('Метки сохранены. Движения следуют времени видео.');
+                          } catch {
+                            setTimingInfo('Не удалось сохранить метки на устройстве.');
+                          }
+                        }}
+                      >
+                        Сохранить метки ({cues.length})
+                      </button>
+                    )}
+                    {!!cues.length && !marking && (
+                      <button
+                        onClick={() => {
+                          try {
+                            saveCues(song, []);
+                            setCues([]);
+                            setTimingInfo('Восстановлены исходные подсказки.');
+                          } catch {
+                            setTimingInfo('Не удалось сбросить метки.');
+                          }
+                        }}
+                      >
+                        Сбросить метки
+                      </button>
+                    )}
+                    {timingInfo && <p role="status">{timingInfo}</p>}
+                  </details>
+                </>
               ) : (
                 <>
                   <label>
@@ -543,7 +650,7 @@ export default function SingPage() {
           )}
         </>
       )}
-      <KidNav />
+      <KidNav inFlow={Boolean(song.video && !picker)} />
     </main>
   );
 }
