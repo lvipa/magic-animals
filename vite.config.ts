@@ -3,6 +3,8 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  // Review HTML templates contain build placeholders; scan the app entry only.
+  optimizeDeps: { entries: ['index.html'] },
   server: { proxy: { '/tv-socket': { target: 'http://127.0.0.1:8080', ws: true } } },
   plugins: [
     react(),
