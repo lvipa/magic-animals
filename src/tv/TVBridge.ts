@@ -7,6 +7,7 @@ export type TVEvent =
   | 'FINALE'
   | 'SCENE_SYNC'
   | 'FRIEND_SCENE'
+  | 'SING_SCENE'
   | 'AUDIO_CUE'
   | 'AUDIO_ROUTE'
   | 'CONNECTION_CHANGED'

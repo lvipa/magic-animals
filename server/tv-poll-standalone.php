@@ -103,9 +103,21 @@ function joined(array &$db, string $sid, string $code, string $role): void {
         sendTo($db,$sid,['kind'=>'event','event'=>'FRIEND_SCENE',
             'payload'=>$db['rooms'][$code]['friendScene'],
             'sequence'=>++$db['rooms'][$code]['sequence']]);
+    if ($role === 'tv' && ($db['rooms'][$code]['singScene'] ?? null) !== null)
+        sendTo($db,$sid,['kind'=>'event','event'=>'SING_SCENE','payload'=>$db['rooms'][$code]['singScene'],'sequence'=>++$db['rooms'][$code]['sequence']]);
 }
 function validEvent(string $event, $payload): ?array {
     if (!is_array($payload)) $payload=[];
+    if ($event === 'SING_SCENE') {
+        $p=$payload;
+        if (($p['song'] ?? null)!=='twinkle-v1' || !in_array($p['mode'] ?? null,['together','echo','concert'],true) ||
+            (!is_int($p['time'] ?? null) && !is_float($p['time'] ?? null)) || !is_finite((float)$p['time']) || $p['time']<0 || $p['time']>(($p['mode']==='echo')?72:26) ||
+            !is_bool($p['playing'] ?? null) || !is_bool($p['guide'] ?? null) || !is_bool($p['active'] ?? null) ||
+            (!is_int($p['sentAt'] ?? null) && !is_float($p['sentAt'] ?? null)) || !is_finite((float)$p['sentAt']) ||
+            !is_array($p['stars'] ?? null) || count($p['stars'])>6) return null;
+        foreach ($p['stars'] as $star) if (!is_int($star) || $star<0 || $star>5) return null;
+        return ['song'=>$p['song'],'mode'=>$p['mode'],'time'=>$p['time'],'playing'=>$p['playing'],'guide'=>$p['guide'],'active'=>$p['active'],'sentAt'=>$p['sentAt'],'stars'=>array_values(array_unique($p['stars']))];
+    }
     $animals=['cat','dog','lion','foxy','bunny','bear','panda','elephant'];
     $friends=['foxy','cat','dog','lion','bunny','bear','panda','elephant'];
     $moods=['idle','lookAround','point','happy','surprised','scared','laugh','dance','fall'];
@@ -167,7 +179,7 @@ function processMessage(array &$db, string $sid, array $message, float $now): vo
             do { $code=(string)random_int(100000,999999); } while (isset($db['rooms'][$code]));
             $db['rooms'][$code]=['tvToken'=>randomId(32),'controllerToken'=>null,'tv'=>null,'controller'=>null,
                 'tvReady'=>false,'audioReady'=>false,'audioTarget'=>'ipad','snapshot'=>null,
-                'friendScene'=>null,'sequence'=>0,'released'=>[],'transfers'=>[],'touched'=>$now];
+                'friendScene'=>null,'singScene'=>null,'sequence'=>0,'released'=>[],'transfers'=>[],'touched'=>$now];
             joined($db,$sid,$code,'tv'); return;
         }
         if ($kind==='pair') {
@@ -244,14 +256,17 @@ function processMessage(array &$db, string $sid, array $message, float $now): vo
         if ($event==='AUDIO_CUE' && (!$db['rooms'][$code]['audioReady'] ||
             $db['rooms'][$code]['audioTarget']!=='tv' || !$db['rooms'][$code]['tvReady'])) return;
         if ($event==='GAME_STARTED' || ($event==='SCENE_CHANGE' && $payload['state']==='WELCOME')) {
-            clearTransfers($db,$code); $db['rooms'][$code]['released']=[]; $db['rooms'][$code]['friendScene']=null;
+            clearTransfers($db,$code); $db['rooms'][$code]['released']=[]; $db['rooms'][$code]['friendScene']=null; $db['rooms'][$code]['singScene']=null;
         }
         if ($event==='SCENE_SYNC') {
             $db['rooms'][$code]['snapshot']=$payload;
             if (!$payload['paused']) $db['rooms'][$code]['friendScene']=null;
+            if (!$payload['paused']) $db['rooms'][$code]['singScene']=null;
             snapshot($db,$code);
         } else {
             if ($event==='FRIEND_SCENE') $db['rooms'][$code]['friendScene']=$payload;
+            if ($event==='FRIEND_SCENE') $db['rooms'][$code]['singScene']=null;
+            if ($event==='SING_SCENE') $db['rooms'][$code]['singScene']=$payload['active'] ? $payload : null;
             sendTo($db,$db['rooms'][$code]['tv'],['kind'=>'event','event'=>$event,'payload'=>$payload,
                 'sequence'=>++$db['rooms'][$code]['sequence']]);
         }

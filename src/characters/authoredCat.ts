@@ -157,7 +157,6 @@ export function makeAuthoredCharacter(kind: Character): THREE.Group | null {
       landmarks = { ...landmarks, ...node.userData };
   });
   const lowDetail =
-    location.pathname === '/tv' ||
     /SmartTV|Tizen|Web0S/i.test(navigator.userAgent) ||
     /iPad|iPhone|Android/i.test(navigator.userAgent) ||
     (/Macintosh/i.test(navigator.userAgent) && navigator.maxTouchPoints > 1) ||
@@ -292,7 +291,10 @@ export function animateAuthoredCat(root: THREE.Group, time: number, action: stri
       if (mesh.morphTargetInfluences)
         mesh.morphTargetInfluences[index] = Math.max(mesh.morphTargetInfluences[index], 0.65);
   }
-  const speaking = audio.mouthLevelFor(data.kind);
+  const speaking =
+    typeof data.externalMouthLevel === 'function'
+      ? data.externalMouthLevel()
+      : audio.mouthLevelFor(data.kind);
   for (const { mesh, index } of data.mouths as Array<{ mesh: THREE.Mesh; index: number }>) {
     if (mesh.morphTargetInfluences)
       mesh.morphTargetInfluences[index] = Math.max(

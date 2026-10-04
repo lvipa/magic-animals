@@ -23,6 +23,9 @@ import PairingQR from './PairingQR';
 import { useCastLayout } from '../scenes/CastLayout';
 import { WorldBackdrop } from '../play/WorldBackdrop';
 import { isWorld, type World } from '../play/adventure';
+import { isSingSnapshot, type SingSnapshot } from '../singing/song';
+import { TVSingScene } from '../singing/TVSingScene';
+import { DisplayResolution } from '../scenes/DisplayResolution';
 type FriendScene = { id: Character | null; action: string; world?: World; caption?: string };
 
 const initial: TVSnapshot = {
@@ -217,11 +220,12 @@ function TVScene({
       <TVRenderBoundary fallback={fallback}>
         <Canvas
           camera={{ position: [0, 1.0, 5.6], fov: 38 }}
-          dpr={1}
-          gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }}
+          dpr={1.5}
+          gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}
           fallback={fallback}
         >
           <StudioEnvironment />
+          <DisplayResolution />
           <hemisphereLight args={['#fff4e7', '#819eae', 1.5]} />
           <directionalLight position={[-3, 4, 5]} intensity={2.8} color="#fff1dd" />
           <directionalLight position={[3, 2, -3]} intensity={1.7} color="#b2e4f3" />
@@ -248,6 +252,7 @@ export default function TVPage() {
     ready = useRef(false),
     timers = useRef(new Map<string, ReturnType<typeof setTimeout>>()),
     expiry = useRef(new Set<ReturnType<typeof setTimeout>>());
+  const [sing, setSing] = useState<SingSnapshot | null>(null);
   const now = useCallback(() => bridge.serverTime(), [bridge]);
   const onReady = useCallback(
     (value: boolean) => {
@@ -269,12 +274,19 @@ export default function TVPage() {
     const off = bridge.onMessage((msg) => {
       if (msg.kind === 'joined') setStarted(true);
       if (msg.kind === 'snapshot') {
+        if (!msg.snapshot.paused) setSing(null);
         setSnapshot(msg.snapshot);
         if (!msg.snapshot.paused) setFriend(null);
         if (msg.snapshot.paused) audio.stop();
       }
-      if (msg.kind === 'event' && msg.event === 'FRIEND_SCENE')
+      if (msg.kind === 'event' && msg.event === 'FRIEND_SCENE') {
         setFriend(msg.payload as FriendScene);
+        setSing(null);
+      }
+      if (msg.kind === 'event' && msg.event === 'SING_SCENE' && isSingSnapshot(msg.payload)) {
+        setSing(msg.payload.active ? msg.payload : null);
+        audio.stop();
+      }
       if (msg.kind === 'event' && msg.event === 'AUDIO_CUE' && audioEnabled.current) {
         const cue = (msg.payload as { cue?: string }).cue;
         if (cue) audio.say(cue);
@@ -307,6 +319,7 @@ export default function TVPage() {
         setTransfers((s) => s.filter((t) => t.transferId !== msg.transferId));
       }
       if (msg.kind === 'presence' && (!msg.tvReady || !msg.controllerPresent)) {
+        setSing(null);
         clearTransfers();
         audio.stop();
       }
@@ -354,6 +367,7 @@ export default function TVPage() {
     if (!audioEnabled.current) audio.stop();
   };
   const start = () => {
+    setSing(null);
     audio.unlockAudio();
     audioEnabled.current = true;
     setSound(true);
@@ -379,13 +393,16 @@ export default function TVPage() {
         MAGIC <strong>ANIMALS</strong>
         <small>YOUR FRIENDS, ON THE BIG SCREEN</small>
       </div>
-      <TVScene
-        snapshot={snapshot}
-        friend={friend}
-        transfers={transfers}
-        now={now}
-        onReady={onReady}
-      />
+      {!sing && (
+        <TVScene
+          snapshot={snapshot}
+          friend={friend}
+          transfers={transfers}
+          now={now}
+          onReady={onReady}
+        />
+      )}
+      {sing && status.controllerPresent && <TVSingScene snapshot={sing} now={now} />}
       {!started ? (
         <section className="tv-welcome">
           <p className="eyebrow">THE MAGIC HAS ROOM TO GROW</p>
@@ -413,7 +430,7 @@ export default function TVPage() {
               (status.state === 'reconnecting' ? 'Reconnecting…' : 'Enter this code on the iPad.')}
           </small>
         </section>
-      ) : (
+      ) : sing ? null : (
         <>
           <div className="tv-stars" aria-label={`${snapshot.released.length} friends on TV`}>
             {[0, 1, 2].map((i) => (

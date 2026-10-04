@@ -23,6 +23,7 @@ export function Actor({
   position = [0, 0, 0],
   scale = 1,
   onTap,
+  mouthLevel,
 }: {
   kind: Character;
   action?: string;
@@ -30,9 +31,16 @@ export function Actor({
   position?: [number, number, number];
   scale?: number;
   onTap?: () => void;
+  mouthLevel?: () => number;
 }) {
   const model = useCharacterModel(kind);
   const quality = useQuality();
+  useEffect(() => {
+    model.userData.externalMouthLevel = mouthLevel;
+    return () => {
+      delete model.userData.externalMouthLevel;
+    };
+  }, [model, mouthLevel]);
   useEffect(() => {
     if (model.userData.authored && quality.effective === 'LOW') model.userData.lowDetail = true;
     revealCharacter(model, reveal);

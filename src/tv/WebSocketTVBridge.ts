@@ -48,6 +48,7 @@ export class WebSocketTVBridge implements TVBridge {
   private soundReady = false;
   private lastSnapshot: unknown = null;
   private lastFriend: unknown = null;
+  private lastSing: unknown = null;
   private sequence = -1;
   private storageKey: string;
   constructor(private role: Role) {
@@ -129,9 +130,8 @@ export class WebSocketTVBridge implements TVBridge {
     });
     const url = new URL('/tv-socket', location.href);
     url.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const socket = location.hostname === 'animals.flowlabli.online'
-      ? new PollingSocket()
-      : new WebSocket(url);
+    const socket =
+      location.hostname === 'animals.flowlabli.online' ? new PollingSocket() : new WebSocket(url);
     this.socket = socket;
     socket.onopen = () => {
       if (this.socket !== socket) return;
@@ -174,6 +174,8 @@ export class WebSocketTVBridge implements TVBridge {
           this.sendEvent('SCENE_SYNC', this.lastSnapshot);
         if (this.role === 'controller' && this.lastFriend)
           this.sendEvent('FRIEND_SCENE', this.lastFriend);
+        if (this.role === 'controller' && this.lastSing)
+          this.sendEvent('SING_SCENE', this.lastSing);
       }
       if (msg.kind === 'presence')
         this.update({ ...msg, state: msg.tvReady && msg.controllerPresent ? 'ready' : 'waiting' });
@@ -254,6 +256,12 @@ export class WebSocketTVBridge implements TVBridge {
       this.write({ kind: 'transfer-ready', transferId });
   }
   sendEvent(event: TVEvent, payload?: unknown) {
+    if (event === 'SING_SCENE') this.lastSing = payload;
+    if (
+      event === 'FRIEND_SCENE' ||
+      (event === 'SCENE_SYNC' && !(payload as { paused?: boolean })?.paused)
+    )
+      this.lastSing = null;
     if (event === 'SCENE_SYNC') this.lastSnapshot = payload;
     if (event === 'SCENE_SYNC' && !(payload as { paused?: boolean })?.paused)
       this.lastFriend = null;
@@ -310,6 +318,7 @@ export class WebSocketTVBridge implements TVBridge {
     this.credentials = null;
     this.lastSnapshot = null;
     this.lastFriend = null;
+    this.lastSing = null;
     this.save();
   }
 }

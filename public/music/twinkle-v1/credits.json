@@ -1,0 +1,31 @@
+{
+  "song": "Twinkle, Twinkle, Little Star",
+  "lyrics": "Jane Taylor, 1806 (first verse)",
+  "melody": "Traditional French melody, Ah! vous dirai-je, maman",
+  "vocalAuthor": "Derrick Coetzee / Dcoetzee",
+  "sourcePage": "https://commons.wikimedia.org/wiki/File:Twinkle_Twinkle_Little_Star_-_sung_with_full_lyrics.ogg",
+  "sourceURL": "https://upload.wikimedia.org/wikipedia/commons/4/4f/Twinkle_Twinkle_Little_Star_-_sung_with_full_lyrics.ogg",
+  "sourceSHA256": "0a9b05a0929699e30cf5f6f124c6e05251ed1505e2a5eb954746e7cd6a6c2f40",
+  "vocalLicense": "CC0 1.0",
+  "licenseURL": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "changes": "First verse extracted; formant adjustment, melody pitch correction, phrase duration normalization, fades, loudness normalization, MP3 encoding.",
+  "arrangement": "Original synthesized bell and pad accompaniment by Magic Animals. CC0 1.0.",
+  "status": "Prototype guide vocal; requires listening review before final child-facing voice production.",
+  "duration": 26.0,
+  "phraseStart": [
+    1,
+    5,
+    9,
+    13,
+    17,
+    21
+  ],
+  "phraseEnd": [
+    5,
+    9,
+    13,
+    17,
+    21,
+    25
+  ]
+}

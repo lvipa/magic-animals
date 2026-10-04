@@ -23,6 +23,9 @@ export function KidNav() {
       <NavLink to="/worlds">
         <span>🚀</span>Миры
       </NavLink>
+      <NavLink to="/sing">
+        <span>🎶</span>Песни
+      </NavLink>
       <NavLink to="/connect-tv">
         <span>📺</span>TV
       </NavLink>

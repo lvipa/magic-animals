@@ -193,6 +193,9 @@ export default function Game({ hunt = false }: { hunt?: boolean }) {
               <button className="welcome-free" onClick={() => navigate('/connect-tv')}>
                 Connect TV · QR / code
               </button>
+              <button className="welcome-free" onClick={() => navigate('/sing')}>
+                🎶 ПЕТЬ С MILO
+              </button>
               <button aria-label="PLAY" className="play-button" onClick={start}>
                 PLAY <span aria-hidden="true">▶</span>
               </button>

@@ -49,9 +49,15 @@ export async function createTVServer({
       this.outbox = [];
       this.touched = Date.now();
     }
-    send(message) { this.outbox.push(message); }
-    ping() { this.emit('pong'); }
-    terminate() { this.close(); }
+    send(message) {
+      this.outbox.push(message);
+    }
+    ping() {
+      this.emit('pong');
+    }
+    terminate() {
+      this.close();
+    }
     close() {
       if (this.readyState !== WebSocket.OPEN) return;
       this.readyState = WebSocket.CLOSED;
@@ -120,27 +126,48 @@ export async function createTVServer({
       let raw = '';
       for await (const part of req) {
         raw += part.toString();
-        if (raw.length > 16384) { res.writeHead(413).end('{}'); return; }
+        if (raw.length > 16384) {
+          res.writeHead(413).end('{}');
+          return;
+        }
       }
       let input;
-      try { input = JSON.parse(raw); } catch { res.writeHead(400).end('{}'); return; }
-      if (!Array.isArray(input.messages) || input.messages.length > 12 ||
-          input.messages.some((message) => typeof message !== 'string' || message.length > 8192)) {
-        res.writeHead(400).end('{}'); return;
+      try {
+        input = JSON.parse(raw);
+      } catch {
+        res.writeHead(400).end('{}');
+        return;
+      }
+      if (
+        !Array.isArray(input.messages) ||
+        input.messages.length > 12 ||
+        input.messages.some((message) => typeof message !== 'string' || message.length > 8192)
+      ) {
+        res.writeHead(400).end('{}');
+        return;
       }
       let socket;
       if (input.sessionId === null) {
-        if (httpPeers.size >= 400) { res.writeHead(503).end('{}'); return; }
+        if (httpPeers.size >= 400) {
+          res.writeHead(503).end('{}');
+          return;
+        }
         const id = randomBytes(24).toString('base64url');
         socket = new PollPeer(id);
         httpPeers.set(id, socket);
         wss.emit('connection', socket, {
           socket: { remoteAddress: req.headers['x-client-ip'] || req.socket.remoteAddress },
         });
-      } else if (typeof input.sessionId === 'string' && /^[A-Za-z0-9_-]{32}$/.test(input.sessionId)) {
+      } else if (
+        typeof input.sessionId === 'string' &&
+        /^[A-Za-z0-9_-]{32}$/.test(input.sessionId)
+      ) {
         socket = httpPeers.get(input.sessionId);
       }
-      if (!socket) { res.writeHead(410).end('{}'); return; }
+      if (!socket) {
+        res.writeHead(410).end('{}');
+        return;
+      }
       socket.touched = Date.now();
       for (const message of input.messages) {
         socket.emit('message', Buffer.from(message), false);
@@ -250,6 +277,13 @@ export async function createTVServer({
           payload: room.friendScene,
           sequence: ++room.sequence,
         });
+      if (role === 'tv' && room.singScene)
+        send(socket, {
+          kind: 'event',
+          event: 'SING_SCENE',
+          payload: room.singScene,
+          sequence: ++room.sequence,
+        });
     };
     socket.on('message', (bytes, binary) => {
       if (binary) {
@@ -300,6 +334,7 @@ export async function createTVServer({
             audioTarget: 'ipad',
             snapshot: null,
             friendScene: null,
+            singScene: null,
             sequence: 0,
             released: new Set(),
             transfers: new Map(),
@@ -421,13 +456,17 @@ export async function createTVServer({
           room.transfers.clear();
           room.released.clear();
           room.friendScene = null;
+          room.singScene = null;
         }
         if (msg.event === 'SCENE_SYNC') {
           room.snapshot = payload;
           if (!payload.paused) room.friendScene = null;
+          if (!payload.paused) room.singScene = null;
           snapshot(room);
         } else {
           if (msg.event === 'FRIEND_SCENE') room.friendScene = payload;
+          if (msg.event === 'FRIEND_SCENE') room.singScene = null;
+          if (msg.event === 'SING_SCENE') room.singScene = payload.active ? payload : null;
           send(room.tv, { kind: 'event', event: msg.event, payload, sequence: ++room.sequence });
         }
         return;
@@ -488,8 +527,7 @@ export async function createTVServer({
       socket.ping();
     }
     const now = Date.now();
-    for (const socket of httpPeers.values())
-      if (now - socket.touched > 60000) socket.close();
+    for (const socket of httpPeers.values()) if (now - socket.touched > 60000) socket.close();
     for (const room of rooms.values()) if (now - room.touched > 2 * 60 * 60 * 1000) destroy(room);
     for (const [ip, values] of attempts)
       if (values.every((time) => now - time > 60000)) attempts.delete(ip);

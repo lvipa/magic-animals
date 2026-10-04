@@ -148,6 +148,24 @@ try {
   });
   assert.equal((await controller.next((m) => m.kind === 'error')).code, 'BAD_EVENT');
   pass('All eight bonus friends and their actions synchronize; unknown characters rejected');
+  const singing = {
+    song: 'twinkle-v1',
+    mode: 'echo',
+    time: 4.5,
+    playing: true,
+    guide: true,
+    stars: [0],
+    sentAt: Date.now(),
+    active: true,
+  };
+  controller.send({ kind: 'event', event: 'SING_SCENE', payload: singing });
+  assert.deepEqual(
+    (await tv.next((m) => m.kind === 'event' && m.event === 'SING_SCENE')).payload,
+    singing,
+  );
+  controller.send({ kind: 'event', event: 'SING_SCENE', payload: { ...singing, stars: [99] } });
+  assert.equal((await controller.next((m) => m.kind === 'error')).code, 'BAD_EVENT');
+  pass('Singing clock and participation synchronize; invalid song payload rejected');
   for (const action of ['sing', 'tired', 'hungry', 'thirsty', 'sad']) {
     controller.send({
       kind: 'event',

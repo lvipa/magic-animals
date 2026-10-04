@@ -111,6 +111,32 @@ export function sceneSnapshot(value) {
   };
 }
 export function gameEvent(event, payload) {
+  if (event === 'SING_SCENE') {
+    const s = payload;
+    return s?.song === 'twinkle-v1' &&
+      ['together', 'echo', 'concert'].includes(s.mode) &&
+      Number.isFinite(s.time) &&
+      s.time >= 0 &&
+      s.time <= (s.mode === 'echo' ? 72 : 26) &&
+      typeof s.playing === 'boolean' &&
+      typeof s.guide === 'boolean' &&
+      typeof s.active === 'boolean' &&
+      Number.isFinite(s.sentAt) &&
+      Array.isArray(s.stars) &&
+      s.stars.length <= 6 &&
+      s.stars.every((n) => Number.isInteger(n) && n >= 0 && n < 6)
+      ? {
+          song: s.song,
+          mode: s.mode,
+          time: s.time,
+          playing: s.playing,
+          guide: s.guide,
+          active: s.active,
+          sentAt: s.sentAt,
+          stars: [...new Set(s.stars)],
+        }
+      : null;
+  }
   if (event === 'FRIEND_SCENE')
     return (payload?.id === null ||
       ['foxy', ...animalIds, 'bunny', 'bear', 'panda', 'elephant'].includes(payload?.id)) &&

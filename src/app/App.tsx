@@ -10,6 +10,7 @@ import TVPairing from '../tv/TVPairing';
 import AudioStudio from '../parent/AudioStudio';
 import Worlds from '../play/Worlds';
 import { lazy, Suspense } from 'react';
+const SingPage = lazy(() => import('../singing/SingPage'));
 const CatReview = import.meta.env.DEV ? lazy(() => import('../parent/CatReview')) : null;
 const CatImportReview = import.meta.env.DEV
   ? lazy(() => import('../parent/CatImportReview'))
@@ -17,6 +18,14 @@ const CatImportReview = import.meta.env.DEV
 export default function App() {
   return (
     <Routes>
+      <Route
+        path="/sing"
+        element={
+          <Suspense fallback={<p>Готовим сцену Milo…</p>}>
+            <SingPage />
+          </Suspense>
+        }
+      />
       {CatReview && (
         <Route
           path="/__cat-review"

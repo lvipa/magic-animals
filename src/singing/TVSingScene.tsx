@@ -1,0 +1,45 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { SingLyrics, SingStage } from './SingStage';
+import { songDuration, songPhase, type SingSnapshot } from './song';
+import './sing.css';
+
+/** TV follows the controller clock; song sound stays on the phone in v1. */
+export function TVSingScene({ snapshot, now }: { snapshot: SingSnapshot; now: () => number }) {
+  const [time, setTime] = useState(snapshot.time);
+  const current = useRef(snapshot.time);
+  useEffect(() => {
+    let frame = 0;
+    const tick = () => {
+      const t = Math.min(
+        songDuration(snapshot.mode),
+        snapshot.time + (snapshot.playing ? Math.max(0, now() - snapshot.sentAt) / 1000 : 0),
+      );
+      current.current = t;
+      setTime(t);
+      frame = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(frame);
+  }, [snapshot, now]);
+  // Gentle performance motion only; no phoneme/voice accuracy is claimed.
+  const mouth = useCallback(() => {
+    const p = songPhase(current.current, snapshot.mode);
+    return snapshot.playing && snapshot.guide && !p.turn && !p.celebrating && !p.done && !p.intro
+      ? Math.max(0, Math.sin(current.current * Math.PI * 4)) * 0.35
+      : 0;
+  }, [snapshot]);
+  const p = songPhase(time, snapshot.mode);
+  return (
+    <section className="sing-tv" aria-label="Песня на телевизоре">
+      <h1>{p.done ? '🌟 Спасибо за концерт!' : p.turn ? '🎤 Your turn!' : '🎶 Sing with Milo'}</h1>
+      <SingStage
+        time={time}
+        mode={snapshot.mode}
+        playing={snapshot.playing}
+        stars={snapshot.stars}
+        mouthLevel={mouth}
+      />
+      <SingLyrics time={time} mode={snapshot.mode} />
+    </section>
+  );
+}

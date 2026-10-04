@@ -9,6 +9,7 @@
   "scripts": {
     "tv": "node server/tv-server.mjs",
     "test:tv": "node scripts/test-tv.mjs",
+    "test:singing": "node scripts/test-singing.mjs",
     "dev": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
     "build:review": "node scripts/build-milo-review-viewer.mjs",

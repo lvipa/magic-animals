@@ -1,0 +1,357 @@
+.sing-page {
+  max-width: 1000px;
+  margin: auto;
+  padding: 22px 22px calc(120px + env(safe-area-inset-bottom));
+  color: #fff1d9;
+}
+.sing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.sing-header h1 {
+  margin: 3px 0;
+  font-size: clamp(22px, 4vw, 34px);
+}
+.sing-header small {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #abd0d1;
+}
+.sing-header > a {
+  text-decoration: none;
+  font-size: 30px;
+  padding: 10px;
+  color: inherit;
+}
+.sing-page button,
+.sing-tv button {
+  min-height: 48px;
+  border: 1px solid #87b9c180;
+  border-radius: 19px;
+  background: #285266;
+  color: #fff1d9;
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 700;
+  touch-action: manipulation;
+  cursor: pointer;
+}
+.sing-page button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.sing-page button:focus-visible,
+.sing-star-ring button:focus-visible {
+  outline: 3px solid #fff0ac;
+  outline-offset: 3px;
+}
+.sing-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.sing-heading h2 {
+  font-size: clamp(20px, 3vw, 28px);
+  margin: 6px 0 20px;
+}
+.sing-heading span {
+  color: #e2bfe7;
+}
+.sing-heading .sing-earned {
+  white-space: nowrap;
+  color: #ffe296;
+  font-size: 24px;
+}
+.sing-mode-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.sing-mode-picker button {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  padding: 14px 8px;
+}
+.sing-mode-picker button span {
+  font-size: 27px;
+}
+.sing-mode-picker button small {
+  font-size: 12px;
+  font-weight: 400;
+}
+.sing-mode-picker button[aria-pressed='true'],
+.sing-controls .sing-primary {
+  background: linear-gradient(145deg, #ffe7af, #ffbf81);
+  color: #503c52;
+  border-color: #ffe6ad;
+  box-shadow: 0 5px 0 #995975;
+}
+.sing-stage {
+  position: relative;
+  width: 100%;
+  height: clamp(290px, 48vw, 430px);
+  border-radius: 34px;
+  overflow: hidden;
+  background: #30294e;
+  border: 1px solid #8a78aa;
+}
+.sing-space {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.sing-stage > div:not(.sing-star-ring) {
+  position: absolute !important;
+  inset: 0;
+}
+.sing-stage .model-loading {
+  z-index: 2;
+  inset: 30% 15% !important;
+  height: fit-content;
+  width: auto;
+  max-width: 430px;
+  margin: auto;
+  transform: none;
+}
+.sing-star-ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.sing-star-ring button {
+  position: absolute;
+  padding: 0;
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  transform: translate(-50%, -50%);
+  font-size: 38px;
+  border: 0;
+  background: transparent;
+  color: #a48eb2;
+  pointer-events: auto;
+  text-shadow: 0 2px 5px #171c4740;
+}
+.sing-star-ring button:disabled {
+  opacity: 1;
+}
+.sing-star-ring button.current {
+  color: #f5d897;
+}
+.sing-star-ring button.lit {
+  color: #fff092;
+  filter: drop-shadow(0 0 10px #ffe582);
+}
+.sing-milo-label {
+  position: absolute;
+  bottom: 12px;
+  width: 100%;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: #dccce9;
+}
+.sing-turn-badge {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 9px 16px;
+  border-radius: 18px;
+  background: #ffe2a8;
+  color: #533c58;
+  font-weight: bold;
+  white-space: nowrap;
+}
+.sing-turn-badge span {
+  display: inline-block;
+  margin-left: 8px;
+}
+.sing-fallback {
+  display: grid;
+  place-items: center;
+  font-size: 110px;
+}
+.sing-status {
+  text-align: center;
+  font-size: 19px;
+  font-weight: 700;
+  padding: 18px 0 12px;
+  min-height: 55px;
+}
+.sing-lyrics {
+  text-align: center;
+  border-radius: 24px;
+  padding: 18px 14px;
+  background: #fff0d5;
+  color: #513c53;
+}
+.sing-meaning-picture {
+  font-size: 32px;
+}
+.sing-lyrics p {
+  margin: 7px 0;
+  font-weight: 800;
+  font-size: clamp(23px, 4vw, 36px);
+  line-height: 1.5;
+}
+.sing-lyrics p span {
+  padding: 3px 1px;
+  border-radius: 8px;
+}
+.sing-lyrics p .active {
+  background: #ffc176;
+  color: #352545;
+  box-shadow: 0 2px 0 #d79a6b;
+}
+.sing-lyrics small {
+  display: block;
+  font-size: 15px;
+  color: #775f76;
+}
+.sing-word {
+  margin-top: 13px;
+  font-weight: 700;
+  font-size: 17px;
+}
+.sing-word span {
+  font-weight: 400;
+}
+.sing-progress {
+  width: 100%;
+  height: 7px;
+  margin: 16px 0;
+  accent-color: #ffe29c;
+}
+.sing-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+.sing-controls button {
+  flex: 1;
+  min-width: 100px;
+}
+.sing-controls .sing-primary {
+  flex: 1.6;
+}
+.sing-footer {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  margin: 30px 0 0;
+  color: #b6d4d6;
+}
+.sing-footer a {
+  color: inherit;
+}
+.sing-footer button {
+  font-size: 13px;
+}
+.sing-adult {
+  margin-top: 20px;
+  padding: 22px;
+  border: 1px solid #729ea9;
+  border-radius: 22px;
+}
+.sing-adult h2 {
+  font-size: 21px;
+}
+.sing-adult label {
+  display: block;
+  margin-bottom: 18px;
+}
+.sing-adult input {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
+}
+.sing-adult p {
+  line-height: 1.6;
+  color: #bad2d6;
+}
+.sing-adult a {
+  color: #ffe0a6;
+}
+.sing-finish {
+  text-align: center;
+  margin: 25px 0;
+  padding: 22px;
+  border-radius: 25px;
+  background: #294a60;
+}
+.sing-finish > span {
+  font-size: 45px;
+}
+.sing-finish > div {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.sing-tv {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  background: #1b2340;
+  padding: 3vh 6vw 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+}
+.sing-tv h1 {
+  text-align: center;
+  margin: 0;
+  font-size: clamp(22px, 3vw, 45px);
+}
+.sing-tv .sing-stage {
+  height: 55vh;
+  max-height: none;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.sing-tv .sing-lyrics {
+  padding: 10px;
+}
+.sing-tv .sing-lyrics p {
+  font-size: clamp(28px, 3.3vw, 62px);
+}
+.sing-tv .sing-word,
+.sing-tv .sing-lyrics small {
+  display: none;
+}
+@media (max-width: 480px) {
+  .sing-page {
+    padding: 16px 14px calc(115px + env(safe-area-inset-bottom));
+  }
+  .sing-mode-picker button small {
+    display: none;
+  }
+  .sing-controls {
+    gap: 8px;
+  }
+  .sing-controls button {
+    padding: 12px 8px;
+    font-size: 14px;
+  }
+  .sing-heading h2 {
+    font-size: 19px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sing-turn-badge span {
+    transform: none !important;
+  }
+}
