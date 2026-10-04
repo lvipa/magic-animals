@@ -1,0 +1,21 @@
+{
+  "author": "Mike Cole / matthewmikemusic",
+  "license": "Pixabay Content License",
+  "licenseURL": "https://pixabay.com/service/license-summary/",
+  "sourcePage": "https://pixabay.com/music/happy-childrens-tunes-abc-song-male-vocals-195993/",
+  "backingPage": "https://pixabay.com/music/happy-childrens-tunes-abc-song-instrumental-201649/",
+  "sourceURL": "https://cdn.pixabay.com/download/audio/2024/03/14/audio_c9f9fda813.mp3?filename=matthewmikemusic-abc-song-male-vocals-195993.mp3",
+  "backingURL": "https://cdn.pixabay.com/download/audio/2024/04/11/audio_322144122f.mp3?filename=matthewmikemusic-abc-song-instrumental-201649.mp3",
+  "clip": 105.84,
+  "backingClip": 104.136,
+  "fullRecording": true,
+  "song": "ABC Song",
+  "sourceSHA256": {
+    "mix": "3b555fd12322a94b5b02d939edaf393004720217fde0a31c10e0d88bc6c642ba",
+    "instrumental": "f83cecd15d725b2e2b2e866f66870c81f3430db9a7b2e471e61f5529ff35e9f3"
+  },
+  "changes": "Complete source recording; one-second lead-in, short tail fade, loudness normalization, MP3 encoding. Sung performance and its original accompaniment preserved together. Instrumental concert is a separate recording by the same musician.",
+  "usage": "Embedded in interactive animated English lessons. Do not distribute these recordings as a standalone audio pack.",
+  "reference": null,
+  "referenceIncluded": false
+}

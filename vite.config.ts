@@ -50,6 +50,8 @@ export default defineConfig({
         globIgnores: [
           '**/review/**',
           'music/twinkle-v*/*.mp3',
+          'music/studio-v3/**/*.mp3',
+          'music/full-v4/**/*.mp3',
           'markers/milo-v2/*.svg',
           'models/cat.glb',
           'models/cat-studio.glb',
@@ -70,6 +72,18 @@ export default defineConfig({
         navigateFallback: null,
         directoryIndex: null,
         runtimeCaching: [
+          {
+            urlPattern: ({ url }) =>
+              url.origin === self.location.origin &&
+              /^\/music\/full-v4\/.*\.mp3$/.test(url.pathname),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'milo-music-full-v4',
+              cacheableResponse: { statuses: [200] },
+              rangeRequests: true,
+              expiration: { maxEntries: 12, purgeOnQuotaError: true },
+            },
+          },
           {
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',

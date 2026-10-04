@@ -112,13 +112,21 @@ function validEvent(string $event, $payload): ?array {
         $p=$payload;
         $limits=json_decode(file_get_contents(__DIR__.'/music/song-limits.json') ?: '{}',true);
         $limit=is_string($p['song'] ?? null) ? ($limits[$p['song']] ?? null) : null;
+        if (array_key_exists('duration',$p) && (!$limit || !($limit['video'] ?? false) ||
+            (!is_int($p['duration']) && !is_float($p['duration'])) || !is_finite((float)$p['duration']) || $p['duration']<=0 || $p['duration']>$limit['duration'])) return null;
+        if (array_key_exists('choice',$p) && (!is_int($p['choice']) || $p['choice']<0 || !$limit || $p['choice']>=$limit['lines'])) return null;
+        if (array_key_exists('beat',$p) && (!is_int($p['beat']) || $p['beat']<0 || $p['beat']>100000)) return null;
+        if (($limit['video'] ?? false) && ($p['mode'] ?? null)!=='together') return null;
+        $length=isset($p['duration']) ? $p['duration'] : (($p['mode'] ?? '')==='echo' ? ($limit['echo'] ?? 0) : (($p['mode'] ?? '')==='concert' ? ($limit['concert'] ?? $limit['duration'] ?? 0) : ($limit['duration'] ?? 0)));
         if (!$limit || !in_array($p['mode'] ?? null,['together','echo','concert'],true) ||
-            (!is_int($p['time'] ?? null) && !is_float($p['time'] ?? null)) || !is_finite((float)$p['time']) || $p['time']<0 || $p['time']>(($p['mode']==='echo')?$limit['echo']:(($p['mode']==='concert')?($limit['concert'] ?? $limit['duration']):$limit['duration']))+0.001 ||
+            (!is_int($p['time'] ?? null) && !is_float($p['time'] ?? null)) || !is_finite((float)$p['time']) || $p['time']<0 || $p['time']>$length+0.001 ||
             !is_bool($p['playing'] ?? null) || !is_bool($p['guide'] ?? null) || !is_bool($p['active'] ?? null) ||
             (!is_int($p['sentAt'] ?? null) && !is_float($p['sentAt'] ?? null)) || !is_finite((float)$p['sentAt']) ||
             !is_array($p['stars'] ?? null) || count($p['stars'])>$limit['lines']) return null;
         foreach ($p['stars'] as $star) if (!is_int($star) || $star<0 || $star>=$limit['lines']) return null;
-        return ['song'=>$p['song'],'mode'=>$p['mode'],'time'=>$p['time'],'playing'=>$p['playing'],'guide'=>$p['guide'],'active'=>$p['active'],'sentAt'=>$p['sentAt'],'stars'=>array_values(array_unique($p['stars']))];
+        $result=['song'=>$p['song'],'mode'=>$p['mode'],'time'=>$p['time'],'playing'=>$p['playing'],'guide'=>$p['guide'],'active'=>$p['active'],'sentAt'=>$p['sentAt'],'stars'=>array_values(array_unique($p['stars']))];
+        foreach (['duration','choice','beat'] as $extra) if (array_key_exists($extra,$p)) $result[$extra]=$p[$extra];
+        return $result;
     }
     $animals=['cat','dog','lion','foxy','bunny','bear','panda','elephant'];
     $friends=['foxy','cat','dog','lion','bunny','bear','panda','elephant'];

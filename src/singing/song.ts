@@ -1,4 +1,5 @@
 import catalog from './catalog.json';
+import previousCatalog from './legacyCatalog.json';
 import { song as legacy, phraseStarts, phraseEnds } from './legacySong';
 export type SingMode = 'together' | 'echo' | 'concert';
 export interface SongLine {
@@ -24,8 +25,13 @@ export interface SongDefinition {
   concert?: { duration: number; phrases: { start: number; end: number; times: number[] }[] };
   recording: { author: string; license: string; licenseURL: string; sourcePage: string };
   legacyStems?: boolean;
+  video?: string;
+  character?: 'cat' | 'bunny' | 'dog' | 'foxy';
+  cueTiming?: boolean;
+  activity?: 'stars' | 'farm' | 'bus' | 'moves' | 'body' | 'letters' | 'spider';
 }
-export const songs: SongDefinition[] = catalog;
+export const songs = catalog as SongDefinition[];
+const previousSongs: SongDefinition[] = previousCatalog;
 export const song = songs[0];
 const legacySong: SongDefinition = {
   id: legacy.id,
@@ -53,7 +59,9 @@ const legacySong: SongDefinition = {
   })),
 };
 export const getSong = (id: string) =>
-  songs.find((s) => s.id === id) ?? (id === legacySong.id ? legacySong : undefined);
+  songs.find((s) => s.id === id) ??
+  previousSongs.find((s) => s.id === id) ??
+  (id === legacySong.id ? legacySong : undefined);
 export const phrase = (line: number, mode: SingMode, selected = song) =>
   mode === 'concert' && selected.concert ? selected.concert.phrases[line] : selected.lines[line];
 export const phraseDuration = (line: number, selected = song) =>
@@ -118,6 +126,9 @@ export interface SingSnapshot {
   stars: number[];
   sentAt: number;
   active: boolean;
+  duration?: number;
+  choice?: number;
+  beat?: number;
 }
 export function isSingSnapshot(value: unknown): value is SingSnapshot {
   const s = value as SingSnapshot | null;
@@ -126,9 +137,19 @@ export function isSingSnapshot(value: unknown): value is SingSnapshot {
     !!s &&
     !!selected &&
     ['together', 'echo', 'concert'].includes(s.mode) &&
+    (!selected.video || s.mode === 'together') &&
     Number.isFinite(s.time) &&
     s.time >= 0 &&
-    s.time <= songDuration(s.mode, selected) + 0.001 &&
+    s.time <=
+      (selected.video && s.duration ? s.duration : songDuration(s.mode, selected)) + 0.001 &&
+    (s.duration === undefined ||
+      (!!selected.video &&
+        Number.isFinite(s.duration) &&
+        s.duration > 0 &&
+        s.duration <= selected.duration)) &&
+    (s.choice === undefined ||
+      (Number.isInteger(s.choice) && s.choice >= 0 && s.choice < selected.lines.length)) &&
+    (s.beat === undefined || (Number.isInteger(s.beat) && s.beat >= 0 && s.beat <= 100000)) &&
     typeof s.playing === 'boolean' &&
     typeof s.guide === 'boolean' &&
     typeof s.active === 'boolean' &&

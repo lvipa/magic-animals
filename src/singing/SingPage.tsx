@@ -6,11 +6,14 @@ import { audio } from '../audio/AudioManager';
 import { getTVBridge } from '../tv/WebSocketTVBridge';
 import { SongPlayer } from './SongPlayer';
 import { Microphone } from './Microphone';
+import { VideoSongPlayer } from './VideoSongPlayer';
+import { OfficialSongVideo } from './OfficialSongVideo';
+import { MusicActivity } from './MusicActivity';
+import { activityOptions, automaticActivityChoice, farmFriends } from './activities';
 import {
   phraseBeginning,
   song as defaultSong,
   songs,
-  songDuration,
   songPhase,
   type SingMode,
   type SingSnapshot,
@@ -25,7 +28,13 @@ const modes = [
 ] as const;
 export default function SingPage() {
   const [song, setSong] = useState(defaultSong);
-  const player = useMemo(() => new SongPlayer(song), [song]),
+  const [picker, setPicker] = useState(true);
+  const [choice, setChoice] = useState(0),
+    [beat, setBeat] = useState(0);
+  const player = useMemo(
+      () => (song.video ? new VideoSongPlayer(song) : new SongPlayer(song)),
+      [song],
+    ),
     mic = useMemo(() => new Microphone(), []);
   const bridge = useMemo(() => getTVBridge(), []);
   const connection = useSyncExternalStore(bridge.subscribe, bridge.getStatus);
@@ -52,8 +61,8 @@ export default function SingPage() {
     request = useRef(0),
     voiced = useRef(0),
     completed = useRef(false);
-  const state = useRef({ mode, time, playing, guide, stars });
-  state.current = { mode, time, playing, guide, stars };
+  const state = useRef({ mode, time, playing, guide, stars, choice, beat });
+  state.current = { mode, time, playing, guide, stars, choice, beat };
   const publish = useCallback(() => {
     const s = state.current;
     bridge.sendEvent('SING_SCENE', {
@@ -62,6 +71,7 @@ export default function SingPage() {
       time: player.time,
       sentAt: bridge.serverTime(),
       active: true,
+      ...(song.video ? { duration: player.duration } : {}),
     } satisfies SingSnapshot);
   }, [bridge, player, song]);
   const pause = useCallback(() => {
@@ -125,17 +135,36 @@ export default function SingPage() {
     };
   }, [player, mic, pause, bridge, song]);
   useEffect(() => {
+    if (!(player instanceof VideoSongPlayer)) return;
+    return player.subscribe(() => {
+      setPlaying(player.isPlaying);
+      setTime(player.time);
+      if (player.error) setError(player.error);
+      if (player.ended && !completed.current) {
+        completed.current = true;
+        setConcerts((n) => {
+          try {
+            localStorage.setItem('sing-milo-concerts-v1', String(n + 1));
+          } catch {
+            /* optional */
+          }
+          return n + 1;
+        });
+      }
+    });
+  }, [player]);
+  useEffect(() => {
     publish();
     const timer = setInterval(publish, 2000);
     return () => clearInterval(timer);
-  }, [publish, mode, playing, guide, stars, connection.state]);
+  }, [publish, mode, playing, guide, stars, connection.state, choice, beat]);
   useEffect(() => {
     if (!playing) return;
     let raf = 0,
       last = 0;
     const tick = (now: number) => {
       const t = player.time,
-        phase = songPhase(t, mode, song);
+        phase = songPhase(t, mode, song.video ? { ...song, duration: player.duration } : song);
       if (now - last > 70) {
         setTime(t);
         setLevel(micOn && phase.turn ? mic.level() : 0);
@@ -145,9 +174,9 @@ export default function SingPage() {
         voiced.current = mic.level() > 0.08 ? voiced.current + 1 : Math.max(0, voiced.current - 1);
         if (voiced.current > 18) addStar(phase.line);
       } else voiced.current = 0;
-      if (phase.done) {
+      if (phase.done || player.ended) {
         pause();
-        setTime(songDuration(mode, song));
+        setTime(player.duration);
         if (!completed.current) {
           completed.current = true;
           setConcerts((n) => {
@@ -166,7 +195,8 @@ export default function SingPage() {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [playing, mode, player, mic, micOn, addStar, pause, song]);
-  const phase = songPhase(time, mode, song);
+  const displayedSong = song.video ? { ...song, duration: player.duration } : song;
+  const phase = songPhase(time, mode, displayedSong);
   const changeMode = (next: SingMode) => {
     pause();
     player.seek(0, next);
@@ -194,237 +224,324 @@ export default function SingPage() {
       if (alive.current) setMicPending(false);
     }
   };
+  const chooseSong = (s: typeof song) => {
+    pause();
+    mic.stop();
+    setMicOn(false);
+    setSong(s);
+    setTime(0);
+    setMode('together');
+    setGuide(true);
+    setStars([]);
+    setChoice(0);
+    setBeat(0);
+    setError('');
+    setPicker(false);
+    completed.current = false;
+    window.scrollTo({ top: 0 });
+  };
+  const chooseActivity = (index: number) => {
+    setChoice(index);
+    setBeat((n) => Math.min(100000, n + 1));
+    addStar(Math.min(index, song.lines.length - 1));
+    if (song.activity === 'farm') {
+      const at = farmFriends[index].at;
+      completed.current = false;
+      if (playing) void play(at);
+      else {
+        player.seek(at, mode);
+        setTime(at);
+      }
+    }
+  };
+  useEffect(() => {
+    if (!song.video || !playing || beat > 0) return;
+    const options = activityOptions(song);
+    if (options.length) setChoice(automaticActivityChoice(song, time, phase.line));
+  }, [song, playing, phase.line, beat, time]);
   return (
     <main className="sing-page">
       <header className="sing-header">
-        <Link to="/" aria-label="На главную">
-          ←
-        </Link>
+        {picker ? (
+          <Link to="/" aria-label="На главную">
+            🏠
+          </Link>
+        ) : (
+          <button
+            aria-label="Выбрать другую песенку"
+            onClick={() => {
+              pause();
+              mic.stop();
+              setMicOn(false);
+              setPicker(true);
+            }}
+          >
+            ← 🎵
+          </button>
+        )}
         <div>
           <small>MAGIC ANIMALS · MUSIC</small>
           <h1>Sing with Milo</h1>
         </div>
-        <FullscreenButton />
+        <FullscreenButton compact />
       </header>
-      <div className="sing-song-picker" role="group" aria-label="Выбери песенку">
-        {songs.map((s) => (
-          <button
-            key={s.id}
-            aria-pressed={song.id === s.id}
-            onClick={() => {
-              if (song.id === s.id) return;
-              pause();
-              setSong(s);
-              setTime(0);
-              setMode('together');
-              setGuide(true);
-              setStars([]);
-              setMicOn(false);
-              setError('');
-              completed.current = false;
-            }}
-          >
-            <span>{s.icon}</span>
-            <strong>
-              {s.title === 'Twinkle, Twinkle, Little Star' ? 'Twinkle Star' : s.title}
-            </strong>
-            <small>{s.label}</small>
-          </button>
-        ))}
-      </div>
-      <div className="sing-heading">
-        <div>
-          <span>
-            {song.icon} {song.label}
-          </span>
-          <h2>{song.title}</h2>
-        </div>
-        <span className="sing-earned" aria-label={`${stars.length} звёзд`}>
-          ★ {stars.length}/{song.lines.length}
-        </span>
-      </div>
-      <div className="sing-mode-picker" role="group" aria-label="Режим пения">
-        {modes.map((m) => (
-          <button key={m.id} aria-pressed={mode === m.id} onClick={() => changeMode(m.id)}>
-            <span>{m.icon}</span>
-            {m.label}
-            <small>{m.detail}</small>
-          </button>
-        ))}
-      </div>
-      <div className="sing-vocal-status">
-        {guide
-          ? '🎙️ Песня с вокалом — слушай и подпевай'
-          : '🎼 Сейчас музыка без вокала — поёшь ты'}
-        {!guide && <button onClick={() => changeMode('together')}>🎙️ Вернуть пение</button>}
-      </div>
-      <SingStage
-        song={song}
-        time={time}
-        mode={mode}
-        playing={playing}
-        stars={stars}
-        mouthLevel={player.mouthLevel}
-        level={level}
-        onStar={(line) => {
-          if (playing && !phase.intro && !phase.done && line === phase.line) addStar(line);
-        }}
-      />
-      <div className="sing-status" role="status">
-        {loading
-          ? '🎵 Готовим песенку…'
-          : phase.done
-            ? '🎉 Спасибо за твой концерт!'
-            : !playing
-              ? time > 0
-                ? '⏸ Продолжим, когда будешь готов'
-                : '🎶 Нажми «Петь», и начнём!'
-              : phase.turn
-                ? '🎤 Теперь твоя очередь!'
-                : mode === 'concert'
-                  ? '🌟 Сцена твоя!'
-                  : phase.celebrating
-                    ? '✨ Молодец, что попробовал!'
-                    : '🎶 Подпевай Milo!'}
-      </div>
-      <SingLyrics song={song} time={time} mode={mode} />
-      <progress
-        className="sing-progress"
-        aria-label="Ход песни"
-        value={time}
-        max={songDuration(mode, song)}
-      />
-      <div className="sing-controls">
-        <button
-          className="sing-primary"
-          disabled={loading}
-          onClick={() => (playing ? pause() : void play(phase.done ? 0 : time))}
-        >
-          {playing
-            ? '⏸ Пауза'
-            : loading
-              ? '🎵 Загрузка…'
-              : phase.done
-                ? '🎶 Ещё концерт!'
-                : time > 0
-                  ? '▶ Продолжить'
-                  : '▶ Петь!'}
-        </button>
-        <button
-          disabled={loading}
-          onClick={() => {
-            completed.current = false;
-            void play(phraseBeginning(time, mode, song));
-          }}
-        >
-          ↻ Ещё строку
-        </button>
-        <button
-          disabled={!playing || phase.intro || phase.done || (!phase.turn && mode === 'echo')}
-          onClick={() => addStar(phase.line)}
-        >
-          ⭐ Спел!
-        </button>
-      </div>
-      {phase.done && (
-        <section className="sing-finish">
-          <span>🌟</span>
-          <h2>Твоя звёздная сцена!</h2>
-          <p>Мы спели {song.title}! Выбери картинку — повтори строку.</p>
-          <div>
-            {song.lines.map((line, i) => (
-              <button
-                key={i}
-                onClick={() => {
-                  changeMode('together');
-                  void play(song.lines[i].start, 'together', true);
-                }}
-              >
-                {line.icon} {line.key}
+      {picker ? (
+        <>
+          <h2 className="sing-library-title">Что будем петь? 🎶</h2>
+          <div className="sing-song-picker" role="group" aria-label="Выбери песенку">
+            {songs.map((s) => (
+              <button key={s.id} aria-pressed={song.id === s.id} onClick={() => chooseSong(s)}>
+                <span>{s.icon}</span>
+                <strong>
+                  {s.title === 'Twinkle, Twinkle, Little Star' ? 'Twinkle Star' : s.title}
+                </strong>
+                <small>{s.label}</small>
               </button>
             ))}
           </div>
-        </section>
-      )}
-      {error && (
-        <p role="alert">
-          {error} <button onClick={() => void play()}>Повторить загрузку</button>
-        </p>
-      )}
-      <div className="sing-footer">
-        <span>🎟 Концертов: {concerts}</span>
-        <Link to="/connect-tv">📺 Подключить TV</Link>
-        <button
-          onClick={() => {
-            pause();
-            player.seek(0, mode);
-            setTime(0);
-            setStars([]);
-            completed.current = false;
-          }}
-        >
-          ↺ Сначала
-        </button>
-        <button aria-expanded={adult} onClick={() => setAdult(!adult)}>
-          ⚙ Для взрослых
-        </button>
-      </div>
-      {adult && (
-        <section className="sing-adult">
-          <h2>Звук и микрофон</h2>
-          <label>
-            <input
-              type="checkbox"
-              checked={guide}
-              onChange={(e) => {
-                changeMode(e.target.checked ? 'together' : 'concert');
+        </>
+      ) : (
+        <>
+          <div className="sing-heading">
+            <div>
+              <span>
+                {song.icon} {song.label}
+              </span>
+              <h2>{song.title}</h2>
+            </div>
+            <span className="sing-earned" aria-label={`${stars.length} звёзд`}>
+              ★ {stars.length}/{song.lines.length}
+            </span>
+          </div>
+          {!guide && (
+            <div className="sing-vocal-status">
+              🎼 Поёшь ты <button onClick={() => changeMode('together')}>🎙️ Вернуть пение</button>
+            </div>
+          )}
+          {player instanceof VideoSongPlayer && (
+            <OfficialSongVideo key={`video-${song.id}`} player={player} />
+          )}
+          <SingStage
+            key={`stage-${song.id}`}
+            song={displayedSong}
+            time={time}
+            mode={mode}
+            playing={playing}
+            stars={stars}
+            mouthLevel={player.mouthLevel}
+            level={level}
+            choice={choice}
+            beat={beat}
+            onStar={(line) => {
+              if (playing && !phase.intro && !phase.done && line === phase.line) addStar(line);
+            }}
+          />
+          <div className="sing-controls">
+            <button
+              className="sing-primary"
+              disabled={loading}
+              onClick={() => (playing ? pause() : void play(phase.done ? 0 : time))}
+            >
+              {playing
+                ? '⏸ Пауза'
+                : loading
+                  ? '🎵 Загрузка…'
+                  : phase.done
+                    ? '🎶 Ещё концерт!'
+                    : time > 0
+                      ? '▶ Продолжить'
+                      : '▶ Петь!'}
+            </button>
+            <button
+              aria-label="Сначала"
+              onClick={() => {
+                pause();
+                player.seek(0, mode);
+                setTime(0);
+                setStars([]);
+                setBeat(0);
+                completed.current = false;
               }}
-            />{' '}
-            Певческий вокал (смена режима начинает песню сначала)
-          </label>
-          <button disabled={micPending} onClick={() => void toggleMic()}>
-            {micPending
-              ? 'Разрешаем микрофон…'
-              : micOn
-                ? '🎤 Выключить микрофон'
-                : '🎤 Включить микрофон'}
-          </button>
-          <p>
-            Микрофон реагирует на звук в режиме «Повтори», когда музыка молчит. Он не проверяет
-            слова или ноты. Запись не сохраняется и не отправляется. Без микрофона нажимай «Спел!».
-          </p>
-          {micInfo && <p role="status">{micInfo}</p>}
-          <p>
-            {connection.state === 'ready'
-              ? 'TV подключён: слова и Milo появятся на большом экране. Звук этой песенки идёт с телефона.'
-              : 'На телевизоре открой /tv, подключи телефон по QR или коду, затем вернись сюда.'}
-          </p>
-          <details>
-            <summary>Запись и авторы песни</summary>
-            <p>
-              Запись: {song.recording.author}. Поём под оригинальный аккомпанемент этой записи.
-              Режим «Без вокала» использует отдельное инструментальное исполнение того же музыканта.
-            </p>
-            <a href={song.recording.sourcePage} target="_blank" rel="noreferrer">
-              Источник вокала
-            </a>{' '}
-            ·{' '}
-            <a href={song.recording.licenseURL} target="_blank" rel="noreferrer">
-              {song.recording.license}
-            </a>
-            <p>
-              <a href={song.mix.replace('mix.mp3', 'credits.json')}>Запись и источники</a>
-              {' · '}
-              <a
-                href="https://kolibelnie-pesni.com/media/twinkle-twinkle-little-star"
-                target="_blank"
-                rel="noreferrer"
+            >
+              ↺
+            </button>
+            {!song.video && (
+              <button
+                aria-label="Ещё строку"
+                disabled={loading}
+                onClick={() => {
+                  completed.current = false;
+                  void play(phraseBeginning(time, mode, song));
+                }}
               >
-                Пример, выбранный родителем
-              </a>
+                ↻
+              </button>
+            )}
+          </div>
+          <div className="sing-status" role="status">
+            {loading
+              ? '🎵 Готовим песенку…'
+              : phase.done
+                ? '🎉 Спасибо за твой концерт!'
+                : !playing
+                  ? time > 0
+                    ? '⏸ Продолжим, когда будешь готов'
+                    : '🎶 Нажми «Петь», и начнём!'
+                  : phase.turn
+                    ? '🎤 Теперь твоя очередь!'
+                    : mode === 'concert'
+                      ? '🌟 Сцена твоя!'
+                      : phase.celebrating
+                        ? '✨ Молодец, что попробовал!'
+                        : '🎶 Подпевай Milo!'}
+          </div>
+          <MusicActivity song={song} choice={choice} onChoose={chooseActivity} />
+          <SingLyrics song={displayedSong} time={time} mode={mode} choice={choice} />
+          <progress
+            className="sing-progress"
+            aria-label="Ход песни"
+            value={time}
+            max={player.duration}
+          />
+          {!song.video && (
+            <div className="sing-participation">
+              <button
+                disabled={!playing || phase.intro || phase.done || (!phase.turn && mode === 'echo')}
+                onClick={() => addStar(phase.line)}
+              >
+                ⭐ Спел!
+              </button>
+            </div>
+          )}
+          {phase.done && (
+            <section className="sing-finish">
+              <span>🌟</span>
+              <h2>Твоя звёздная сцена!</h2>
+              <p>Мы спели {song.title}! Выбери картинку — повтори строку.</p>
+              {!song.video && (
+                <div>
+                  {song.lines.map((line, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        changeMode('together');
+                        void play(song.lines[i].start, 'together', true);
+                      }}
+                    >
+                      {line.icon} {line.key}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <button
+                onClick={() => {
+                  pause();
+                  setPicker(true);
+                }}
+              >
+                🎵 Другая песенка
+              </button>
+            </section>
+          )}
+          {error && (
+            <p role="alert">
+              {error} <button onClick={() => void play()}>Повторить загрузку</button>
             </p>
-          </details>
-        </section>
+          )}
+          <div className="sing-footer">
+            <span>🎟 Концертов: {concerts}</span>
+            <Link to="/connect-tv">📺 Подключить TV</Link>
+            <button aria-expanded={adult} onClick={() => setAdult(!adult)}>
+              ⚙ Для взрослых
+            </button>
+          </div>
+          {adult && (
+            <section className="sing-adult">
+              <h2>Звук и микрофон</h2>
+              {!song.video && (
+                <div className="sing-mode-picker" role="group" aria-label="Режим пения">
+                  {modes.map((m) => (
+                    <button
+                      key={m.id}
+                      aria-pressed={mode === m.id}
+                      onClick={() => changeMode(m.id)}
+                    >
+                      <span>{m.icon}</span>
+                      {m.label}
+                      <small>{m.detail}</small>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {song.video ? (
+                <p>
+                  Полное официальное видео Super Simple Songs. Требуется YouTube; его реклама и
+                  доступность управляются платформой. Игровые подсказки приблизительные. Режимы
+                  «Повтори» и «Без вокала» доступны у аудиопесен.
+                </p>
+              ) : (
+                <>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={guide}
+                      onChange={(e) => {
+                        changeMode(e.target.checked ? 'together' : 'concert');
+                      }}
+                    />{' '}
+                    Певческий вокал (смена режима начинает песню сначала)
+                  </label>
+                  <button disabled={micPending} onClick={() => void toggleMic()}>
+                    {micPending
+                      ? 'Разрешаем микрофон…'
+                      : micOn
+                        ? '🎤 Выключить микрофон'
+                        : '🎤 Включить микрофон'}
+                  </button>
+                  <p>
+                    Микрофон реагирует на звук в режиме «Повтори», когда музыка молчит. Он не
+                    проверяет слова или ноты. Запись не сохраняется и не отправляется. Без микрофона
+                    нажимай «Спел!».
+                  </p>
+                  {micInfo && <p role="status">{micInfo}</p>}
+                </>
+              )}
+              <p>
+                {connection.state === 'ready'
+                  ? 'TV подключён: слова и Milo появятся на большом экране. Звук этой песенки идёт с телефона.'
+                  : 'На телевизоре открой /tv, подключи телефон по QR или коду, затем вернись сюда.'}
+              </p>
+              <details>
+                <summary>Запись и авторы песни</summary>
+                <p>
+                  Запись: {song.recording.author}. Поём под оригинальный аккомпанемент этой записи.
+                  {!song.video &&
+                    'Режим «Без вокала» использует отдельное инструментальное исполнение того же музыканта.'}
+                </p>
+                <a href={song.recording.sourcePage} target="_blank" rel="noreferrer">
+                  Источник вокала
+                </a>{' '}
+                ·{' '}
+                <a href={song.recording.licenseURL} target="_blank" rel="noreferrer">
+                  {song.recording.license}
+                </a>
+                <p>
+                  {!song.video && (
+                    <a href={song.mix.replace('mix.mp3', 'credits.json')}>Запись и источники</a>
+                  )}
+                  {' · '}
+                  <a
+                    href="https://kolibelnie-pesni.com/media/twinkle-twinkle-little-star"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Пример, выбранный родителем
+                  </a>
+                </p>
+              </details>
+            </section>
+          )}
+        </>
       )}
       <KidNav />
     </main>

@@ -14,6 +14,16 @@
 .sing-header h1 {
   margin: 3px 0;
   font-size: clamp(22px, 4vw, 34px);
+  line-height: 1.2;
+  text-shadow: none;
+}
+.sing-header > div {
+  min-width: 0;
+  flex: 1;
+}
+.sing-header > button {
+  flex-shrink: 0;
+  padding: 12px;
 }
 .sing-header small {
   font-size: 10px;
@@ -56,7 +66,7 @@
 }
 .sing-song-picker {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 24px;
 }
@@ -65,16 +75,19 @@
   flex-direction: column;
   align-items: center;
   gap: 7px;
-  padding: 14px 6px;
+  padding: 18px 12px;
+  min-height: 155px;
+  text-align: center;
 }
 .sing-song-picker button > span {
-  font-size: 34px;
+  font-size: 48px;
 }
 .sing-song-picker strong {
-  font-size: 15px;
+  font-size: 17px;
+  overflow-wrap: anywhere;
 }
 .sing-song-picker small {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400;
 }
 .sing-song-picker button[aria-pressed='true'] {
@@ -278,13 +291,23 @@
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
+  margin-top: 12px;
+  position: sticky;
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  z-index: 3;
+  padding: 8px;
+  border-radius: 22px;
+  background: #173449ef;
+  box-shadow: 0 5px 20px #071a2a40;
 }
 .sing-controls button {
-  flex: 1;
-  min-width: 100px;
+  flex: 0;
+  min-width: 50px;
 }
 .sing-controls .sing-primary {
-  flex: 1.6;
+  flex: 1;
+  font-size: 21px;
+  min-height: 58px;
 }
 .sing-footer {
   display: flex;
@@ -395,5 +418,154 @@
 @media (prefers-reduced-motion: reduce) {
   .sing-turn-badge span {
     transform: none !important;
+  }
+}
+.sing-page {
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.sing-library-title {
+  text-align: center;
+  margin: 0 0 22px;
+  font-size: 25px;
+}
+.sing-header {
+  margin-bottom: 16px;
+}
+.sing-header > button {
+  padding: 10px;
+  font-size: 21px;
+  flex-shrink: 0;
+}
+.sing-heading {
+  align-items: center;
+  margin-bottom: 14px;
+}
+.sing-heading h2 {
+  margin: 0;
+}
+.sing-heading > div {
+  min-width: 0;
+}
+.sing-heading > div > span {
+  display: none;
+}
+.sing-status {
+  padding: 12px 8px;
+  font-size: 17px;
+  line-height: 1.5;
+  white-space: normal;
+}
+.sing-milo-label {
+  font-size: 13px;
+  color: #314959;
+  letter-spacing: 0.3px;
+  font-weight: 800;
+  background: #fff2dce8;
+  width: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 5px 12px;
+  border-radius: 15px;
+  max-width: 88%;
+}
+.theme-space .sing-milo-label {
+  color: #4b365d;
+}
+.sing-official-video {
+  margin-bottom: 12px;
+}
+.sing-official-video iframe {
+  display: block;
+  border: 0;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  min-height: 200px;
+  border-radius: 18px;
+  background: #122536;
+}
+.sing-official-video a {
+  color: #ffe5a6;
+}
+.music-activity {
+  margin: 12px 0;
+  padding: 16px 12px;
+  border-radius: 24px;
+  background: #274c62;
+  text-align: center;
+}
+.music-activity > p {
+  margin: 0 0 12px;
+  font-size: 19px;
+  font-weight: 800;
+}
+.music-activity > div {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.music-activity button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 5px;
+  min-height: 90px;
+  min-width: 0;
+}
+.music-activity button > span {
+  font-size: 35px;
+}
+.music-activity button strong {
+  font-size: 14px;
+}
+.music-activity button[aria-pressed='true'] {
+  color: #4f3c53;
+  background: #ffe2a8;
+  border-color: #ffe2a8;
+}
+.music-action-word {
+  display: block;
+  margin-top: 12px;
+  font-size: 19px;
+  color: #ffe2a8;
+}
+.sing-participation {
+  text-align: center;
+}
+.sing-activity-caption {
+  padding: 12px;
+}
+.sing-activity-caption p {
+  font-size: 25px;
+  margin: 2px 0;
+}
+.sing-activity-caption .sing-meaning-picture {
+  display: none;
+}
+.sing-adult .sing-mode-picker {
+  grid-template-columns: 1fr;
+}
+.sing-adult .sing-mode-picker button {
+  flex-direction: row;
+  text-align: left;
+  gap: 8px;
+}
+.sing-adult .sing-mode-picker button small {
+  display: block;
+}
+.sing-tv .sing-milo-label {
+  font-size: 18px;
+}
+@media (min-width: 700px) {
+  .sing-song-picker {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .music-activity > div {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .sing-official-video iframe {
+    max-height: 320px;
   }
 }

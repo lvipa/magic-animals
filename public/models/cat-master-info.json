@@ -3,9 +3,9 @@
   "approval": "user requested game integration; further art polish pending",
   "source": "User-supplied Meshy Milo; original SHA256 de0e348c7eece526c4a7464ab876a73a72287f0cd0313d056b8e803afb1a9e90",
   "pipeline": "Milo shared PBR/rig, original body and facial shapes, clean short fur, soft ear/trunk controls, compact morph normals",
-  "asset": "cat-milo-polished-2be5c4101481.glb",
-  "sha256": "2be5c41014815627c7a355e7125a1107b0fa9dc14d73a8cc8ff7461540185f2e",
-  "bytes": 5531668,
+  "asset": "cat-milo-hd-83cf95d64c9f.glb",
+  "sha256": "83cf95d64c9f1ccf58014735491e9f62a3d3195932ee7723f5fa31695f3f39cd",
+  "bytes": 8287628,
   "height": 1.15,
   "bones": 23,
   "clips": [
@@ -38,5 +38,18 @@
     "removed_noise_vectors": 101685,
     "saved_bytes": 1423456
   },
-  "previous_asset": "cat-milo-56d1f528f55c.glb"
+  "previous_asset": "cat-milo-56d1f528f55c.glb",
+  "texture_upgrade": [
+    {
+      "map": "baseColorTexture",
+      "from": 1024,
+      "to": 2048
+    },
+    {
+      "map": "normalTexture",
+      "from": 1024,
+      "to": 2048
+    }
+  ],
+  "hd_previous_asset": "cat-milo-polished-2be5c4101481.glb"
 }

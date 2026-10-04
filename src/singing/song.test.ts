@@ -11,6 +11,36 @@ import {
 
 describe('Recorded singing library', () => {
   for (const song of songs) {
+    if (song.video) {
+      it(`${song.title}: accepts bounded official-video time and activity choices only`, () => {
+        const s = {
+          song: song.id,
+          mode: 'together',
+          time: 45,
+          duration: 180,
+          playing: true,
+          guide: true,
+          stars: [0],
+          choice: 1,
+          beat: 2,
+          sentAt: 123,
+          active: true,
+        };
+        expect(isSingSnapshot(s)).toBe(true);
+        for (const patch of [
+          { duration: Infinity },
+          { duration: 601 },
+          { time: 181 },
+          { choice: -1 },
+          { choice: song.lines.length },
+          { beat: -1 },
+          { beat: 100001 },
+          { mode: 'echo' },
+        ])
+          expect(isSingSnapshot({ ...s, ...patch })).toBe(false);
+      });
+      continue;
+    }
     it(`${song.title}: recorded phrases leave enough silence for every child answer`, () => {
       const segments = songSegments('echo', song);
       expect(segments).toHaveLength(song.lines.length);

@@ -1,8 +1,8 @@
 {
   "id": "bunny",
-  "asset": "bunny-milo-polished-c336e1a2acc9.glb",
-  "sha256": "c336e1a2acc9405e9bc9ac7999618a98b2b46f4ad93f668b985f2c8a72b4df78",
-  "bytes": 4772880,
+  "asset": "bunny-milo-hd-e647c29116cc.glb",
+  "sha256": "e647c29116cc5b0b1eb861b8ab242814fa18993a11830738277f5f297abf8d91",
+  "bytes": 7194900,
   "height": 1.15,
   "bones": 23,
   "source_file": "Meshy_AI_Bunny_in_a_Pink_Hoodi_0930215127_texture.glb",
@@ -39,5 +39,18 @@
     "removed_noise_vectors": 64638,
     "saved_bytes": 904792
   },
-  "previous_asset": "bunny-milo-family-caa8acc56d27.glb"
+  "previous_asset": "bunny-milo-family-caa8acc56d27.glb",
+  "texture_upgrade": [
+    {
+      "map": "baseColorTexture",
+      "from": 1024,
+      "to": 2048
+    },
+    {
+      "map": "normalTexture",
+      "from": 1024,
+      "to": 2048
+    }
+  ],
+  "hd_previous_asset": "bunny-milo-polished-c336e1a2acc9.glb"
 }

@@ -3,7 +3,7 @@ export const CAST_MODEL_URLS = {
   "foxy": "/models/foxy-milo-polished-0ae45d1adf57.glb",
   "dog": "/models/dog-milo-polished-f29b546329c1.glb",
   "lion": "/models/lion-milo-polished-2e580b7a0f2b.glb",
-  "bunny": "/models/bunny-milo-polished-c336e1a2acc9.glb",
+  "bunny": "/models/bunny-milo-hd-e647c29116cc.glb",
   "bear": "/models/bear-milo-polished-4cccc6689e82.glb",
   "panda": "/models/panda-milo-polished-10143b74513e.glb",
   "elephant": "/models/elephant-milo-polished-dcbb7fd942e8.glb"

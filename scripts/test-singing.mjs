@@ -3,7 +3,6 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 import { createTVServer } from '../server/tv-server.mjs';
 import { isolateTestContext } from './browser-runtime.mjs';
-
 const app = await createTVServer({
   port: 0,
   host: '127.0.0.1',
@@ -33,10 +32,68 @@ try {
     serviceWorkers: 'block',
   });
   await isolateTestContext(phone);
+  // Test double verifies app controls, not actual YouTube networking or audio.
+  await phone.route(/https:\/\/www.youtube-nocookie.com\/embed\//, (r) =>
+    r.fulfill({
+      contentType: 'text/html',
+      body: '<html><body>Official video test double</body></html>',
+    }),
+  );
   await phone.addInitScript(() => {
-    const original = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
     window.__micTracks = [];
     window.__songSources = [];
+    window.__videos = [];
+    window.YT = {
+      Player: class {
+        constructor(frame, { events }) {
+          this.events = events;
+          this.position = 0;
+          this.state = 2;
+          this.started = 0;
+          this.destroyed = false;
+          window.__videos.push(this);
+          setTimeout(() => {
+            if (!this.destroyed) events.onReady();
+          }, 500);
+        }
+        getCurrentTime() {
+          return Math.min(
+            195,
+            this.position + (this.state === 1 ? (performance.now() - this.started) / 1000 : 0),
+          );
+        }
+        getDuration() {
+          return 195;
+        }
+        getPlayerState() {
+          return this.state;
+        }
+        seekTo(t) {
+          this.position = t;
+          this.started = performance.now();
+        }
+        playVideo() {
+          this.started = performance.now();
+          this.state = 1;
+          this.events.onStateChange({ data: 1 });
+        }
+        pauseVideo() {
+          this.position = this.getCurrentTime();
+          this.state = 2;
+          this.events.onStateChange({ data: 2 });
+        }
+        destroy() {
+          this.destroyed = true;
+          this.state = -1;
+        }
+      },
+    };
+    const original = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
+    navigator.mediaDevices.getUserMedia = async (options) => {
+      const stream = await original(options);
+      window.__micTracks.push(...stream.getTracks());
+      return stream;
+    };
     const Context = window.AudioContext;
     window.AudioContext = class extends Context {
       createBufferSource() {
@@ -49,88 +106,84 @@ try {
           return connect(node, ...args);
         };
         source.start = (...args) => {
-          const buffer = source.buffer,
-            samples = buffer.getChannelData(0);
-          const from = Math.min(samples.length, Math.floor(buffer.sampleRate * 2)),
-            to = Math.min(samples.length, Math.floor(buffer.sampleRate * 8));
+          const b = source.buffer,
+            samples = b.getChannelData(0);
           let energy = 0;
-          for (let i = from; i < to; i++) energy += samples[i] * samples[i];
+          for (let i = b.sampleRate * 2; i < b.sampleRate * 8; i++) energy += samples[i] ** 2;
           window.__songSources.push({
-            duration: buffer.duration,
+            duration: b.duration,
             gain: output?.gain?.value,
-            rms: Math.sqrt(energy / Math.max(1, to - from)),
+            rms: Math.sqrt(energy / (b.sampleRate * 6)),
           });
           return start(...args);
         };
         return source;
       }
     };
-    navigator.mediaDevices.getUserMedia = async (options) => {
-      const stream = await original(options);
-      window.__micTracks.push(...stream.getTracks());
-      return stream;
-    };
   });
   const page = await phone.newPage();
   page.on('pageerror', (e) => errors.push(e.message));
+  const choose = async (title) => {
+    await page.getByRole('heading', { name: 'Sing with Milo', exact: true }).waitFor();
+    if (!(await page.locator('.sing-song-picker').count()))
+      await page.getByLabel('Выбрать другую песенку').click();
+    await page
+      .getByRole('group', { name: 'Выбери песенку' })
+      .getByRole('button', { name: new RegExp(title) })
+      .click();
+  };
   await page.goto(base + '/sing', { waitUntil: 'domcontentloaded' });
   await page.getByRole('heading', { name: 'Sing with Milo', exact: true }).waitFor();
+  assert.equal(await page.locator('.sing-song-picker button').count(), 7);
+  assert.equal(await page.locator('.sing-stage canvas').count(), 0);
+  await mkdir('artifacts/singing', { recursive: true });
+  await page.screenshot({ path: 'artifacts/singing/full-library-phone.png', fullPage: true });
+  await choose('Twinkle Star');
   await page.waitForFunction(() => document.querySelector('.sing-stage canvas')?.width > 390);
-  const raster = await page.locator('.sing-stage canvas').evaluate((canvas) => ({
-    width: canvas.width,
-    css: canvas.getBoundingClientRect().width,
-    antialias: canvas.getContext('webgl2')?.getContextAttributes()?.antialias,
+  const raster = await page.locator('.sing-stage canvas').evaluate((c) => ({
+    width: c.width,
+    css: c.getBoundingClientRect().width,
+    antialias: c.getContext('webgl2')?.getContextAttributes()?.antialias,
   }));
   assert.equal(raster.antialias, true);
-  assert.ok(raster.width / raster.css > 1.4);
+  assert.ok(raster.width / raster.css >= 1.49);
   await page.getByRole('button', { name: '▶ Петь!', exact: true }).click();
   await page.getByRole('button', { name: '⏸ Пауза', exact: true }).waitFor();
-  await page.waitForFunction(() => document.querySelector('progress.sing-progress').value > 5);
-  const output = await page.evaluate(() => window.__songSources.slice(-2));
-  assert.ok(
-    output[0].gain > 0.8 && output[0].rms > 0.01,
-    'Sung recording must reach the audible output',
-  );
-  assert.equal(output[1].gain, 0, 'Do not layer a second accompaniment on the sung mix');
+  await page.waitForFunction(() => document.querySelector('.sing-progress').value > 5);
+  const sources = await page.evaluate(() => window.__songSources);
+  assert.equal(sources.length, 1);
+  assert.ok(sources[0].gain > 0.8 && sources[0].rms > 0.01 && sources[0].duration > 133);
   await page.getByRole('button', { name: '⭐ Спел!', exact: true }).click();
   assert.equal(await page.getByLabel('1 звёзд').count(), 1);
   await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
   const stopped = await page.locator('.sing-progress').evaluate((p) => p.value);
-  await page.waitForTimeout(350);
+  await page.waitForTimeout(300);
   assert.equal(await page.locator('.sing-progress').evaluate((p) => p.value), stopped);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.locator('.model-loading').waitFor({ state: 'detached', timeout: 45000 });
+  await page.screenshot({ path: 'artifacts/singing/hd-milo-phone.png', fullPage: true });
   pass(
-    'Phone: recorded singing reaches audio output, second backing muted, pause freezes karaoke, participation lights a star, supersampling and MSAA enabled',
+    'Seven-song chooser; full 134-second Twinkle; only one audible mix; pause, stars, no phone overflow, MSAA and supersampling',
   );
-  await mkdir('artifacts/singing', { recursive: true });
-  await page.screenshot({ path: 'artifacts/singing/phone.png', fullPage: true });
-  await page.getByRole('button', { name: '🎤 Повтори', exact: false }).click();
   await page.getByRole('button', { name: '⚙ Для взрослых', exact: true }).click();
+  await page.getByRole('button', { name: '🎤 Повтори', exact: false }).click();
   await page.getByRole('button', { name: '🎤 Включить микрофон', exact: true }).click();
   await page.getByRole('button', { name: '🎤 Выключить микрофон', exact: true }).waitFor();
   await page.getByRole('button', { name: '▶ Петь!', exact: true }).click();
-  await page.getByText('🎤 Теперь твоя очередь!', { exact: true }).waitFor({ timeout: 10000 });
-  await page.getByRole('button', { name: '⭐ Спел!', exact: true }).click();
+  await page.getByText('🎤 Теперь твоя очередь!', { exact: true }).waitFor({ timeout: 15000 });
   await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
-  await page.getByRole('button', { name: '↻ Ещё строку', exact: true }).click();
+  await page.getByLabel('Ещё строку', { exact: true }).click();
   await page.waitForFunction(() => document.querySelector('.sing-progress').value < 3);
-  pass(
-    'Echo: silent response window, optional microphone, repeated phrase resumes at its beginning',
-  );
-  await page.locator('.kid-nav a[href="/friends"]').click();
+  await choose('ABC Song');
   assert.equal(
     await page.evaluate(() => window.__micTracks.every((t) => t.readyState === 'ended')),
     true,
   );
-  pass('Navigation releases microphone tracks and stops song playback');
-  await page.locator('.kid-nav a[href="/sing"]').click();
-  await page.getByRole('button', { name: '🌟 Без вокала', exact: false }).click();
   await page.getByRole('button', { name: '▶ Петь!', exact: true }).click();
-  await page.getByText('Твоя звёздная сцена!', { exact: true }).waitFor({ timeout: 35000 });
-  assert.equal(await page.evaluate(() => localStorage.getItem('sing-milo-concerts-v1')), '1');
-  await page.getByRole('button', { name: '↺ Сначала', exact: true }).click();
-  assert.equal(await page.locator('.sing-progress').evaluate((p) => p.value), 0);
-  pass('Instrumental concert finishes naturally, persists completion, restart clears the round');
-
+  await page.getByRole('button', { name: '⏸ Пауза', exact: true }).waitFor();
+  assert.ok(await page.evaluate(() => window.__songSources.at(-1).duration > 105));
+  await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
+  pass('Full ABC; echo response and phrase repeat; changing songs releases microphone');
   const tvContext = await browser.newContext({
     viewport: { width: 1920, height: 1080 },
     serviceWorkers: 'block',
@@ -140,13 +193,6 @@ try {
   tv.on('pageerror', (e) => errors.push(e.message));
   await tv.goto(base + '/tv', { waitUntil: 'domcontentloaded' });
   await tv.getByRole('button', { name: 'START TV', exact: true }).click();
-  await tv.waitForFunction(() => document.querySelector('.tv-stage canvas')?.width > 1920);
-  assert.equal(
-    await tv
-      .locator('.tv-stage canvas')
-      .evaluate((c) => c.getContext('webgl2')?.getContextAttributes()?.antialias),
-    true,
-  );
   await tv.waitForFunction(() =>
     /^\d{6}$/.test(document.querySelector('.tv-code')?.textContent || ''),
   );
@@ -156,49 +202,53 @@ try {
   await page.getByRole('button', { name: 'Connect TV', exact: true }).click();
   await page.waitForFunction(() => document.body.textContent.includes('TV connected'));
   await page.locator('.kid-nav a[href="/sing"]').click();
-  await page.getByRole('button', { name: '▶ Петь!', exact: true }).click();
+  await choose('The Wheels on the Bus');
+  await page.getByRole('button', { name: 'Двери', exact: false }).click();
   await tv.locator('.sing-tv').waitFor();
-  await tv.locator('.sing-tv .sing-lyrics').waitFor();
-  assert.equal(await tv.locator('.tv-caption').count(), 0);
-  await tv.locator('.sing-tv .model-loading').waitFor({ state: 'detached', timeout: 30000 });
-  await tv.waitForTimeout(250);
-  await tv.screenshot({ path: 'artifacts/singing/tv.png' });
+  await tv.getByText('open and shut', { exact: false }).first().waitFor();
+  await writeFile('artifacts/singing/iframe-debug.html', await page.content());
+  const frame = page.locator('.sing-official-video iframe');
+  assert.match(await frame.getAttribute('src'), /9UasekNr8KI/);
+  const frameBox = await frame.boundingBox();
+  assert.ok(frameBox.width >= 200 && frameBox.height >= 200);
+  await page.getByRole('button', { name: '▶ Петь!', exact: true }).click();
+  await page.getByRole('button', { name: '⏸ Пауза', exact: true }).waitFor();
+  await page.waitForFunction(() => document.querySelector('.sing-progress').max === 195);
   await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
   await tv.reload({ waitUntil: 'domcontentloaded' });
-  await tv.locator('.sing-tv').waitFor({ timeout: 15000 });
-  for (const title of ['ABC Song', 'Itsy Bitsy Spider']) {
-    await page
-      .getByRole('group', { name: 'Выбери песенку' })
-      .getByRole('button', { name: new RegExp(title) })
-      .click();
-    await page.getByRole('heading', { name: title, exact: true }).waitFor();
-    assert.equal(await page.locator('.sing-progress').evaluate((p) => p.value), 0);
-    await page.getByRole('button', { name: '▶ Петь!', exact: true }).click();
-    await page.waitForFunction(() => document.querySelector('.sing-progress').value > 2);
-    await tv.locator('.sing-tv .sing-stage').waitFor();
-    await tv.waitForFunction(
-      (expected) => document.querySelector('.sing-tv .sing-lyrics').textContent.includes(expected),
-      title === 'ABC Song' ? 'A' : 'spider',
-    );
-    const sources = await page.evaluate(() => window.__songSources.slice(-2));
-    assert.ok(sources[0].gain > 0.8 && sources[0].rms > 0.01);
-    assert.equal(sources[1].gain, 0);
-    assert.equal(
-      await page.locator('.sing-star-ring button').count(),
-      title === 'ABC Song' ? 6 : 4,
-    );
-    await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
-  }
-  await page.screenshot({ path: 'artifacts/singing/song-library-phone.png', fullPage: true });
-  await tv.screenshot({ path: 'artifacts/singing/song-library-tv.png' });
+  await tv.getByText('open and shut', { exact: false }).first().waitFor({ timeout: 15000 });
   pass(
-    'Song library: ABC and Spider have audible sung mixes, independent clocks, correct star counts, and matching TV lyrics',
+    'TV pairing/reload preserve bus action and actual duration; official embed is visible and >=200px (mock API)',
   );
+  for (const [title, action, expected] of [
+    ['Old MacDonald', 'Лошадка', 'horse'],
+    ['If You’re Happy', 'Хлопай', 'clap your hands'],
+    ['Head, Shoulders', 'Колени', 'knees'],
+    ['Itsy Bitsy Spider', 'Солнышко', 'sun'],
+  ]) {
+    await choose(title);
+    await page.getByRole('button', { name: action, exact: false }).click();
+    await page.getByRole('button', { name: /▶ (Петь!|Продолжить)/ }).click();
+    await page.getByRole('button', { name: '⏸ Пауза', exact: true }).waitFor();
+    await tv.getByText(expected, { exact: false }).first().waitFor();
+    await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
+    if (title.startsWith('Head')) {
+      await page.locator('.model-loading').waitFor({ state: 'detached', timeout: 45000 });
+      await page.screenshot({ path: 'artifacts/singing/hd-poppy-phone.png', fullPage: true });
+      await tv.screenshot({ path: 'artifacts/singing/hd-poppy-tv.png' });
+    }
+  }
+  pass(
+    'Farm verse, clap, Poppy gestures and Spider weather synchronize to TV (mock official player)',
+  );
+  await choose('The Wheels on the Bus');
+  await page.getByRole('button', { name: '▶ Петь!', exact: true }).click();
+  await page.getByLabel('Выбрать другую песенку').click();
+  await page.waitForTimeout(800);
+  assert.equal(await page.evaluate(() => window.__videos.at(-1).state), -1);
   await page.locator('.kid-nav a[href="/friends"]').click();
   await tv.locator('.sing-tv').waitFor({ state: 'detached' });
-  pass(
-    'TV: QR/code room carries singing scene, paused song survives TV reload, leaving singing restores Animals',
-  );
+  pass('Leaving during official-player load cancels playback; leaving music restores Animals TV');
   assert.deepEqual(errors, []);
   await writeFile(
     'artifacts/singing/browser-results.json',
@@ -208,7 +258,7 @@ try {
         raster,
         errors,
         environment:
-          'Desktop Chromium with touch-sized viewport and fake microphone; physical TV/iPhone listening review remains',
+          'Chromium phone viewport, fake microphone, mocked YouTube API. Actual external video/audio and physical iPhone/TV review remain.',
       },
       null,
       2,

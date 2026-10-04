@@ -119,14 +119,25 @@ export function gameEvent(event, payload) {
     const limit = s && Object.hasOwn(songLimits, s.song) ? songLimits[s.song] : null;
     return !!limit &&
       ['together', 'echo', 'concert'].includes(s.mode) &&
+      (!limit.video || s.mode === 'together') &&
+      (s.duration === undefined ||
+        (limit.video &&
+          Number.isFinite(s.duration) &&
+          s.duration > 0 &&
+          s.duration <= limit.duration)) &&
+      (s.choice === undefined ||
+        (Number.isInteger(s.choice) && s.choice >= 0 && s.choice < limit.lines)) &&
+      (s.beat === undefined || (Number.isInteger(s.beat) && s.beat >= 0 && s.beat <= 100000)) &&
       Number.isFinite(s.time) &&
       s.time >= 0 &&
       s.time <=
-        (s.mode === 'echo'
-          ? limit.echo
-          : s.mode === 'concert'
-            ? (limit.concert ?? limit.duration)
-            : limit.duration) +
+        (limit.video && s.duration
+          ? s.duration
+          : s.mode === 'echo'
+            ? limit.echo
+            : s.mode === 'concert'
+              ? (limit.concert ?? limit.duration)
+              : limit.duration) +
           0.001 &&
       typeof s.playing === 'boolean' &&
       typeof s.guide === 'boolean' &&
@@ -144,6 +155,9 @@ export function gameEvent(event, payload) {
           active: s.active,
           sentAt: s.sentAt,
           stars: [...new Set(s.stars)],
+          ...(s.duration !== undefined ? { duration: s.duration } : {}),
+          ...(s.choice !== undefined ? { choice: s.choice } : {}),
+          ...(s.beat !== undefined ? { beat: s.beat } : {}),
         }
       : null;
   }

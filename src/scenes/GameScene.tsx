@@ -16,6 +16,7 @@ import { useQuality } from '../hooks/useQuality';
 import { FrameMeter } from './FrameMeter';
 import { StudioEnvironment } from './StudioLighting';
 import { useCastLayout } from './CastLayout';
+import { Mesh, MeshStandardMaterial } from 'three';
 export function Actor({
   kind,
   action = 'idle',
@@ -24,6 +25,7 @@ export function Actor({
   scale = 1,
   onTap,
   mouthLevel,
+  premium = false,
 }: {
   kind: Character;
   action?: string;
@@ -32,9 +34,27 @@ export function Actor({
   scale?: number;
   onTap?: () => void;
   mouthLevel?: () => number;
+  premium?: boolean;
 }) {
   const model = useCharacterModel(kind);
   const quality = useQuality();
+  const renderer = useThree((state) => state.gl);
+  useEffect(() => {
+    if (!premium) return;
+    const anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    model.traverse((node) => {
+      if (!(node instanceof Mesh)) return;
+      for (const material of Array.isArray(node.material) ? node.material : [node.material]) {
+        if (!(material instanceof MeshStandardMaterial)) continue;
+        for (const texture of [material.map, material.normalMap, material.roughnessMap]) {
+          if (texture && texture.anisotropy !== anisotropy) {
+            texture.anisotropy = anisotropy;
+            texture.needsUpdate = true;
+          }
+        }
+      }
+    });
+  }, [model, premium, renderer]);
   useEffect(() => {
     model.userData.externalMouthLevel = mouthLevel;
     return () => {
@@ -42,9 +62,12 @@ export function Actor({
     };
   }, [model, mouthLevel]);
   useEffect(() => {
-    if (model.userData.authored && quality.effective === 'LOW') model.userData.lowDetail = true;
+    if (model.userData.authored)
+      model.userData.lowDetail = premium
+        ? false
+        : quality.effective === 'LOW' || model.userData.deviceLowDetail;
     revealCharacter(model, reveal);
-  }, [model, reveal, quality.effective]);
+  }, [model, reveal, quality.effective, premium]);
   useFrame(({ clock }) => animateCharacter(model, clock.elapsedTime, action));
   return (
     <primitive

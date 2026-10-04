@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function FullscreenButton() {
+export default function FullscreenButton({ compact = false }: { compact?: boolean }) {
   const [active, setActive] = useState(Boolean(document.fullscreenElement));
   const [error, setError] = useState('');
   useEffect(() => {
@@ -20,6 +20,7 @@ export default function FullscreenButton() {
   }, []);
   return (
     <button
+      aria-label={compact ? (active ? 'Выйти из полного экрана' : 'На весь экран') : undefined}
       title={error || 'Esc to exit · F11 for browser fullscreen'}
       onClick={async () => {
         try {
@@ -32,7 +33,7 @@ export default function FullscreenButton() {
         }
       }}
     >
-      {active ? 'Exit full screen ✕' : 'Full screen'}
+      {compact ? (active ? '✕' : '⛶') : active ? 'Exit full screen ✕' : 'Full screen'}
     </button>
   );
 }

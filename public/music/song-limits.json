@@ -13,18 +13,69 @@
     "duration": 45,
     "concert": 29,
     "echo": 87.32,
-    "lines": 6
+    "lines": 6,
+    "video": false
   },
   "abc-studio-v3": {
     "duration": 25.12,
     "concert": 24,
     "echo": 54.24,
-    "lines": 6
+    "lines": 6,
+    "video": false
   },
   "spider-studio-v3": {
     "duration": 35.22,
     "concert": 28.84,
     "echo": 72.44,
-    "lines": 4
+    "lines": 4,
+    "video": false
+  },
+  "twinkle-full-v4": {
+    "duration": 134.872,
+    "concert": 58.912,
+    "echo": 254.12,
+    "lines": 18,
+    "video": false
+  },
+  "farm-video-v4": {
+    "duration": 600,
+    "concert": 600,
+    "echo": 186,
+    "lines": 6,
+    "video": true
+  },
+  "bus-video-v4": {
+    "duration": 600,
+    "concert": 600,
+    "echo": 217,
+    "lines": 7,
+    "video": true
+  },
+  "happy-video-v4": {
+    "duration": 600,
+    "concert": 600,
+    "echo": 124,
+    "lines": 4,
+    "video": true
+  },
+  "body-video-v4": {
+    "duration": 600,
+    "concert": 600,
+    "echo": 248,
+    "lines": 8,
+    "video": true
+  },
+  "abc-full-v4": {
+    "duration": 106.84,
+    "concert": 105.136,
+    "echo": 156.32,
+    "lines": 20,
+    "video": false
+  },
+  "spider-video-v4": {
+    "duration": 600,
+    "echo": 72.44,
+    "lines": 4,
+    "video": true
   }
 }

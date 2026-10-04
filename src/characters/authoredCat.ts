@@ -218,6 +218,7 @@ export function makeAuthoredCharacter(kind: Character): THREE.Group | null {
     mixer,
     clips,
     lowDetail,
+    deviceLowDetail: lowDetail,
     previousTime: null,
     action: '',
     reveal: 1,

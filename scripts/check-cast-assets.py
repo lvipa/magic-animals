@@ -7,7 +7,7 @@ for id in ['cat','foxy','dog','lion','bunny','bear','panda','elephant']:
  info=json.loads((ROOT/'public/models'/(id+'-master-info.json')).read_text(encoding='utf-8'))
  data=(ROOT/'public/models'/info['asset']).read_bytes()
  assert hashlib.sha256(data).hexdigest()==info['sha256']
- assert len(data)==info['bytes'] and len(data)<8_000_000
+ assert len(data)==info['bytes'] and len(data)<(9_000_000 if info.get('texture_upgrade') else 8_000_000)
  n=struct.unpack_from('<I',data,12)[0];doc=json.loads(data[20:20+n]);binary=20+n+8
  assert {c['name'] for c in doc['animations']}==expected
  assert len(doc['skins'][0]['joints'])==(25 if id=='elephant' else 23)

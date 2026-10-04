@@ -9,8 +9,8 @@ import {
 /** Both stems and karaoke use one AudioContext clock, including pause/seek. */
 export class SongPlayer {
   private context: AudioContext | null = null;
-  private buffers: AudioBuffer[] = [];
-  private loading: Promise<void> | null = null;
+  private buffers: Array<AudioBuffer | undefined> = [];
+  private loading = new Map<number, Promise<void>>();
   private download: AbortController | null = null;
   private sources: AudioBufferSourceNode[] = [];
   private vocalGain: GainNode | null = null;
@@ -26,6 +26,15 @@ export class SongPlayer {
   mode: SingMode = 'together';
   guide = true;
   muted = false;
+  get duration() {
+    return songDuration(this.mode, this.song);
+  }
+  get isPlaying() {
+    return this.running;
+  }
+  get ended() {
+    return this.running && this.time >= this.duration;
+  }
   constructor(readonly song: SongDefinition = defaultSong) {}
   unlock() {
     this.disposed = false;
@@ -45,26 +54,28 @@ export class SongPlayer {
     return this.context.resume();
   }
   async load() {
-    if (this.buffers.length === 2) return;
-    if (!this.loading) {
-      const context = this.context!;
-      this.download = new AbortController();
-      const signal = this.download.signal;
-      this.loading = Promise.all(
-        [this.song.mix, this.song.instrumental].map(async (url) => {
-          const response = await fetch(url, { signal });
-          if (!response.ok) throw new Error('Не удалось загрузить музыку. Проверь подключение.');
-          return context.decodeAudioData(await response.arrayBuffer());
-        }),
-      )
-        .then((buffers) => {
-          if (!this.disposed) this.buffers = buffers;
-        })
-        .finally(() => {
-          this.loading = null;
-        });
-    }
-    await this.loading;
+    const stems = this.song.legacyStems ? [0, 1] : [this.guide ? 0 : 1];
+    await Promise.all(
+      stems.map(async (stem) => {
+        if (this.buffers[stem]) return;
+        if (!this.loading.has(stem)) {
+          const context = this.context!;
+          this.download ??= new AbortController();
+          const signal = this.download.signal;
+          const loading = (async () => {
+            const url = stem === 0 ? this.song.mix : this.song.instrumental;
+            const response = await fetch(url, { signal });
+            if (!response.ok) throw new Error('Не удалось загрузить музыку. Проверь подключение.');
+            const buffer = await context.decodeAudioData(await response.arrayBuffer());
+            if (!this.disposed) this.buffers[stem] = buffer;
+          })().finally(() => {
+            this.loading.delete(stem);
+          });
+          this.loading.set(stem, loading);
+        }
+        await this.loading.get(stem);
+      }),
+    );
   }
   get time() {
     return Math.min(
@@ -97,10 +108,10 @@ export class SongPlayer {
     for (const segment of songSegments(mode, this.song)) {
       const skipped = Math.max(0, this.offset - segment.at);
       if (skipped >= segment.duration) continue;
-      for (const stem of [0, 1]) {
+      for (const stem of this.song.legacyStems ? [0, 1] : [this.guide ? 0 : 1]) {
         if (stem === 0 && !segment.vocal) continue;
         const source = this.context!.createBufferSource();
-        source.buffer = this.buffers[stem];
+        source.buffer = this.buffers[stem]!;
         source.connect(stem === 0 ? this.vocalGain! : this.backingGain!);
         const available = Math.min(
           segment.duration - skipped,
@@ -148,5 +159,6 @@ export class SongPlayer {
     this.vocalGain = null;
     this.backingGain = null;
     this.analyser = null;
+    this.buffers = [];
   }
 }

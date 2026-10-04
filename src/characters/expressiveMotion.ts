@@ -148,4 +148,35 @@ export function animateExpression(
       reach(arm, content, point);
     }
   }
+  if (action.startsWith('music-')) {
+    const { content, head, hip, arms } = expression;
+    content.updateWorldMatrix(true, true);
+    content.worldToLocal(head.getWorldPosition(face));
+    content.worldToLocal(hip.getWorldPosition(hipPoint));
+    for (const arm of arms) {
+      if (action === 'music-clap') {
+        point.set(arm.side * (0.065 + (1 + Math.sin(time * 7)) * 0.045), face.y - 0.29, 0.25);
+      } else if (action === 'music-shoulders') {
+        content.worldToLocal(arm.upper.getWorldPosition(point));
+        point.x += arm.side * 0.025;
+        point.y += 0.03;
+        point.z += 0.1;
+      } else if (action === 'music-knees' || action === 'music-toes') {
+        point.set(arm.side * 0.12, hipPoint.y - (action === 'music-toes' ? 0.35 : 0.18), 0.19);
+      } else {
+        const height =
+          action === 'music-head'
+            ? 0.19
+            : action === 'music-ears'
+              ? 0.16
+              : action === 'music-eyes'
+                ? 0.08
+                : action === 'music-mouth'
+                  ? -0.08
+                  : -0.025;
+        point.set(arm.side * (action === 'music-ears' ? 0.24 : 0.11), face.y + height, 0.19);
+      }
+      reach(arm, content, point);
+    }
+  }
 }
