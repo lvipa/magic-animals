@@ -96,7 +96,7 @@ export function Offline() {
           '/draco/draco_wasm_wrapper.js',
           '/draco/draco_decoder.wasm',
         ],
-        AUDIO: audioFiles,
+        AUDIO: audioFiles.filter((path) => path.endsWith('.mp3')),
         MARKERS: [imageTargetsUrl, ...characterIds.map((id) => `${markerBase}/${id}.png`)],
       };
       for (const [name, paths] of Object.entries(groups)) {

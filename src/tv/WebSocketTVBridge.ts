@@ -130,8 +130,9 @@ export class WebSocketTVBridge implements TVBridge {
     });
     const url = new URL('/tv-socket', location.href);
     url.protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const socket =
-      location.hostname === 'animals.flowlabli.online' ? new PollingSocket() : new WebSocket(url);
+    const socket = ['animals.flowlabli.online', 'sing.flowlabli.online'].includes(location.hostname)
+      ? new PollingSocket()
+      : new WebSocket(url);
     this.socket = socket;
     socket.onopen = () => {
       if (this.socket !== socket) return;

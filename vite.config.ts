@@ -23,7 +23,7 @@ export default defineConfig({
       includeAssets: [
         'icons/apple-touch-icon.png',
         'icons/favicon.png',
-        'markers/milo-v2/targets.mind',
+        ...(!musicSite ? ['markers/milo-v2/targets.mind'] : []),
       ],
       manifest: {
         name: musicSite ? 'Sing with Milo' : 'Magic Animals',
@@ -45,7 +45,15 @@ export default defineConfig({
       workbox: {
         // The current CAT and tracking targets have immutable/versioned URLs.
         ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^v$/],
-        globPatterns: ['**/*.{js,wasm,css,html,png,svg,mind,mp3,aac,ogg,wav,txt,json,pdf}'],
+        // Installing music must not download the entire Animals audio/print library.
+        // WAV fallback copies and printable PDFs are fetched only when requested.
+        globPatterns: [
+          'assets/*.{js,css}',
+          'index.html',
+          'icons/*.png',
+          'draco/*.{js,wasm}',
+          ...(!musicSite ? ['audio/**/*.mp3', 'markers/milo-v2/*.{mind,png}'] : []),
+        ],
         // Production review renders are optional online documentation.
         globIgnores: [
           '**/review/**',
@@ -74,6 +82,24 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: ({ url }) =>
+              url.origin === self.location.origin && /^\/audio\/.*\.(mp3|wav)$/.test(url.pathname),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'animals-audio-v2',
+              cacheableResponse: { statuses: [200] },
+              rangeRequests: true,
+              expiration: { maxEntries: 450, purgeOnQuotaError: true },
+            },
+          },
+          {
+            urlPattern: ({ url }) =>
+              url.origin === self.location.origin &&
+              /^\/(markers\/|draco\/|music\/.*credits\.json)/.test(url.pathname),
+            handler: 'CacheFirst',
+            options: { cacheName: 'animals-resources-v2', cacheableResponse: { statuses: [200] } },
+          },
+          {
+            urlPattern: ({ url }) =>
               url.origin === self.location.origin &&
               /^\/music\/full-v4\/.*\.mp3$/.test(url.pathname),
             handler: 'CacheFirst',
@@ -88,7 +114,7 @@ export default defineConfig({
             urlPattern: ({ request }) => request.mode === 'navigate',
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'animals-pages-v1',
+              cacheName: 'animals-pages-v2',
               networkTimeoutSeconds: 3,
               fetchOptions: { cache: 'no-store' },
               precacheFallback: { fallbackURL: '/index.html' },

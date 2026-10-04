@@ -4,25 +4,29 @@ export function MusicActivity({
   song,
   choice,
   onChoose,
+  practice = false,
 }: {
   song: SongDefinition;
   choice: number;
   onChoose: (index: number) => void;
+  practice?: boolean;
 }) {
   const options = activityOptions(song);
   if (!options.length) return null;
   return (
     <section className="music-activity" aria-label="Играй с песенкой">
       <p>
-        {song.activity === 'farm'
-          ? 'Кто споёт следующий куплет?'
-          : song.activity === 'body'
-            ? 'Покажи вместе с Poppy!'
-            : song.activity === 'bus'
-              ? 'Ты водитель! Нажми на картинку.'
-              : song.activity === 'spider'
-                ? 'Помоги паучку: дождик, солнышко и снова вверх!'
-                : 'Повторяй и нажимай!'}
+        {practice && song.activity === 'farm'
+          ? 'Выбери животное. Повтори название и его звук!'
+          : song.activity === 'farm'
+            ? 'Кто споёт следующий куплет?'
+            : song.activity === 'body'
+              ? 'Покажи вместе с Poppy!'
+              : song.activity === 'bus'
+                ? 'Ты водитель! Нажми на картинку.'
+                : song.activity === 'spider'
+                  ? 'Помоги паучку: дождик, солнышко и снова вверх!'
+                  : 'Повторяй и нажимай!'}
       </p>
       <div>
         {options.map((option, index) => (
@@ -32,10 +36,12 @@ export function MusicActivity({
           </button>
         ))}
       </div>
-      <strong className="music-action-word" lang="en">
-        {options[choice]?.word}
-        {options[choice] && 'sound' in options[choice] ? ' · ' + options[choice].sound : ''}
-      </strong>
+      {!practice && (
+        <strong className="music-action-word" lang="en">
+          {options[choice]?.word}
+          {options[choice] && 'sound' in options[choice] ? ' · ' + options[choice].sound : ''}
+        </strong>
+      )}
     </section>
   );
 }

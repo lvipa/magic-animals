@@ -301,6 +301,93 @@
 .sing-video-page .sing-official-video {
   scroll-margin-bottom: 12px;
 }
+.sing-lesson-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.sing-lesson-steps button {
+  padding: 12px 8px;
+  font-size: 16px;
+}
+.sing-lesson-steps button[aria-pressed='true'] {
+  background: #ffe2a8;
+  color: #503c52;
+}
+.sing-lesson-hint {
+  text-align: center;
+  line-height: 1.5;
+  margin: 12px 0;
+  color: #c7e3df;
+}
+.sing-stage-opening {
+  min-height: 290px;
+  display: grid;
+  place-content: center;
+  border-radius: 30px;
+  background: #274c62;
+  font-size: 23px;
+}
+.sing-practice-task {
+  text-align: center;
+  padding: 16px;
+  margin-top: 12px;
+  border-radius: 24px;
+  background: #fff0d5;
+  color: #513c53;
+}
+.sing-practice-task > strong {
+  font-size: 28px;
+}
+.sing-practice-task > p {
+  margin: 10px 0;
+}
+.sing-practice-task button,
+.sing-practice-link {
+  background: #ffe2a8;
+  color: #503c52;
+}
+.sing-practice-link {
+  width: 100%;
+}
+.sing-practice-stage {
+  position: relative;
+}
+.sing-practice-content {
+  scroll-margin-top: 8px;
+}
+.sing-practice-task button {
+  margin: 4px;
+}
+.sing-practice-stage .sing-stage {
+  height: clamp(220px, 34dvh, 330px);
+}
+.sing-practice-content .music-activity button {
+  min-height: 66px;
+  padding: 7px 5px;
+}
+.sing-practice-content .music-activity button > span {
+  font-size: 28px;
+}
+@media (min-width: 700px) {
+  .sing-practice-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+  .sing-practice-stage {
+    grid-row: 1 / span 2;
+  }
+  .sing-practice-content .music-activity,
+  .sing-practice-task {
+    margin: 0;
+  }
+  .sing-practice-content .music-activity > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
 .sing-controls button {
   flex: 0;
   min-width: 50px;
@@ -381,6 +468,16 @@
   text-align: center;
   margin: 0;
   font-size: clamp(22px, 3vw, 45px);
+}
+.sing-tv-watching {
+  text-align: center;
+}
+.sing-tv-watching > span {
+  font-size: 110px;
+}
+.sing-tv-watching p {
+  font-size: clamp(20px, 2.5vw, 34px);
+  margin: 8px;
 }
 .sing-tv .sing-stage {
   height: 55vh;

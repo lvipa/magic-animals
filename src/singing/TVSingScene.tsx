@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { SingLyrics, SingStage } from './SingStage';
+import { SingStage } from './SingStage';
+import { SingLyrics } from './SingLyrics';
 import { getSong, songDuration, songPhase, type SingSnapshot } from './song';
 import './sing.css';
 
@@ -37,9 +38,26 @@ export function TVSingScene({ snapshot, now }: { snapshot: SingSnapshot; now: ()
       : 0;
   }, [snapshot, song]);
   const p = songPhase(time, snapshot.mode, song);
+  if (song.video && !(snapshot.beat ?? 0))
+    return (
+      <section className="sing-tv sing-tv-watching" aria-label="Песня на телевизоре">
+        <span>{song.icon}</span>
+        <h1>{song.title}</h1>
+        <p>Подпевайте видео на телефоне.</p>
+        <p>Потом нажмите «Повторяем с другом» — он покажет движения здесь!</p>
+      </section>
+    );
   return (
     <section className="sing-tv" aria-label="Песня на телевизоре">
-      <h1>{p.done ? '🌟 Спасибо за концерт!' : p.turn ? '🎤 Your turn!' : '🎶 Sing with Milo'}</h1>
+      <h1>
+        {song.video
+          ? '🐾 Повторяй за другом!'
+          : p.done
+            ? '🌟 Спасибо за концерт!'
+            : p.turn
+              ? '🎤 Your turn!'
+              : '🎶 Sing with Milo'}
+      </h1>
       <SingStage
         key={song.id}
         song={song}

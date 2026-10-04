@@ -72,7 +72,9 @@ export function collectExpressiveControls(content: THREE.Object3D) {
   content.traverse((bone) => {
     if (
       !(bone instanceof THREE.Bone) ||
-      !/^(head|chest|upper_arm_[LR]|forearm_[LR]|paw_[LR])$/.test(bone.name)
+      !/^(head|chest|root|thigh_[LR]|shin_[LR]|upper_arm_[LR]|forearm_[LR]|paw_[LR])$/.test(
+        bone.name,
+      )
     )
       return;
     const inverse = bone.getWorldQuaternion(new THREE.Quaternion()).invert();
@@ -130,6 +132,15 @@ export function animateExpression(
       }
       if (bone.name === 'chest') rotate(z, Math.sin(time * 4) * 0.035);
     }
+    if (action === 'music-knees' || action === 'music-toes') {
+      // Short arms cannot reach knees from the standing pose: bend and squat.
+      const toes = action === 'music-toes';
+      if (bone.name === 'chest') rotate(x, toes ? 0.95 : 0.7);
+      if (bone.name === 'head') rotate(x, toes ? -0.7 : -0.5);
+      if (bone.name === 'root') bone.position.y -= toes ? 0.055 : 0.04;
+      if (bone.name.startsWith('thigh_')) rotate(x, toes ? -0.8 : -0.65);
+      if (bone.name.startsWith('shin_')) rotate(x, toes ? 1.25 : 1.1);
+    }
     if (kind === 'elephant' && action === 'thirsty' && bone.name === 'head') rotate(y, 0.03);
   }
   if (action === 'hungry' || action === 'thirsty') {
@@ -162,7 +173,13 @@ export function animateExpression(
         point.y += 0.03;
         point.z += 0.1;
       } else if (action === 'music-knees' || action === 'music-toes') {
-        point.set(arm.side * 0.12, hipPoint.y - (action === 'music-toes' ? 0.35 : 0.18), 0.19);
+        const part = content.getObjectByName(
+          `${action === 'music-toes' ? 'foot' : 'shin'}_${arm.side === 1 ? 'L' : 'R'}`,
+        );
+        if (!part) continue;
+        content.worldToLocal(part.getWorldPosition(point));
+        point.y += action === 'music-toes' ? 0.02 : 0.035;
+        point.z += 0.06;
       } else {
         const height =
           action === 'music-head'

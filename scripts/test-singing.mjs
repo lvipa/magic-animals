@@ -203,9 +203,17 @@ try {
   await page.waitForFunction(() => document.body.textContent.includes('TV connected'));
   await page.locator('.kid-nav a[href="/sing"]').click();
   await choose('The Wheels on the Bus');
+  assert.equal(await page.locator('.sing-stage canvas').count(), 0);
+  await page.getByRole('button', { name: '🐾 2. Повторяем с другом', exact: true }).click();
+  const beforePractice = await page.evaluate(() => window.__videos.at(-1).position);
   await page.getByRole('button', { name: 'Двери', exact: false }).click();
+  assert.equal(await page.evaluate(() => window.__videos.at(-1).position), beforePractice);
+  await page.getByRole('button', { name: '⭐ Я повторил!', exact: true }).click();
+  assert.equal(await page.getByLabel('1 звёзд').count(), 1);
   await tv.locator('.sing-tv').waitFor();
   await tv.getByText('open and shut', { exact: false }).first().waitFor();
+  await page.getByRole('button', { name: '🎬 1. Смотрим и поём', exact: true }).click();
+  assert.equal(await page.locator('.sing-stage canvas').count(), 0);
   const frame = page.locator('.sing-official-video iframe');
   assert.match(await frame.getAttribute('src'), /9UasekNr8KI/);
   const frameBox = await frame.boundingBox();
@@ -215,9 +223,9 @@ try {
   await page.waitForFunction(() => document.querySelector('.sing-progress').max === 195);
   await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
   await tv.reload({ waitUntil: 'domcontentloaded' });
-  await tv.getByText('open and shut', { exact: false }).first().waitFor({ timeout: 15000 });
+  await tv.getByText('Подпевайте видео на телефоне.', { exact: true }).waitFor({ timeout: 15000 });
   pass(
-    'TV pairing/reload preserve bus action and actual duration; official embed is visible and >=200px (mock API)',
+    'Video has no unrelated 3D scene; practice pauses video, keeps its position, awards participation and shows action on TV; official embed stays >=200px',
   );
   await page.setViewportSize({ width: 844, height: 390 });
   await page.evaluate(() => window.scrollTo(0, 0));
@@ -258,21 +266,13 @@ try {
   await page.waitForFunction(
     () => Math.abs(document.querySelector('.sing-progress').value - 70) < 0.1,
   );
-  await page.getByText('beep beep beep', { exact: false }).first().waitFor();
+  assert.equal(await page.locator('.music-activity').count(), 0);
   await page.evaluate(() => {
     const video = window.__videos.at(-1);
     video.seekTo(92);
     video.playVideo();
   });
-  await page.waitForFunction(() =>
-    document
-      .querySelector('.music-activity button[aria-pressed="true"]')
-      ?.textContent.includes('Прыгаем'),
-  );
-  await page.getByRole('button', { name: 'Прыгаем', exact: false }).evaluate((button) => {
-    if (button.getAttribute('aria-pressed') !== 'true')
-      throw new Error('Manual interaction froze automatic timing');
-  });
+  await page.waitForFunction(() => document.querySelector('.sing-progress').value > 92);
   await page.getByLabel('Сначала', { exact: true }).click();
   await page.waitForFunction(() => document.querySelector('.sing-progress').value < 2);
   await page.getByRole('button', { name: '⏸ Пауза', exact: true }).waitFor();
@@ -303,13 +303,6 @@ try {
     [13, 'Двери'],
   ]) {
     await page.evaluate((at) => window.__videos.at(-1).seekTo(at), at);
-    await page.waitForFunction(
-      (label) =>
-        document
-          .querySelector('.music-activity button[aria-pressed="true"]')
-          ?.textContent.includes(label),
-      label,
-    );
     await tv
       .getByText(label === 'Дворники' ? 'swish swish swish' : 'open and shut', { exact: false })
       .first()
@@ -344,19 +337,26 @@ try {
     ['Itsy Bitsy Spider', 'Солнышко', 'sun'],
   ]) {
     await choose(title);
+    await page.getByRole('button', { name: '🐾 2. Повторяем с другом', exact: true }).click();
     await page.getByRole('button', { name: action, exact: false }).click();
-    await page.getByRole('button', { name: /▶ (Петь!|Продолжить)/ }).click();
-    await page.getByRole('button', { name: '⏸ Пауза', exact: true }).waitFor();
+    assert.equal(await page.evaluate(() => window.__videos.at(-1).getPlayerState() === 1), false);
+    await page.getByRole('button', { name: '⭐ Я повторил!', exact: true }).click();
     await tv.getByText(expected, { exact: false }).first().waitFor();
-    await page.getByRole('button', { name: '⏸ Пауза', exact: true }).click();
     if (title.startsWith('Head')) {
       await page.locator('.model-loading').waitFor({ state: 'detached', timeout: 45000 });
+      await page.waitForTimeout(650); // Let the 450 ms pose blend reach the selected teaching pose.
       await page.screenshot({ path: 'artifacts/singing/hd-poppy-phone.png', fullPage: true });
       await tv.screenshot({ path: 'artifacts/singing/hd-poppy-tv.png' });
+      await page.getByRole('button', { name: '→ Следующая картинка', exact: true }).click();
+      await page.locator('.sing-practice-task strong').getByText('toes', { exact: true }).waitFor();
+      await page.waitForTimeout(650);
+      await page.screenshot({ path: 'artifacts/singing/practice-toes-phone.png', fullPage: true });
+      await page.getByRole('button', { name: '⭐ Я повторил!', exact: true }).click();
+      assert.equal(await page.getByLabel('2 звёзд').count(), 1);
     }
   }
   pass(
-    'Farm verse, clap, Poppy gestures and Spider weather synchronize to TV (mock official player)',
+    'Farm words, clap, Poppy gestures and Spider weather are independent repeat-along lessons on phone/TV with the video paused',
   );
   await choose('The Wheels on the Bus');
   await page.getByRole('button', { name: '▶ Петь!', exact: true }).click();

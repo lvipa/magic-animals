@@ -1,6 +1,6 @@
 import { characterDetails, type Character } from '../characters/catalog';
 import { markerBase } from './arCards';
-import { characterModelUrl } from '../characters/authoredCat';
+import { characterModelUrl } from '../characters/assetUrls';
 export type AnimalId = Character;
 export type FoxyMood =
   'idle' | 'lookAround' | 'point' | 'happy' | 'surprised' | 'scared' | 'laugh' | 'dance' | 'fall';

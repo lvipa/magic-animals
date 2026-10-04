@@ -2,8 +2,8 @@ import * as THREE from 'three';
 import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { clone } from 'three/addons/utils/SkeletonUtils.js';
-import { CAT_MODEL_URL } from './catAsset';
-import { CAST_MODEL_URLS } from './castAssets';
+import { characterModelUrl } from './assetUrls';
+export { characterModelUrl } from './assetUrls';
 import type { Character } from './catalog';
 import { collectSecondaryControls, animateSecondaryControls } from './secondaryMotion';
 import { audio } from '../audio/AudioManager';
@@ -29,8 +29,6 @@ function publishStatus(id: Character, status: CharacterLoadStatus) {
   listeners.forEach((listener) => listener());
 }
 export const characterAssetErrors = new Map<Character, string>();
-export const characterModelUrl = (id: Character) =>
-  id === 'cat' ? CAT_MODEL_URL : CAST_MODEL_URLS[id];
 export const subscribeCharacterAssets = (listener: () => void) => {
   listeners.add(listener);
   return () => {

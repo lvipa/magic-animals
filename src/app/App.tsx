@@ -1,16 +1,23 @@
 import { Route, Routes } from 'react-router-dom';
-import Game from '../game/Game';
-import Parent from '../parent/Parent';
 import { ParentAccess } from '../parent/ParentAccess';
-import { CameraTest, MarkerTest } from '../parent/Diagnostics';
-import { Install, Offline } from '../pwa/Pages';
-import CharacterGallery from '../parent/CharacterGallery';
-import TVPage from '../tv/TVPage';
-import TVPairing from '../tv/TVPairing';
-import AudioStudio from '../parent/AudioStudio';
-import Worlds from '../play/Worlds';
 import { lazy, Suspense } from 'react';
+import { KidNav } from '../play/KidNav';
 import { musicSite } from './site';
+const Game = lazy(() => import('../game/Game'));
+const Parent = lazy(() => import('../parent/Parent'));
+const CharacterGallery = lazy(() => import('../parent/CharacterGallery'));
+const TVPage = lazy(() => import('../tv/TVPage'));
+const TVPairing = lazy(() => import('../tv/TVPairing'));
+const AudioStudio = lazy(() => import('../parent/AudioStudio'));
+const Worlds = lazy(() => import('../play/Worlds'));
+const CameraTest = lazy(() =>
+  import('../parent/Diagnostics').then((m) => ({ default: m.CameraTest })),
+);
+const MarkerTest = lazy(() =>
+  import('../parent/Diagnostics').then((m) => ({ default: m.MarkerTest })),
+);
+const Install = lazy(() => import('../pwa/Pages').then((m) => ({ default: m.Install })));
+const Offline = lazy(() => import('../pwa/Pages').then((m) => ({ default: m.Offline })));
 const SingPage = lazy(() => import('../singing/SingPage'));
 const CatReview = import.meta.env.DEV ? lazy(() => import('../parent/CatReview')) : null;
 const CatImportReview = import.meta.env.DEV
@@ -18,103 +25,95 @@ const CatImportReview = import.meta.env.DEV
   : null;
 export default function App() {
   return (
-    <Routes>
-      <Route
-        path="/sing"
-        element={
-          <Suspense fallback={<p>Готовим сцену Milo…</p>}>
-            <SingPage />
-          </Suspense>
-        }
-      />
-      {CatReview && (
+    <Suspense
+      fallback={
+        <main className="page-opening" role="status">
+          <span>✨</span>
+          <p>Открываем игру…</p>
+          <KidNav opening />
+        </main>
+      }
+    >
+      <Routes>
+        <Route path="/sing" element={<SingPage />} />
+        {CatReview && (
+          <Route
+            path="/__cat-review"
+            element={
+              <Suspense fallback={<p>Loading review…</p>}>
+                <CatReview />
+              </Suspense>
+            }
+          />
+        )}
+        {CatImportReview && (
+          <Route
+            path="/__cat-import-review"
+            element={
+              <Suspense fallback={<p>Loading review…</p>}>
+                <CatImportReview />
+              </Suspense>
+            }
+          />
+        )}
+        <Route path="/tv" element={<TVPage />} />
+        <Route path="/connect-tv" element={<TVPairing />} />
+        <Route path="/friends" element={<CharacterGallery playground />} />
+        <Route path="/hunt" element={<Game key="hunt" hunt />} />
+        <Route path="/worlds" element={<Worlds />} />
         <Route
-          path="/__cat-review"
+          path="/parent/audio"
           element={
-            <Suspense fallback={<p>Loading review…</p>}>
-              <CatReview />
-            </Suspense>
+            <ParentAccess>
+              <AudioStudio />
+            </ParentAccess>
           }
         />
-      )}
-      {CatImportReview && (
         <Route
-          path="/__cat-import-review"
+          path="/parent/tv"
           element={
-            <Suspense fallback={<p>Loading review…</p>}>
-              <CatImportReview />
-            </Suspense>
+            <ParentAccess>
+              <TVPairing />
+            </ParentAccess>
           }
         />
-      )}
-      <Route path="/tv" element={<TVPage />} />
-      <Route path="/connect-tv" element={<TVPairing />} />
-      <Route path="/friends" element={<CharacterGallery playground />} />
-      <Route path="/hunt" element={<Game key="hunt" hunt />} />
-      <Route path="/worlds" element={<Worlds />} />
-      <Route
-        path="/parent/audio"
-        element={
-          <ParentAccess>
-            <AudioStudio />
-          </ParentAccess>
-        }
-      />
-      <Route
-        path="/parent/tv"
-        element={
-          <ParentAccess>
-            <TVPairing />
-          </ParentAccess>
-        }
-      />
-      <Route
-        path="/"
-        element={
-          musicSite ? (
-            <Suspense fallback={<p>Готовим сцену Milo…</p>}>
-              <SingPage />
-            </Suspense>
-          ) : (
-            <Game key="home" />
-          )
-        }
-      />
-      <Route
-        path="/parent"
-        element={
-          <ParentAccess>
-            <Parent />
-          </ParentAccess>
-        }
-      />
-      <Route
-        path="/characters"
-        element={
-          <ParentAccess>
-            <CharacterGallery />
-          </ParentAccess>
-        }
-      />
-      <Route
-        path="/marker-test"
-        element={
-          <ParentAccess>
-            <MarkerTest />
-          </ParentAccess>
-        }
-      />
-      <Route
-        path="/camera-test"
-        element={
-          <ParentAccess>
-            <CameraTest />
-          </ParentAccess>
-        }
-      />
-      <Route path="/install" element={<Install />} />
-      <Route path="/offline-status" element={<Offline />} />
-      <Route path="*" element={<Game />} />
-    </Routes>
+        <Route path="/" element={musicSite ? <SingPage /> : <Game key="home" />} />
+        <Route
+          path="/parent"
+          element={
+            <ParentAccess>
+              <Parent />
+            </ParentAccess>
+          }
+        />
+        <Route
+          path="/characters"
+          element={
+            <ParentAccess>
+              <CharacterGallery />
+            </ParentAccess>
+          }
+        />
+        <Route
+          path="/marker-test"
+          element={
+            <ParentAccess>
+              <MarkerTest />
+            </ParentAccess>
+          }
+        />
+        <Route
+          path="/camera-test"
+          element={
+            <ParentAccess>
+              <CameraTest />
+            </ParentAccess>
+          }
+        />
+        <Route path="/install" element={<Install />} />
+        <Route path="/offline-status" element={<Offline />} />
+        <Route path="*" element={<Game />} />
+      </Routes>
+    </Suspense>
   );
 }

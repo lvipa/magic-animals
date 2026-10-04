@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 import { Link } from 'react-router-dom';
 import { KidNav } from '../play/KidNav';
 import FullscreenButton from '../components/FullscreenButton';
@@ -19,8 +28,9 @@ import {
   type SingMode,
   type SingSnapshot,
 } from './song';
-import { SingLyrics, SingStage } from './SingStage';
+import { SingLyrics } from './SingLyrics';
 import './sing.css';
+const SingStage = lazy(() => import('./SingStage').then((m) => ({ default: m.SingStage })));
 
 const modes = [
   { id: 'together', icon: '🎶', label: 'Пой вместе', detail: 'Milo поёт, а ты подпеваешь' },
@@ -30,6 +40,7 @@ const modes = [
 export default function SingPage() {
   const [song, setSong] = useState(defaultSong);
   const [picker, setPicker] = useState(true);
+  const [videoLesson, setVideoLesson] = useState<'watch' | 'practice'>('watch');
   const [choice, setChoice] = useState(0),
     [beat, setBeat] = useState(0);
   const player = useMemo(
@@ -67,14 +78,14 @@ export default function SingPage() {
     request = useRef(0),
     voiced = useRef(0),
     completed = useRef(false);
-  const state = useRef({ mode, time, playing, guide, stars, choice, beat });
-  state.current = { mode, time, playing, guide, stars, choice, beat };
+  const state = useRef({ mode, time, playing, guide, stars, choice, beat, videoLesson });
+  state.current = { mode, time, playing, guide, stars, choice, beat, videoLesson };
   const publish = useCallback(() => {
-    const s = state.current;
+    const { videoLesson: lesson, ...s } = state.current;
     bridge.sendEvent('SING_SCENE', {
       song: song.id,
       ...s,
-      time: player.time,
+      time: song.video && lesson === 'practice' ? 0 : player.time,
       sentAt: bridge.serverTime(),
       active: true,
       ...(song.video ? { duration: player.duration } : {}),
@@ -143,6 +154,7 @@ export default function SingPage() {
   useEffect(() => {
     if (!(player instanceof VideoSongPlayer)) return;
     return player.subscribe(() => {
+      if (state.current.videoLesson === 'practice' && player.isPlaying) player.pause();
       setPlaying(player.isPlaying);
       setTime(player.time);
       setError(player.error);
@@ -164,7 +176,7 @@ export default function SingPage() {
     publish();
     const timer = setInterval(publish, 2000);
     return () => clearInterval(timer);
-  }, [publish, mode, playing, guide, stars, connection.state, choice, beat]);
+  }, [publish, mode, playing, guide, stars, connection.state, choice, beat, videoLesson]);
   useEffect(() => {
     if (!playing) return;
     let raf = 0,
@@ -244,6 +256,7 @@ export default function SingPage() {
     setBeat(0);
     setError('');
     setPicker(false);
+    setVideoLesson('watch');
     setCues(loadCues(s));
     setMarking(false);
     setTimingInfo('');
@@ -253,7 +266,13 @@ export default function SingPage() {
   const chooseActivity = (index: number) => {
     setChoice(index);
     setBeat((n) => Math.min(100000, n + 1));
-    addStar(Math.min(index, song.lines.length - 1));
+    if (videoLesson !== 'practice') addStar(Math.min(index, song.lines.length - 1));
+    if (videoLesson === 'practice' && !marking) {
+      document
+        .querySelector('.sing-practice-content')
+        ?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      return;
+    }
     if (marking) {
       const at = Math.round(player.time * 100) / 100;
       setCues((previous) =>
@@ -276,13 +295,25 @@ export default function SingPage() {
     }
   };
   useEffect(() => {
-    if (!song.video || marking) return;
+    if (!song.video || marking || videoLesson === 'practice') return;
     const options = activityOptions(song);
     if (options.length)
       setChoice(
         cues.length ? markedChoice(cues, time, 0) : automaticActivityChoice(song, time, phase.line),
       );
-  }, [song, playing, phase.line, time, cues, marking]);
+  }, [song, playing, phase.line, time, cues, marking, videoLesson]);
+  const changeLesson = (lesson: 'watch' | 'practice') => {
+    if (lesson === videoLesson) return;
+    pause();
+    audio.stop();
+    setVideoLesson(lesson);
+    setMarking(false);
+    setBeat(lesson === 'practice' ? 1 : 0);
+    if (lesson === 'practice') {
+      setChoice(0);
+      setStars([]);
+    }
+  };
   const restart = () => {
     pause();
     player.seek(0, mode);
@@ -313,6 +344,31 @@ export default function SingPage() {
       setOfflineSaving(false);
     }
   };
+  const stage = (
+    <Suspense
+      fallback={
+        <div className="sing-stage-opening" role="status">
+          🐾 Готовим друга…
+        </div>
+      }
+    >
+      <SingStage
+        key={`stage-${song.id}`}
+        song={displayedSong}
+        time={song.video ? 0 : time}
+        mode={mode}
+        playing={song.video ? false : playing}
+        stars={stars}
+        mouthLevel={player.mouthLevel}
+        level={level}
+        choice={choice}
+        beat={beat}
+        onStar={(line) => {
+          if (playing && !phase.intro && !phase.done && line === phase.line) addStar(line);
+        }}
+      />
+    </Suspense>
+  );
   return (
     <main className={`sing-page ${song.video && !picker ? 'sing-video-page' : ''}`}>
       <header className="sing-header">
@@ -372,85 +428,134 @@ export default function SingPage() {
               🎼 Поёшь ты <button onClick={() => changeMode('together')}>🎙️ Вернуть пение</button>
             </div>
           )}
+          {song.video && (
+            <div className="sing-lesson-steps" role="group" aria-label="Шаги песенки">
+              <button aria-pressed={videoLesson === 'watch'} onClick={() => changeLesson('watch')}>
+                🎬 1. Смотрим и поём
+              </button>
+              <button
+                aria-pressed={videoLesson === 'practice'}
+                onClick={() => changeLesson('practice')}
+              >
+                🐾 2. Повторяем с другом
+              </button>
+            </div>
+          )}
           {player instanceof VideoSongPlayer && (
-            <OfficialSongVideo
-              key={`video-${song.id}`}
-              player={player}
-              onAudio={() => chooseSong(defaultSong)}
+            <div hidden={videoLesson === 'practice'}>
+              <OfficialSongVideo
+                key={`video-${song.id}`}
+                player={player}
+                onAudio={() => chooseSong(defaultSong)}
+              />
+            </div>
+          )}
+          {song.video && videoLesson === 'watch' && (
+            <p className="sing-lesson-hint">
+              Подпевай видео. Потом друг покажет движения, а ты повторишь сам!
+            </p>
+          )}
+          {!song.video && stage}
+          {(!song.video || videoLesson === 'watch') && (
+            <>
+              <div className="sing-controls">
+                <button
+                  className="sing-primary"
+                  disabled={loading}
+                  onClick={() => (playing ? pause() : void play(phase.done ? 0 : time))}
+                >
+                  {playing
+                    ? '⏸ Пауза'
+                    : loading
+                      ? '🎵 Загрузка…'
+                      : phase.done
+                        ? '🎶 Ещё концерт!'
+                        : time > 0
+                          ? '▶ Продолжить'
+                          : '▶ Петь!'}
+                </button>
+                <button aria-label="Сначала" onClick={restart}>
+                  ↺
+                </button>
+                {!song.video && (
+                  <button
+                    aria-label="Ещё строку"
+                    disabled={loading}
+                    onClick={() => {
+                      completed.current = false;
+                      void play(phraseBeginning(time, mode, song));
+                    }}
+                  >
+                    ↻
+                  </button>
+                )}
+              </div>
+              <div className="sing-status" role="status">
+                {loading
+                  ? '🎵 Готовим песенку…'
+                  : phase.done
+                    ? '🎉 Спасибо за твой концерт!'
+                    : !playing
+                      ? time > 0
+                        ? '⏸ Продолжим, когда будешь готов'
+                        : '🎶 Нажми «Петь», и начнём!'
+                      : phase.turn
+                        ? '🎤 Теперь твоя очередь!'
+                        : mode === 'concert'
+                          ? '🌟 Сцена твоя!'
+                          : phase.celebrating
+                            ? '✨ Молодец, что попробовал!'
+                            : song.video
+                              ? '🎶 Подпевай песенке!'
+                              : '🎶 Подпевай Milo!'}
+              </div>
+            </>
+          )}
+          {song.video && videoLesson === 'practice' && (
+            <section className="sing-practice-content" aria-label="Повторяем слова и движения">
+              <div className="sing-practice-stage">{stage}</div>
+              <div className="sing-practice-task">
+                <strong lang="en">{activityOptions(song)[choice]?.word}</strong>
+                <p>{activityOptions(song)[choice]?.label} — повтори за другом!</p>
+                <button
+                  onClick={() => {
+                    addStar(choice);
+                    audio.unlockAudio();
+                    audio.say('great');
+                  }}
+                  disabled={stars.includes(choice)}
+                >
+                  ⭐ {stars.includes(choice) ? 'Молодец!' : 'Я повторил!'}
+                </button>
+                <button onClick={() => chooseActivity((choice + 1) % activityOptions(song).length)}>
+                  → Следующая картинка
+                </button>
+                {stars.length === activityOptions(song).length && (
+                  <p role="status">🌟 Все картинки собраны! Давай споём ещё раз.</p>
+                )}
+              </div>
+              <MusicActivity song={song} choice={choice} onChoose={chooseActivity} practice />
+            </section>
+          )}
+          {(!song.video || marking) && (
+            <>
+              <MusicActivity
+                song={song}
+                choice={choice}
+                onChoose={chooseActivity}
+                practice={videoLesson === 'practice'}
+              />
+              <SingLyrics song={displayedSong} time={time} mode={mode} choice={choice} />
+            </>
+          )}
+          {(!song.video || videoLesson === 'watch') && (
+            <progress
+              className="sing-progress"
+              aria-label="Ход песни"
+              value={time}
+              max={player.duration}
             />
           )}
-          <SingStage
-            key={`stage-${song.id}`}
-            song={displayedSong}
-            time={time}
-            mode={mode}
-            playing={playing}
-            stars={stars}
-            mouthLevel={player.mouthLevel}
-            level={level}
-            choice={choice}
-            beat={beat}
-            onStar={(line) => {
-              if (playing && !phase.intro && !phase.done && line === phase.line) addStar(line);
-            }}
-          />
-          <div className="sing-controls">
-            <button
-              className="sing-primary"
-              disabled={loading}
-              onClick={() => (playing ? pause() : void play(phase.done ? 0 : time))}
-            >
-              {playing
-                ? '⏸ Пауза'
-                : loading
-                  ? '🎵 Загрузка…'
-                  : phase.done
-                    ? '🎶 Ещё концерт!'
-                    : time > 0
-                      ? '▶ Продолжить'
-                      : '▶ Петь!'}
-            </button>
-            <button aria-label="Сначала" onClick={restart}>
-              ↺
-            </button>
-            {!song.video && (
-              <button
-                aria-label="Ещё строку"
-                disabled={loading}
-                onClick={() => {
-                  completed.current = false;
-                  void play(phraseBeginning(time, mode, song));
-                }}
-              >
-                ↻
-              </button>
-            )}
-          </div>
-          <div className="sing-status" role="status">
-            {loading
-              ? '🎵 Готовим песенку…'
-              : phase.done
-                ? '🎉 Спасибо за твой концерт!'
-                : !playing
-                  ? time > 0
-                    ? '⏸ Продолжим, когда будешь готов'
-                    : '🎶 Нажми «Петь», и начнём!'
-                  : phase.turn
-                    ? '🎤 Теперь твоя очередь!'
-                    : mode === 'concert'
-                      ? '🌟 Сцена твоя!'
-                      : phase.celebrating
-                        ? '✨ Молодец, что попробовал!'
-                        : '🎶 Подпевай Milo!'}
-          </div>
-          <MusicActivity song={song} choice={choice} onChoose={chooseActivity} />
-          <SingLyrics song={displayedSong} time={time} mode={mode} choice={choice} />
-          <progress
-            className="sing-progress"
-            aria-label="Ход песни"
-            value={time}
-            max={player.duration}
-          />
           {!song.video && (
             <div className="sing-participation">
               <button
@@ -461,11 +566,14 @@ export default function SingPage() {
               </button>
             </div>
           )}
-          {phase.done && (
+          {phase.done && (!song.video || videoLesson === 'watch') && (
             <section className="sing-finish">
               <span>🌟</span>
               <h2>Твоя звёздная сцена!</h2>
               <p>Мы спели {song.title}! Выбери картинку — повтори строку.</p>
+              {song.video && (
+                <button onClick={() => changeLesson('practice')}>🐾 Повторяем с другом</button>
+              )}
               {!song.video && (
                 <div>
                   {song.lines.map((line, i) => (
@@ -490,6 +598,11 @@ export default function SingPage() {
                 🎵 Другая песенка
               </button>
             </section>
+          )}
+          {song.video && videoLesson === 'watch' && !phase.done && (
+            <button className="sing-practice-link" onClick={() => changeLesson('practice')}>
+              🐾 Теперь повторим с другом
+            </button>
           )}
           {error && (
             <p role="alert">
@@ -528,9 +641,10 @@ export default function SingPage() {
               {song.video ? (
                 <>
                   <p>
-                    Полное официальное видео Super Simple Songs. Требуется YouTube; его реклама и
-                    доступность управляются платформой. Игровые подсказки приблизительные. Режимы
-                    «Повтори» и «Без вокала» доступны у аудиопесен.
+                    Сначала смотрим и подпеваем полному видео. Затем в шаге «Повторяем с другом»
+                    видео молчит: ребёнок выбирает картинку, повторяет движение и английское слово.
+                    Звезда даётся по кнопке «Я повторил!», без оценки произношения. Видео требует
+                    YouTube. Режимы «Повтори» и «Без вокала» доступны у аудиопесен.
                   </p>
                   <details className="sing-timing-tools">
                     <summary>Подстроить движения под это исполнение</summary>
@@ -543,6 +657,7 @@ export default function SingPage() {
                     <button
                       onClick={() => {
                         pause();
+                        setVideoLesson('watch');
                         player.seek(0);
                         setTime(0);
                         setCues([]);

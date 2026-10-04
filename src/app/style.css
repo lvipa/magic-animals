@@ -3,6 +3,16 @@
   color: #fff8ed;
   background: #122536;
 }
+.page-opening {
+  min-height: 70dvh;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 24px 24px 110px;
+}
+.page-opening > span {
+  font-size: 56px;
+}
 * {
   box-sizing: border-box;
 }
@@ -819,9 +829,16 @@ h1 {
   background: #18374ae8;
   color: #fff2cd;
 }
-.model-loading p { margin: 5px 0; }
-.model-loading progress { width: min(100%, 260px); accent-color: #ffdc98; }
-.model-loading button { margin: 6px; }
+.model-loading p {
+  margin: 5px 0;
+}
+.model-loading progress {
+  width: min(100%, 260px);
+  accent-color: #ffdc98;
+}
+.model-loading button {
+  margin: 6px;
+}
 .cat-import-review {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
